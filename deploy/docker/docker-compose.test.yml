@@ -5,8 +5,8 @@ services:
   # Test runner - runs all unit and integration tests
   test-runner:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     environment:
       - NODE_ENV=testing
       - DEPLOYMENT_MODE=monolithic

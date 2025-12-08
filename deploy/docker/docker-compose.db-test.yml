@@ -27,8 +27,8 @@ services:
   # Test Runner with DB connection
   db-test-runner:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     environment:
       - NODE_ENV=testing
       - DATABASE_URL=mysql://arcana_test:arcana_test_pass@mysql-test:3306/arcana_test

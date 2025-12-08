@@ -5,8 +5,8 @@ services:
   # HTTP Protocol Benchmark
   benchmark-http:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.benchmark
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.benchmark
     environment:
       - NODE_ENV=testing
       - DEPLOYMENT_MODE=layered
@@ -21,8 +21,8 @@ services:
   # gRPC Protocol Benchmark
   benchmark-grpc:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.benchmark
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.benchmark
     environment:
       - NODE_ENV=testing
       - DEPLOYMENT_MODE=layered

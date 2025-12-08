@@ -1,14 +1,14 @@
 # Docker Compose for testing layered architecture with HTTP and gRPC communication
 # Usage:
-#   gRPC mode (default): docker-compose -f docker-compose.test.layered.yml up
-#   HTTP mode: PROTOCOL=http docker-compose -f docker-compose.test.layered.yml up
+#   gRPC mode (default): docker-compose -f deploy/docker/docker-compose.test.layered.yml up
+#   HTTP mode: PROTOCOL=http docker-compose -f deploy/docker/docker-compose.test.layered.yml up
 
 services:
   # Test runner - runs communication layer tests
   test-runner:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     environment:
       - NODE_ENV=testing
       - DEPLOYMENT_MODE=layered
@@ -30,8 +30,8 @@ services:
   # Controller layer (HTTP API)
   controller-layer:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     ports:
       - "3000:3000"
     environment:
@@ -59,8 +59,8 @@ services:
   # Service layer (Business Logic)
   service-layer:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     ports:
       - "3001:3001"
       - "50051:50051"
@@ -93,8 +93,8 @@ services:
   # Repository layer (Data Access)
   repository-layer:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.test
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.test
     ports:
       - "3002:3002"
       - "50052:50052"

@@ -3,8 +3,8 @@ version: '3.8'
 services:
   controller:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.controller
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.controller
     ports:
       - "3000:3000"
     environment:
@@ -19,8 +19,8 @@ services:
 
   service:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.service
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.service
     ports:
       - "50051:50051"
     environment:
@@ -38,8 +38,8 @@ services:
 
   repository:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.repository
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.repository
     ports:
       - "50052:50052"
     environment:

@@ -25,9 +25,12 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:seed": "node --experimental-transform-types prisma/seed.ts",
-    "db:test:up": "docker-compose -f docker-compose.db-test.yml up -d mysql-test redis-test",
-    "db:test:down": "docker-compose -f docker-compose.db-test.yml down -v",
+    "db:test:up": "docker-compose -f deploy/docker/docker-compose.db-test.yml up -d mysql-test redis-test",
+    "db:test:down": "docker-compose -f deploy/docker/docker-compose.db-test.yml down -v",
     "db:test:reset": "npm run db:test:down && npm run db:test:up",
+    "docker:dev": "docker-compose up -d",
+    "docker:layered": "docker-compose -f deploy/docker/docker-compose.layered.yml up -d",
+    "docker:benchmark": "docker-compose -f deploy/docker/docker-compose.benchmark.yml up",
     "grpc:generate": "grpc_tools_node_protoc --ts_out=./src/grpc/generated --grpc_out=grpc_js:./src/grpc/generated -I ./src/grpc/protos ./src/grpc/protos/*.proto"
   },
   "prisma": {

@@ -389,35 +389,32 @@ graph TB
 
 ```
 arcana-cloud-nodejs/
-├── src/
-│   ├── controllers/          # HTTP request handlers
-│   ├── services/
-│   │   ├── interfaces/       # Service contracts
-│   │   └── implementations/  # Business logic
-│   ├── repositories/
-│   │   ├── interfaces/       # Repository contracts
-│   │   └── implementations/  # Prisma data access
-│   ├── communication/
-│   │   ├── interfaces.ts     # Protocol abstractions
-│   │   ├── factory.ts        # Protocol factory
-│   │   └── implementations/  # Direct/HTTP/gRPC
-│   ├── middleware/           # Auth, validation, rate-limit
-│   ├── models/               # Domain entities
-│   ├── schemas/              # Zod validation schemas
-│   ├── tasks/                # BullMQ job processing
-│   ├── utils/                # Helpers, logger, exceptions
-│   ├── config.ts             # Centralized configuration
-│   ├── container.ts          # Dependency injection
-│   └── app.ts                # Express application
-├── prisma/
-│   └── schema.prisma         # Database schema
-├── tests/
-│   ├── unit/                 # Unit tests
-│   ├── database/             # Integration tests
-│   └── benchmark/            # Performance tests
-├── docker/                   # Dockerfiles per layer
-├── k8s/                      # Kubernetes manifests
-└── docker-compose*.yml       # Compose configurations
+├── src/                          # Application source code
+│   ├── controllers/              # HTTP request handlers
+│   ├── services/                 # Business logic layer
+│   ├── repositories/             # Data access layer
+│   ├── communication/            # Protocol abstraction (Direct/HTTP/gRPC)
+│   ├── middleware/               # Auth, validation, rate-limit
+│   ├── models/                   # Domain entities
+│   ├── schemas/                  # Zod validation schemas
+│   ├── tasks/                    # BullMQ job processing
+│   ├── utils/                    # Helpers, logger, exceptions
+│   ├── config.ts                 # Centralized configuration
+│   └── app.ts                    # Express application
+├── docs/                         # Documentation
+│   ├── architecture/             # Architecture docs
+│   ├── benchmarks/               # Performance reports
+│   └── api/                      # API documentation
+├── deploy/                       # Deployment configurations
+│   ├── docker/                   # Dockerfiles & compose files
+│   └── k8s/                      # Kubernetes manifests
+├── tests/                        # Test suites
+│   ├── unit/                     # Unit tests
+│   ├── database/                 # Integration tests
+│   └── benchmark/                # Performance benchmarks
+├── prisma/                       # Database schema & migrations
+├── docker-compose.yml            # Development stack
+└── package.json                  # Dependencies & scripts
 ```
 
 ---
@@ -455,14 +452,17 @@ npm run dev
 ### Docker Deployments
 
 ```bash
-# Monolithic
-docker compose up -d
+# Monolithic (development)
+npm run docker:dev
 
-# Layered (gRPC)
-docker compose -f docker-compose.layered.yml up -d
+# Layered (gRPC - production)
+npm run docker:layered
 
 # Run benchmarks
-docker compose -f docker-compose.benchmark.yml up
+npm run docker:benchmark
+
+# Or use docker-compose directly
+docker compose -f deploy/docker/docker-compose.layered.yml up -d
 ```
 
 ---
