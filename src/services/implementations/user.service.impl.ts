@@ -5,6 +5,7 @@ import { IUserRepository, UserFilterParams, PaginatedResult } from '../../reposi
 import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/exceptions.js';
 import { TOKENS } from '../../di/tokens.js';
+import { getEventBus, Events } from '../../events/index.js';
 
 @injectable()
 export class UserServiceImpl implements IUserService {
@@ -101,6 +102,14 @@ export class UserServiceImpl implements IUserService {
     const passwordHash = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
     await this.userRepository.update(id, { passwordHash } as Partial<User>);
 
+    // Emit password changed event
+    await getEventBus().publish(
+      Events.passwordChanged({
+        userId: id,
+        changedBy: id
+      })
+    );
+
     return true;
   }
 
@@ -115,6 +124,15 @@ export class UserServiceImpl implements IUserService {
     }
 
     const updatedUser = await this.userRepository.update(id, { isVerified: true });
+
+    // Emit user verified event
+    await getEventBus().publish(
+      Events.userVerified({
+        userId: id,
+        verifiedAt: new Date()
+      })
+    );
+
     return this.excludePassword(updatedUser);
   }
 
@@ -124,7 +142,19 @@ export class UserServiceImpl implements IUserService {
       throw new NotFoundError('User not found');
     }
 
+    const oldStatus = user.status;
     const updatedUser = await this.userRepository.update(id, { status });
+
+    // Emit user status changed event
+    await getEventBus().publish(
+      Events.userStatusChanged({
+        userId: id,
+        oldStatus,
+        newStatus: status,
+        changedBy: id // In real app, get from context
+      })
+    );
+
     return this.excludePassword(updatedUser);
   }
 

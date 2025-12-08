@@ -7,12 +7,13 @@
 ![gRPC](https://img.shields.io/badge/gRPC-1.12-4285F4?logo=google&logoColor=white)
 ![InversifyJS](https://img.shields.io/badge/InversifyJS-7.x-FF6B6B?logo=inversify&logoColor=white)
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
-![tests](https://img.shields.io/badge/tests-485%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-538%20passing-brightgreen)
+![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
 ![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 ![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-Enterprise-grade cloud platform with **gRPC-first architecture** (1.80x faster than HTTP REST), **InversifyJS dependency injection**, supporting dual-protocol communication and three flexible deployment modes (Monolithic, Layered, Microservices).
+Enterprise-grade cloud platform with **gRPC-first architecture** (1.80x faster than HTTP REST), **InversifyJS dependency injection**, **event-driven architecture** with domain events, supporting dual-protocol communication and three flexible deployment modes (Monolithic, Layered, Microservices).
 
 ## Overview
 
@@ -190,6 +191,105 @@ const userService = resolve<IUserService>(TOKENS.UserService);
 
 ---
 
+## Event-Driven Architecture
+
+### Domain Events System
+
+The platform implements a comprehensive event-driven architecture with domain events, enabling loose coupling between components and supporting both synchronous and asynchronous event processing.
+
+```mermaid
+graph TB
+    subgraph Services
+        AUTH["Auth Service"]
+        USER["User Service"]
+    end
+
+    subgraph "Event Bus"
+        PUBLISH["publish()"]
+        MIDDLEWARE["Middleware Chain"]
+        HANDLERS["Handler Registry"]
+    end
+
+    subgraph "Event Handlers"
+        AUDIT["Audit Handler"]
+        SECURITY["Security Handler"]
+        USER_H["User Handler"]
+    end
+
+    subgraph "Background Jobs"
+        BULLMQ["BullMQ Queue"]
+        WORKER["Event Workers"]
+    end
+
+    AUTH -->|Events| PUBLISH
+    USER -->|Events| PUBLISH
+    PUBLISH --> MIDDLEWARE
+    MIDDLEWARE --> HANDLERS
+    HANDLERS --> AUDIT
+    HANDLERS --> SECURITY
+    HANDLERS --> USER_H
+    HANDLERS -->|Async| BULLMQ
+    BULLMQ --> WORKER
+
+    style PUBLISH fill:#9B59B6,color:#fff
+    style MIDDLEWARE fill:#9B59B6,color:#fff
+    style AUDIT fill:#3498DB,color:#fff
+    style SECURITY fill:#E74C3C,color:#fff
+    style BULLMQ fill:#DC382D,color:#fff
+```
+
+### Event Types
+
+| Event | Trigger | Handlers |
+|-------|---------|----------|
+| `user.registered` | User registration | Audit, Welcome Email |
+| `user.logged_in` | Successful login | Audit, Security Metrics |
+| `user.logged_out` | User logout | Audit |
+| `user.password_changed` | Password change | Audit, Security Alert |
+| `user.status_changed` | Status update | Audit, Notification |
+| `token.revoked` | Token revocation | Audit, Security |
+| `security.alert` | Security event | Audit, Alert Handler |
+| `rate_limit.exceeded` | Rate limit hit | Security Metrics |
+
+### Event Bus Features
+
+| Feature | Description |
+|---------|-------------|
+| **Sync Handlers** | Immediate in-process execution |
+| **Async Handlers** | BullMQ-backed job processing |
+| **Middleware** | Pre/post processing pipeline |
+| **Priority** | Handler execution ordering |
+| **Dead Letter Queue** | Failed event recovery |
+| **Audit Trail** | Automatic event logging |
+
+### Usage Example
+
+```typescript
+import { getEventBus, Events } from './events/index.js';
+
+// Publish events from services
+await getEventBus().publish(
+  Events.userRegistered({
+    userId: user.id,
+    username: user.username,
+    email: user.email
+  })
+);
+
+// Register custom handlers
+eventBus.on(EventType.USER_REGISTERED, async (event) => {
+  await sendWelcomeEmail(event.payload.email);
+}, { priority: 5 });
+
+// Use middleware for cross-cutting concerns
+eventBus.use(async (event, next) => {
+  console.log(`Processing: ${event.type}`);
+  await next();
+});
+```
+
+---
+
 ## Deployment Modes
 
 ### Overview
@@ -295,21 +395,20 @@ pie showData
 
 ```mermaid
 pie showData
-    title "Test Distribution (485 Total)"
-    "Unit Tests" : 386
+    title "Test Distribution (538 Total)"
+    "Unit Tests" : 478
     "Integration Tests" : 60
-    "Database Tests" : 39
 ```
 
 ### Test Results
 
 | Category | Tests | Status |
 |----------|-------|--------|
-| **Unit Tests** | 386 | ✅ Passing |
+| **Unit Tests** | 478 | ✅ Passing |
 | **Integration Tests** | 60 | ✅ Passing |
-| **Database Tests** | 39 | ✅ Passing |
+| **Event System Tests** | 32 | ✅ Passing |
 | **DI Container Tests** | 8 | ✅ Passing |
-| **Total** | **485** | **100%** |
+| **Total** | **538** | **100%** |
 
 ### Running Tests
 
@@ -442,6 +541,11 @@ graph LR
         IOREDIS["ioredis"]
     end
 
+    subgraph Events
+        EVENTBUS["Event Bus"]
+        DOMAIN["Domain Events"]
+    end
+
     NODE --> EXPRESS
     EXPRESS --> INVERSIFY
     INVERSIFY --> GRPC
@@ -546,6 +650,10 @@ arcana-cloud-nodejs/
 │   ├── models/                   # Domain entities
 │   ├── schemas/                  # Zod validation schemas
 │   ├── tasks/                    # BullMQ job processing
+│   ├── events/                   # Event-driven architecture
+│   │   ├── domain-events.ts      # Event types and factories
+│   │   ├── event-bus.ts          # Central event dispatcher
+│   │   └── handlers/             # Event handlers (audit, security, user)
 │   ├── utils/                    # Helpers, logger, exceptions
 │   ├── config.ts                 # Centralized configuration
 │   └── app.ts                    # Express application
@@ -557,14 +665,14 @@ arcana-cloud-nodejs/
 │   ├── docker/                   # Dockerfiles & compose files
 │   └── k8s/                      # Kubernetes manifests
 ├── tests/                        # Test suites
-│   ├── unit/                     # Unit tests (386 tests)
+│   ├── unit/                     # Unit tests (478 tests)
 │   │   ├── di/                   # DI container tests
 │   │   ├── services/             # Service tests
 │   │   ├── repositories/         # Repository tests
 │   │   ├── communication/        # Communication tests
+│   │   ├── events/               # Event system tests (32 tests)
 │   │   └── middleware/           # Middleware tests
-│   ├── integration/              # Integration tests (60 tests)
-│   └── database/                 # Database tests (39 tests)
+│   └── integration/              # Integration tests (60 tests)
 ├── prisma/                       # Database schema & migrations
 ├── vitest.config.ts              # Vitest configuration
 ├── vitest.config.db.ts           # Database test configuration
@@ -822,4 +930,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Status**: Production-ready with **485 passing tests**, comprehensive documentation, InversifyJS dependency injection, and enterprise-grade security controls.
+**Status**: Production-ready with **538 passing tests**, comprehensive documentation, InversifyJS dependency injection, event-driven architecture with domain events, and enterprise-grade security controls.

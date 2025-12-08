@@ -4,6 +4,7 @@ import { config } from './config.js';
 import { logger } from './utils/logger.js';
 import { closeContainer } from './di/index.js';
 import { initializeTasks, shutdownTasks } from './tasks/index.js';
+import { initializeEventSystem } from './events/index.js';
 
 async function main() {
   const app = createApp();
@@ -12,6 +13,10 @@ async function main() {
   const tasksEnabled = await initializeTasks();
   if (tasksEnabled) {
     logger.info('Task system (background jobs, scheduled tasks) enabled');
+
+    // Initialize event system (requires Redis for async events)
+    await initializeEventSystem();
+    logger.info('Event-driven architecture enabled');
   }
 
   const httpServer = app.listen(config.port, config.host, () => {

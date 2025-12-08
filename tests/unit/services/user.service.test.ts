@@ -1,5 +1,48 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import bcrypt from 'bcrypt';
+
+// Mock config and dependencies before imports
+vi.mock('../../../src/config.js', () => ({
+  config: {
+    nodeEnv: 'testing',
+    port: 3000,
+    host: '0.0.0.0',
+    redisUrl: null,
+    corsOrigins: '*',
+    logLevel: 'info',
+    deploymentMode: 'monolithic',
+    deploymentLayer: 'monolithic',
+    communicationProtocol: 'direct'
+  }
+}));
+
+vi.mock('../../../src/tasks/queue.js', () => ({
+  createQueue: vi.fn(),
+  createWorker: vi.fn(),
+  addJob: vi.fn(),
+  queues: new Map()
+}));
+
+vi.mock('../../../src/utils/logger.js', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/events/index.js', () => ({
+  getEventBus: vi.fn(() => ({
+    publish: vi.fn().mockResolvedValue(undefined)
+  })),
+  Events: {
+    passwordChanged: vi.fn(() => ({ type: 'password.changed', payload: {} })),
+    userVerified: vi.fn(() => ({ type: 'user.verified', payload: {} })),
+    userStatusChanged: vi.fn(() => ({ type: 'user.status_changed', payload: {} }))
+  }
+}));
+
 import { UserServiceImpl } from '../../../src/services/implementations/user.service.impl.js';
 import { IUserRepository } from '../../../src/repositories/interfaces/user.repository.interface.js';
 import { mockUser, mockCreateUserData, mockUpdateUserData, createMockUsers } from '../../fixtures.js';

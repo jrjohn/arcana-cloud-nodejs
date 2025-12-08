@@ -10,6 +10,7 @@ import { OAuthToken, TokenPair } from '../../models/oauth-token.model.js';
 import { AuthenticationError, ConflictError } from '../../utils/exceptions.js';
 import { config } from '../../config.js';
 import { TOKENS } from '../../di/tokens.js';
+import { getEventBus, Events } from '../../events/index.js';
 
 interface JWTPayload {
   userId: number;
@@ -108,6 +109,18 @@ export class AuthServiceImpl implements IAuthService {
 
     await this.userRepository.updateLastLogin(user.id);
 
+    // Emit user logged in event
+    await getEventBus().publish(
+      Events.userLoggedIn({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        ipAddress,
+        userAgent,
+        loginMethod: 'password'
+      })
+    );
+
     return {
       user: this.excludePassword(user),
       tokens
@@ -121,6 +134,16 @@ export class AuthServiceImpl implements IAuthService {
     }
 
     await this.tokenRepository.revoke(token.id);
+
+    // Emit user logged out event
+    await getEventBus().publish(
+      Events.userLoggedOut({
+        userId: token.userId,
+        tokenId: token.id,
+        logoutType: 'single'
+      })
+    );
+
     return true;
   }
 
@@ -216,6 +239,17 @@ export class AuthServiceImpl implements IAuthService {
       expiresAt
     });
 
+    // Emit user registered event
+    await getEventBus().publish(
+      Events.userRegistered({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: data.firstName,
+        lastName: data.lastName
+      })
+    );
+
     return {
       user: this.excludePassword(user),
       tokens
@@ -227,7 +261,20 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async revokeAllTokens(userId: number): Promise<number> {
-    return this.tokenRepository.revokeAllForUser(userId);
+    const count = await this.tokenRepository.revokeAllForUser(userId);
+
+    // Emit all tokens revoked event
+    if (count > 0) {
+      await getEventBus().publish(
+        Events.allTokensRevoked({
+          userId,
+          revokedBy: userId,
+          tokenCount: count
+        })
+      );
+    }
+
+    return count;
   }
 
   async getUserTokens(userId: number): Promise<OAuthToken[]> {
