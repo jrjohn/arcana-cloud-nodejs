@@ -27,46 +27,50 @@ Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** 
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        WEB[Web Browser]
-        MOBILE[Mobile App]
-        API[API Client]
+    subgraph Client
+        WEB["Web Browser"]
+        MOBILE["Mobile App"]
+        API["API Client"]
     end
 
-    subgraph "Controller Layer"
-        direction TB
-        CTRL[Express.js REST API]
-        AUTH[JWT Authentication]
-        VALID[Zod Validation]
-        RATE[Rate Limiting]
+    subgraph Controller
+        CTRL["Express.js REST API"]
+        AUTH["JWT Authentication"]
+        VALID["Zod Validation"]
+        RATE["Rate Limiting"]
     end
 
-    subgraph "Service Layer"
-        direction TB
-        USER_SVC[User Service]
-        AUTH_SVC[Auth Service]
-        TOKEN_SVC[Token Service]
+    subgraph Service
+        USER_SVC["User Service"]
+        AUTH_SVC["Auth Service"]
+        TOKEN_SVC["Token Service"]
     end
 
-    subgraph "Repository Layer"
-        direction TB
-        USER_REPO[User Repository]
-        TOKEN_REPO[OAuth Token Repository]
+    subgraph Repository
+        USER_REPO["User Repository"]
+        TOKEN_REPO["Token Repository"]
     end
 
-    subgraph "Data Layer"
-        direction LR
-        MYSQL[(MySQL 8.0)]
-        REDIS[(Redis 7.x)]
+    subgraph Data
+        MYSQL[("MySQL 8.0")]
+        REDIS[("Redis 7.x")]
     end
 
-    WEB & MOBILE & API -->|HTTP/REST| CTRL
-    CTRL --> AUTH --> VALID --> RATE
-    RATE -->|gRPC/HTTP| USER_SVC & AUTH_SVC
+    WEB --> CTRL
+    MOBILE --> CTRL
+    API --> CTRL
+    CTRL --> AUTH
+    AUTH --> VALID
+    VALID --> RATE
+    RATE --> USER_SVC
+    RATE --> AUTH_SVC
     AUTH_SVC --> TOKEN_SVC
-    USER_SVC & TOKEN_SVC -->|gRPC/HTTP| USER_REPO & TOKEN_REPO
-    USER_REPO & TOKEN_REPO --> MYSQL
-    AUTH_SVC & TOKEN_SVC --> REDIS
+    USER_SVC --> USER_REPO
+    TOKEN_SVC --> TOKEN_REPO
+    USER_REPO --> MYSQL
+    TOKEN_REPO --> MYSQL
+    AUTH_SVC --> REDIS
+    TOKEN_SVC --> REDIS
 
     style CTRL fill:#339933,color:#fff
     style USER_SVC fill:#3178C6,color:#fff
@@ -87,9 +91,9 @@ flowchart LR
     end
 
     subgraph "Implementations"
-        DIRECT[Direct Call]
-        HTTP[HTTP/REST + JSON]
-        GRPC[gRPC + Protobuf]
+        DIRECT["Direct Call"]
+        HTTP["HTTP REST + JSON"]
+        GRPC["gRPC + Protobuf"]
     end
 
     ENV -->|COMMUNICATION_PROTOCOL| FACTORY
@@ -115,26 +119,26 @@ flowchart LR
 ```mermaid
 graph TB
     subgraph "Monolithic"
-        M_ALL[Single Process<br/>Controller + Service + Repository]
+        M_ALL["Single Process"]
         M_DB[(MySQL)]
         M_ALL --> M_DB
     end
 
     subgraph "Layered"
-        L_CTRL[Controller<br/>:3000]
-        L_SVC[Service<br/>:50051]
-        L_REPO[Repository<br/>:50052]
+        L_CTRL["Controller :3000"]
+        L_SVC["Service :50051"]
+        L_REPO["Repository :50052"]
         L_DB[(MySQL)]
         L_CTRL -->|gRPC| L_SVC -->|gRPC| L_REPO --> L_DB
     end
 
     subgraph "Kubernetes"
         K_ING[Ingress]
-        K_CTRL[Controller Pods<br/>x3]
-        K_SVC[Service Pods<br/>x3]
-        K_REPO[Repository Pods<br/>x2]
-        K_DB[(MySQL<br/>Primary/Replica)]
-        K_ING --> K_CTRL -->|gRPC + Service Mesh| K_SVC -->|gRPC| K_REPO --> K_DB
+        K_CTRL["Controller x3"]
+        K_SVC["Service x3"]
+        K_REPO["Repository x2"]
+        K_DB[("MySQL HA")]
+        K_ING --> K_CTRL -->|gRPC| K_SVC -->|gRPC| K_REPO --> K_DB
     end
 
     style M_ALL fill:#339933,color:#fff
@@ -272,42 +276,46 @@ sequenceDiagram
 
 ```mermaid
 graph LR
-    subgraph "Runtime"
-        NODE[Node.js 22+]
-        TS[TypeScript 5.7]
+    subgraph Runtime
+        NODE["Node.js 22+"]
+        TS["TypeScript 5.7"]
     end
 
-    subgraph "Web Framework"
-        EXPRESS[Express.js 5.x]
-        HELMET[Helmet]
-        CORS[CORS]
+    subgraph Web
+        EXPRESS["Express.js 5.x"]
+        HELMET["Helmet"]
+        CORS["CORS"]
     end
 
-    subgraph "Communication"
-        GRPC[gRPC 1.12]
-        PROTO[Protocol Buffers]
-        AXIOS[Axios]
+    subgraph Communication
+        GRPC["gRPC 1.12"]
+        PROTO["Protocol Buffers"]
+        AXIOS["Axios"]
     end
 
-    subgraph "Data"
-        PRISMA[Prisma 6.x]
-        MYSQL[(MySQL 8.0)]
-        REDIS[(Redis 7.x)]
+    subgraph DataLayer
+        PRISMA["Prisma 6.x"]
+        MYSQL[("MySQL 8.0")]
+        REDIS[("Redis 7.x")]
     end
 
-    subgraph "Security"
-        JWT[JWT]
-        BCRYPT[bcrypt]
-        ZOD[Zod]
+    subgraph Security
+        JWT["JWT"]
+        BCRYPT["bcrypt"]
+        ZOD["Zod"]
     end
 
-    subgraph "Jobs"
-        BULLMQ[BullMQ]
-        IOREDIS[ioredis]
+    subgraph Jobs
+        BULLMQ["BullMQ"]
+        IOREDIS["ioredis"]
     end
 
-    NODE --> EXPRESS --> GRPC --> PRISMA --> MYSQL
-    TS --> ZOD --> JWT
+    NODE --> EXPRESS
+    EXPRESS --> GRPC
+    GRPC --> PRISMA
+    PRISMA --> MYSQL
+    TS --> ZOD
+    ZOD --> JWT
     BULLMQ --> REDIS
 
     style NODE fill:#339933,color:#fff
@@ -338,36 +346,38 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph "src/"
-        CTRL[controllers/]
-        SVC[services/]
-        REPO[repositories/]
-        COMM[communication/]
-        MW[middleware/]
-        MODELS[models/]
-        SCHEMAS[schemas/]
-        TASKS[tasks/]
-        UTILS[utils/]
+    subgraph src
+        CTRL[controllers]
+        SVC[services]
+        REPO[repositories]
+        COMM[communication]
+        MW[middleware]
+        MODELS[models]
+        SCHEMAS[schemas]
+        TASKS[tasks]
+        UTILS[utils]
         CONFIG[config.ts]
         CONTAINER[container.ts]
         APP[app.ts]
     end
 
-    subgraph "Supporting"
-        PRISMA[prisma/]
-        TESTS[tests/]
-        DOCKER[docker/]
-        K8S[k8s/]
+    subgraph Supporting
+        PRISMA[prisma]
+        TESTS[tests]
+        DOCKER[docker]
+        K8S[k8s]
     end
 
-    CTRL -->|uses| SVC
-    SVC -->|uses| REPO
-    SVC & REPO -->|via| COMM
-    CTRL -->|uses| MW
-    MW -->|uses| SCHEMAS
-    SVC & REPO -->|uses| MODELS
-    APP -->|configures| CTRL & MW
-    CONFIG -->|loads| CONTAINER
+    CTRL --> SVC
+    SVC --> REPO
+    SVC --> COMM
+    REPO --> COMM
+    CTRL --> MW
+    MW --> SCHEMAS
+    SVC --> MODELS
+    REPO --> MODELS
+    APP --> CTRL
+    CONFIG --> CONTAINER
 
     style CTRL fill:#339933,color:#fff
     style SVC fill:#3178C6,color:#fff
@@ -517,31 +527,37 @@ JWT_REFRESH_EXPIRES_IN=30d             # Refresh token TTL
 
 ```mermaid
 graph TB
-    subgraph "Authentication"
-        JWT[JWT HS256]
-        ACCESS[Access Token 1h]
-        REFRESH[Refresh Token 30d]
-        BCRYPT[bcrypt 12 rounds]
+    subgraph Authentication
+        JWT["JWT HS256"]
+        ACCESS["Access Token 1h"]
+        REFRESH["Refresh Token 30d"]
+        BCRYPT["bcrypt 12 rounds"]
     end
 
-    subgraph "Authorization"
-        RBAC[Role-Based Access]
-        ADMIN[ADMIN]
-        USER[USER]
-        GUEST[GUEST]
+    subgraph Authorization
+        RBAC["Role-Based Access"]
+        ADMIN["ADMIN"]
+        USER["USER"]
+        GUEST["GUEST"]
     end
 
-    subgraph "Protection"
-        HELMET[Helmet Headers]
-        CORS[CORS]
-        RATE[Rate Limiting]
-        ZOD[Input Validation]
+    subgraph Protection
+        HELMET["Helmet Headers"]
+        CORS["CORS"]
+        RATE["Rate Limiting"]
+        ZOD["Input Validation"]
     end
 
-    JWT --> ACCESS & REFRESH
+    JWT --> ACCESS
+    JWT --> REFRESH
     BCRYPT --> JWT
-    RBAC --> ADMIN & USER & GUEST
-    HELMET & CORS & RATE & ZOD --> RBAC
+    RBAC --> ADMIN
+    RBAC --> USER
+    RBAC --> GUEST
+    HELMET --> RBAC
+    CORS --> RBAC
+    RATE --> RBAC
+    ZOD --> RBAC
 
     style JWT fill:#E74C3C,color:#fff
     style RBAC fill:#3498DB,color:#fff
@@ -567,24 +583,24 @@ graph TB
 ```mermaid
 graph LR
     subgraph "Node.js Implementation"
-        N_RT[Node.js 22+]
-        N_FW[Express.js 5.x]
-        N_ORM[Prisma 6.x]
-        N_VAL[Zod]
-        N_GRPC[@grpc/grpc-js]
+        N_RT["Node.js 22+"]
+        N_FW["Express.js 5.x"]
+        N_ORM["Prisma 6.x"]
+        N_VAL["Zod"]
+        N_GRPC["grpc-js"]
     end
 
     subgraph "Python Implementation"
-        P_RT[Python 3.14]
-        P_FW[Flask 3.1.2]
-        P_ORM[SQLAlchemy 2.0]
-        P_VAL[Marshmallow]
-        P_GRPC[grpcio]
+        P_RT["Python 3.14"]
+        P_FW["Flask 3.1.2"]
+        P_ORM["SQLAlchemy 2.0"]
+        P_VAL["Marshmallow"]
+        P_GRPC["grpcio"]
     end
 
-    N_RT -.->|comparable| P_RT
-    N_FW -.->|comparable| P_FW
-    N_ORM -.->|comparable| P_ORM
+    N_RT -.-> P_RT
+    N_FW -.-> P_FW
+    N_ORM -.-> P_ORM
 
     style N_RT fill:#339933,color:#fff
     style P_RT fill:#3776AB,color:#fff
@@ -608,13 +624,13 @@ graph LR
 ```mermaid
 graph TD
     START[Choose Deployment] --> Q1{Scale?}
-    Q1 -->|Small| MONO[Monolithic + Direct]
-    Q1 -->|Medium| LAYER[Layered + gRPC]
-    Q1 -->|Large| K8S[Kubernetes + gRPC]
+    Q1 -->|Small| MONO["Monolithic + Direct"]
+    Q1 -->|Medium| LAYER["Layered + gRPC"]
+    Q1 -->|Large| K8S["Kubernetes + gRPC"]
 
-    MONO --> DEV[Development<br/>Small Production]
-    LAYER --> PROD[Production<br/>Team Development]
-    K8S --> ENT[Enterprise<br/>High Availability]
+    MONO --> DEV[Development]
+    LAYER --> PROD[Production]
+    K8S --> ENT[Enterprise]
 
     style MONO fill:#339933,color:#fff
     style LAYER fill:#3178C6,color:#fff
