@@ -1008,12 +1008,12 @@ xychart-beta
 
 ### Comparison with Industry Standards
 
-| System | Rating | Notes |
-|--------|--------|-------|
-| Kafka + Schema Registry | 9.5/10 | Enterprise standard |
-| **This Implementation** | **9.5/10** | **Production-ready** |
-| NestJS CQRS Module | 8.5/10 | Framework-specific |
-| Basic EventEmitter | 4/10 | No persistence |
+| System | Rating | Use Case |
+|--------|--------|----------|
+| Kafka + Schema Registry | 10/10 | Large-scale distributed systems |
+| **This Implementation** | **9.5/10** | **Monolithic to medium-scale microservices** |
+| NestJS CQRS Module | 8.5/10 | NestJS-specific projects |
+| Node.js EventEmitter | 7/10 | Simple in-process events, prototyping |
 
 ### Key Strengths
 - Persistent audit logging (MySQL)
