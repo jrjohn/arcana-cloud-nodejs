@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  controller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.controller
+    ports:
+      - "3000:3000"
+    environment:
+      - DEPLOYMENT_MODE=layered
+      - DEPLOYMENT_LAYER=controller
+      - COMMUNICATION_PROTOCOL=grpc
+      - SERVICE_URLS=service:50051
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-min-32-characters-for-development!}
+    depends_on:
+      - service
+    restart: unless-stopped
+
+  service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+    ports:
+      - "50051:50051"
+    environment:
+      - PORT=50051
+      - DEPLOYMENT_MODE=layered
+      - DEPLOYMENT_LAYER=service
+      - COMMUNICATION_PROTOCOL=grpc
+      - REPOSITORY_URLS=repository:50052
+      - DATABASE_URL=mysql://arcana:arcana_pass@db:3306/arcana_cloud
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-min-32-characters-for-development!}
+    depends_on:
+      - repository
+      - db
+    restart: unless-stopped
+
+  repository:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.repository
+    ports:
+      - "50052:50052"
+    environment:
+      - PORT=50052
+      - DEPLOYMENT_MODE=layered
+      - DEPLOYMENT_LAYER=repository
+      - DATABASE_URL=mysql://arcana:arcana_pass@db:3306/arcana_cloud
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-min-32-characters-for-development!}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_pass
+      - MYSQL_DATABASE=arcana_cloud
+      - MYSQL_USER=arcana
+      - MYSQL_PASSWORD=arcana_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

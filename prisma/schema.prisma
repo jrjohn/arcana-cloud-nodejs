@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id            Int         @id @default(autoincrement())
+  username      String      @unique @db.VarChar(50)
+  email         String      @unique @db.VarChar(255)
+  passwordHash  String      @map("password_hash") @db.VarChar(255)
+  firstName     String?     @map("first_name") @db.VarChar(50)
+  lastName      String?     @map("last_name") @db.VarChar(50)
+  phone         String?     @db.VarChar(20)
+  avatarUrl     String?     @map("avatar_url") @db.VarChar(500)
+  role          UserRole    @default(USER)
+  status        UserStatus  @default(ACTIVE)
+  isVerified    Boolean     @default(false) @map("is_verified")
+  isActive      Boolean     @default(true) @map("is_active")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  lastLoginAt   DateTime?   @map("last_login_at")
+
+  oauthTokens   OAuthToken[]
+
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([role, status])
+}
+
+model OAuthToken {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @map("user_id")
+  accessToken   String    @map("access_token") @db.Text
+  refreshToken  String    @map("refresh_token") @db.Text
+  tokenType     String    @default("Bearer") @map("token_type") @db.VarChar(50)
+  expiresAt     DateTime  @map("expires_at")
+  clientName    String?   @map("client_name") @db.VarChar(100)
+  ipAddress     String?   @map("ip_address") @db.VarChar(45)
+  userAgent     String?   @map("user_agent") @db.VarChar(500)
+  isRevoked     Boolean   @default(false) @map("is_revoked")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("oauth_tokens")
+  @@index([userId])
+  @@index([accessToken(length: 255)])
+  @@index([refreshToken(length: 255)])
+}

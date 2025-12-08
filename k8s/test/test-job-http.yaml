@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: arcana-test-http
+  namespace: arcana-test
+  labels:
+    app: arcana-cloud
+    component: test-runner
+    protocol: http
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: arcana-cloud
+        component: test-runner
+        protocol: http
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: test-runner
+        image: arcana-cloud-nodejs-test:latest
+        imagePullPolicy: Never
+        command: ["npm", "run", "test:vitest", "--", "--run"]
+        envFrom:
+        - configMapRef:
+            name: test-config-http
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"

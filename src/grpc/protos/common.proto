@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package arcana;
+
+message Empty {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string message = 2;
+  string timestamp = 3;
+}
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_ADMIN = 1;
+  USER_ROLE_USER = 2;
+  USER_ROLE_GUEST = 3;
+}
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_INACTIVE = 2;
+  USER_STATUS_SUSPENDED = 3;
+  USER_STATUS_DELETED = 4;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string first_name = 4;
+  string last_name = 5;
+  string phone = 6;
+  string avatar_url = 7;
+  UserRole role = 8;
+  UserStatus status = 9;
+  bool is_verified = 10;
+  bool is_active = 11;
+  string created_at = 12;
+  string updated_at = 13;
+  string last_login_at = 14;
+}
+
+message Pagination {
+  int32 page = 1;
+  int32 per_page = 2;
+  int32 total = 3;
+  int32 total_pages = 4;
+}
+
+message TokenPair {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  string token_type = 4;
+}

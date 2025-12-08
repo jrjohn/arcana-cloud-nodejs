@@ -1,0 +1,52 @@
+# Docker Compose for running communication layer benchmarks
+# Compares HTTP vs gRPC throughput
+
+services:
+  # HTTP Protocol Benchmark
+  benchmark-http:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.benchmark
+    environment:
+      - NODE_ENV=testing
+      - DEPLOYMENT_MODE=layered
+      - COMMUNICATION_PROTOCOL=http
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - benchmark-network
+
+  # gRPC Protocol Benchmark
+  benchmark-grpc:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.benchmark
+    environment:
+      - NODE_ENV=testing
+      - DEPLOYMENT_MODE=layered
+      - COMMUNICATION_PROTOCOL=grpc
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - benchmark-network
+
+  # Redis for distributed systems
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6382:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - benchmark-network
+
+networks:
+  benchmark-network:
+    driver: bridge

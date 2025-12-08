@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package arcana;
+
+import "common.proto";
+
+service UserService {
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (User);
+  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc VerifyUser(VerifyUserRequest) returns (User);
+  rpc UpdateUserStatus(UpdateUserStatusRequest) returns (User);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (TokenPair);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc RevokeAllTokens(RevokeAllTokensRequest) returns (RevokeAllTokensResponse);
+  rpc GetUserTokens(GetUserTokensRequest) returns (GetUserTokensResponse);
+  rpc HealthCheck(Empty) returns (HealthCheckResponse);
+}
+
+message GetUsersRequest {
+  int32 page = 1;
+  int32 per_page = 2;
+  optional UserRole role = 3;
+  optional UserStatus status = 4;
+}
+
+message GetUsersResponse {
+  repeated User users = 1;
+  Pagination pagination = 2;
+}
+
+message GetUserByIdRequest {
+  int32 user_id = 1;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  optional string first_name = 4;
+  optional string last_name = 5;
+  optional string phone = 6;
+  optional UserRole role = 7;
+}
+
+message UpdateUserRequest {
+  int32 user_id = 1;
+  optional string email = 2;
+  optional string first_name = 3;
+  optional string last_name = 4;
+  optional string phone = 5;
+  optional string avatar_url = 6;
+}
+
+message DeleteUserRequest {
+  int32 user_id = 1;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ChangePasswordRequest {
+  int32 user_id = 1;
+  string old_password = 2;
+  string new_password = 3;
+}
+
+message ChangePasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message VerifyUserRequest {
+  int32 user_id = 1;
+}
+
+message UpdateUserStatusRequest {
+  int32 user_id = 1;
+  UserStatus status = 2;
+}
+
+message LoginRequest {
+  string username_or_email = 1;
+  string password = 2;
+  optional string ip_address = 3;
+  optional string user_agent = 4;
+}
+
+message AuthResponse {
+  User user = 1;
+  TokenPair tokens = 2;
+}
+
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  User user = 1;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  optional string first_name = 4;
+  optional string last_name = 5;
+}
+
+message RevokeAllTokensRequest {
+  int32 user_id = 1;
+}
+
+message RevokeAllTokensResponse {
+  int32 count = 1;
+}
+
+message GetUserTokensRequest {
+  int32 user_id = 1;
+}
+
+message OAuthToken {
+  int32 id = 1;
+  int32 user_id = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+  string token_type = 5;
+  string expires_at = 6;
+  string client_name = 7;
+  string ip_address = 8;
+  string user_agent = 9;
+  bool is_revoked = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message GetUserTokensResponse {
+  repeated OAuthToken tokens = 1;
+}

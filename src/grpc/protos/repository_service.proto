@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package arcana;
+
+import "common.proto";
+
+service RepositoryService {
+  rpc Query(QueryRequest) returns (QueryResponse);
+  rpc GetById(GetByIdRequest) returns (GetByIdResponse);
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Count(CountRequest) returns (CountResponse);
+  rpc HealthCheck(Empty) returns (HealthCheckResponse);
+}
+
+message QueryRequest {
+  string entity = 1;
+  string params = 2;
+}
+
+message QueryResponse {
+  string data = 1;
+}
+
+message GetByIdRequest {
+  string entity = 1;
+  int32 id = 2;
+}
+
+message GetByIdResponse {
+  string data = 1;
+  bool found = 2;
+}
+
+message CreateRequest {
+  string entity = 1;
+  string data = 2;
+}
+
+message CreateResponse {
+  string data = 1;
+}
+
+message UpdateRequest {
+  string entity = 1;
+  int32 id = 2;
+  string data = 3;
+}
+
+message UpdateResponse {
+  string data = 1;
+}
+
+message DeleteRequest {
+  string entity = 1;
+  int32 id = 2;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message CountRequest {
+  string entity = 1;
+  string params = 2;
+}
+
+message CountResponse {
+  int32 count = 1;
+}

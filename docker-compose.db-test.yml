@@ -1,0 +1,67 @@
+# Docker Compose for Database Integration Tests
+# Uses real MySQL for testing repository layer
+
+services:
+  # MySQL Test Database
+  mysql-test:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_test_pass
+      MYSQL_DATABASE: arcana_test
+      MYSQL_USER: arcana_test
+      MYSQL_PASSWORD: arcana_test_pass
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_test_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    networks:
+      - db-test-network
+
+  # Test Runner with DB connection
+  db-test-runner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    environment:
+      - NODE_ENV=testing
+      - DATABASE_URL=mysql://arcana_test:arcana_test_pass@mysql-test:3306/arcana_test
+      - JWT_SECRET=test-secret-key-min-32-characters-for-testing!
+      - REDIS_URL=redis://redis-test:6379
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npx prisma db seed &&
+             npm run test:db"
+    networks:
+      - db-test-network
+
+  # Redis for distributed lock tests
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6383:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - db-test-network
+
+networks:
+  db-test-network:
+    driver: bridge
+
+volumes:
+  mysql_test_data:

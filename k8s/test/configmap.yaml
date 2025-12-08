@@ -1,0 +1,47 @@
+# Default config uses gRPC (recommended for better performance)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-config
+  namespace: arcana-test
+  labels:
+    app: arcana-cloud
+    protocol: grpc
+data:
+  NODE_ENV: "testing"
+  DEPLOYMENT_MODE: "layered"
+  COMMUNICATION_PROTOCOL: "grpc"
+  REDIS_URL: "redis://redis:6379"
+  JWT_SECRET: "test-secret-key-min-32-characters-for-testing!"
+---
+# gRPC config (default, +80% faster than HTTP)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-config-grpc
+  namespace: arcana-test
+  labels:
+    app: arcana-cloud
+    protocol: grpc
+data:
+  NODE_ENV: "testing"
+  DEPLOYMENT_MODE: "layered"
+  COMMUNICATION_PROTOCOL: "grpc"
+  REDIS_URL: "redis://redis:6379"
+  JWT_SECRET: "test-secret-key-min-32-characters-for-testing!"
+---
+# HTTP config (for backward compatibility)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-config-http
+  namespace: arcana-test
+  labels:
+    app: arcana-cloud
+    protocol: http
+data:
+  NODE_ENV: "testing"
+  DEPLOYMENT_MODE: "layered"
+  COMMUNICATION_PROTOCOL: "http"
+  REDIS_URL: "redis://redis:6379"
+  JWT_SECRET: "test-secret-key-min-32-characters-for-testing!"

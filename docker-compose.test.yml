@@ -1,0 +1,37 @@
+# Docker Compose for running tests
+# Includes Redis for distributed lock and queue testing
+
+services:
+  # Test runner - runs all unit and integration tests
+  test-runner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    environment:
+      - NODE_ENV=testing
+      - DEPLOYMENT_MODE=monolithic
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=test-secret-key-min-32-characters-for-testing!
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: npm run test:vitest -- --run
+    networks:
+      - test-network
+
+  # Redis for queue and distributed lock testing
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
