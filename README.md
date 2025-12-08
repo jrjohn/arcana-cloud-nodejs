@@ -19,41 +19,175 @@ Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** 
 
 > **Sister Project**: [Arcana Cloud Python](https://github.com/jrjohn/arcana-cloud-python) - Flask/gRPC implementation with 2.78x performance gains
 
-## Architecture Highlights
+---
+
+## Architecture
 
 ### Clean 3-Layer Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CONTROLLER LAYER                         │
-│              Express.js REST API Gateway                    │
-│         JWT Auth · Validation · Rate Limiting               │
-└────────────────────────┬────────────────────────────────────┘
-                         │ gRPC (default) / HTTP
-┌────────────────────────▼────────────────────────────────────┐
-│                     SERVICE LAYER                           │
-│                   Business Logic                            │
-│        User Management · Auth · Token Lifecycle             │
-└────────────────────────┬────────────────────────────────────┘
-                         │ gRPC (default) / HTTP
-┌────────────────────────▼────────────────────────────────────┐
-│                   REPOSITORY LAYER                          │
-│              Prisma ORM · MySQL · Redis                     │
-│           Data Access · Caching · Transactions              │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        WEB[Web Browser]
+        MOBILE[Mobile App]
+        API[API Client]
+    end
+
+    subgraph "Controller Layer"
+        direction TB
+        CTRL[Express.js REST API]
+        AUTH[JWT Authentication]
+        VALID[Zod Validation]
+        RATE[Rate Limiting]
+    end
+
+    subgraph "Service Layer"
+        direction TB
+        USER_SVC[User Service]
+        AUTH_SVC[Auth Service]
+        TOKEN_SVC[Token Service]
+    end
+
+    subgraph "Repository Layer"
+        direction TB
+        USER_REPO[User Repository]
+        TOKEN_REPO[OAuth Token Repository]
+    end
+
+    subgraph "Data Layer"
+        direction LR
+        MYSQL[(MySQL 8.0)]
+        REDIS[(Redis 7.x)]
+    end
+
+    WEB & MOBILE & API -->|HTTP/REST| CTRL
+    CTRL --> AUTH --> VALID --> RATE
+    RATE -->|gRPC/HTTP| USER_SVC & AUTH_SVC
+    AUTH_SVC --> TOKEN_SVC
+    USER_SVC & TOKEN_SVC -->|gRPC/HTTP| USER_REPO & TOKEN_REPO
+    USER_REPO & TOKEN_REPO --> MYSQL
+    AUTH_SVC & TOKEN_SVC --> REDIS
+
+    style CTRL fill:#339933,color:#fff
+    style USER_SVC fill:#3178C6,color:#fff
+    style AUTH_SVC fill:#3178C6,color:#fff
+    style USER_REPO fill:#4285F4,color:#fff
+    style TOKEN_REPO fill:#4285F4,color:#fff
+    style MYSQL fill:#00758F,color:#fff
+    style REDIS fill:#DC382D,color:#fff
 ```
 
-### Communication Protocols
+### Communication Flow
 
-| Protocol | Use Case | Performance |
-|----------|----------|-------------|
-| **gRPC** (Default) | Inter-service communication | 1.80x faster than HTTP |
-| **HTTP REST** | External APIs, browser clients | Full compatibility |
-| **Direct** | Monolithic deployment | Zero network overhead |
+```mermaid
+flowchart LR
+    subgraph "Protocol Selection"
+        ENV[Environment Config]
+        FACTORY[Communication Factory]
+    end
+
+    subgraph "Implementations"
+        DIRECT[Direct Call]
+        HTTP[HTTP/REST + JSON]
+        GRPC[gRPC + Protobuf]
+    end
+
+    ENV -->|COMMUNICATION_PROTOCOL| FACTORY
+    FACTORY -->|monolithic| DIRECT
+    FACTORY -->|layered + http| HTTP
+    FACTORY -->|layered + grpc| GRPC
+
+    DIRECT -->|0ms overhead| SVC[Service Layer]
+    HTTP -->|~1ms + JSON serialization| SVC
+    GRPC -->|~0.3ms + binary| SVC
+
+    style GRPC fill:#4285F4,color:#fff
+    style DIRECT fill:#339933,color:#fff
+    style HTTP fill:#FF6B6B,color:#fff
+```
+
+---
+
+## Deployment Modes
+
+### Overview
+
+```mermaid
+graph TB
+    subgraph "Monolithic"
+        M_ALL[Single Process<br/>Controller + Service + Repository]
+        M_DB[(MySQL)]
+        M_ALL --> M_DB
+    end
+
+    subgraph "Layered"
+        L_CTRL[Controller<br/>:3000]
+        L_SVC[Service<br/>:50051]
+        L_REPO[Repository<br/>:50052]
+        L_DB[(MySQL)]
+        L_CTRL -->|gRPC| L_SVC -->|gRPC| L_REPO --> L_DB
+    end
+
+    subgraph "Kubernetes"
+        K_ING[Ingress]
+        K_CTRL[Controller Pods<br/>x3]
+        K_SVC[Service Pods<br/>x3]
+        K_REPO[Repository Pods<br/>x2]
+        K_DB[(MySQL<br/>Primary/Replica)]
+        K_ING --> K_CTRL -->|gRPC + Service Mesh| K_SVC -->|gRPC| K_REPO --> K_DB
+    end
+
+    style M_ALL fill:#339933,color:#fff
+    style L_CTRL fill:#339933,color:#fff
+    style L_SVC fill:#3178C6,color:#fff
+    style L_REPO fill:#4285F4,color:#fff
+    style K_CTRL fill:#339933,color:#fff
+    style K_SVC fill:#3178C6,color:#fff
+    style K_REPO fill:#4285F4,color:#fff
+```
+
+### Mode Comparison
+
+| Mode | Containers | Protocol | Scaling | Use Case |
+|------|------------|----------|---------|----------|
+| **Monolithic** | 1 | Direct | Vertical | Development, Small Apps |
+| **Layered** | 3 | gRPC | Per-layer | Production, Medium Scale |
+| **Kubernetes** | N | gRPC + Mesh | Horizontal | Enterprise, High Availability |
+
+---
 
 ## Performance Benchmarks
 
-### Real MySQL Database Benchmarks (150 iterations)
+### Throughput by Deployment Mode
+
+```mermaid
+xychart-beta
+    title "Throughput Comparison (ops/sec)"
+    x-axis [Direct, "Layered gRPC", "Layered HTTP", "K8s gRPC", "K8s HTTP"]
+    y-axis "Operations per Second" 0 --> 2000
+    bar [1904, 906, 502, 302, 217]
+```
+
+### Latency by Deployment Mode
+
+```mermaid
+xychart-beta
+    title "Average Latency (ms) - Lower is Better"
+    x-axis [Direct, "Layered gRPC", "Layered HTTP", "K8s gRPC", "K8s HTTP"]
+    y-axis "Latency (ms)" 0 --> 5
+    bar [1.21, 1.66, 2.27, 3.42, 4.75]
+```
+
+### gRPC vs HTTP Performance
+
+```mermaid
+pie showData
+    title "gRPC Advantage over HTTP"
+    "gRPC Faster (Layered)" : 80.4
+    "HTTP Baseline" : 19.6
+```
+
+### Detailed Results (Real MySQL, 150 iterations)
 
 | Mode | Avg Throughput | Avg Latency | vs Direct |
 |------|----------------|-------------|-----------|
@@ -63,13 +197,6 @@ Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** 
 | **K8s gRPC** | 302 ops/s | 3.42ms | -84.1% |
 | **K8s HTTP** | 217 ops/s | 4.75ms | -88.6% |
 
-### gRPC vs HTTP Comparison
-
-| Environment | gRPC Advantage |
-|-------------|----------------|
-| **Layered** | +80.4% faster |
-| **Kubernetes** | +39.2% faster |
-
 ### Operation Breakdown
 
 | Operation | Direct | Layered gRPC | Layered HTTP | gRPC Speedup |
@@ -78,90 +205,197 @@ Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** 
 | **Get User** | 4,539 ops/s | 1,808 ops/s | 781 ops/s | 2.32x |
 | **Update User** | 584 ops/s | 429 ops/s | 359 ops/s | 1.19x |
 
-## Deployment Modes
+---
 
-### 1. Monolithic (Development)
-Single process with direct in-memory calls. Zero network overhead.
+## Request Flow
 
-```bash
-# Start monolithic stack
-docker compose up -d
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant CTRL as Controller
+    participant AUTH as Auth Service
+    participant REPO as Repository
+    participant DB as MySQL
+    participant REDIS as Redis
+
+    C->>CTRL: POST /api/auth/login
+    CTRL->>CTRL: Validate Request (Zod)
+    CTRL->>AUTH: login(credentials)
+    AUTH->>REPO: findByEmail(email)
+    REPO->>DB: SELECT * FROM users
+    DB-->>REPO: User Record
+    REPO-->>AUTH: User Entity
+    AUTH->>AUTH: Verify Password (bcrypt)
+    AUTH->>AUTH: Generate JWT Tokens
+    AUTH->>REPO: createToken(tokenData)
+    REPO->>DB: INSERT INTO oauth_tokens
+    AUTH->>REDIS: Cache Session
+    AUTH-->>CTRL: AuthResult
+    CTRL-->>C: { user, tokens }
 ```
 
-### 2. Layered (Production Recommended)
-Three separate containers with gRPC communication. Independent scaling per layer.
+### Protected Resource Flow
 
-```bash
-# Start layered stack with gRPC (default)
-docker compose -f docker-compose.layered.yml up -d
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant CTRL as Controller
+    participant MW as Middleware
+    participant SVC as User Service
+    participant REPO as Repository
+    participant DB as MySQL
+
+    C->>CTRL: GET /api/users/:id
+    Note over CTRL: Authorization: Bearer <token>
+    CTRL->>MW: tokenRequired()
+    MW->>MW: Verify JWT
+    MW->>MW: Attach user to request
+    MW-->>CTRL: Authorized
+    CTRL->>SVC: getUserById(id)
+    SVC->>REPO: findById(id)
+    REPO->>DB: SELECT * FROM users WHERE id = ?
+    DB-->>REPO: User Record
+    REPO-->>SVC: User Entity
+    SVC-->>CTRL: UserPublic
+    CTRL-->>C: { success: true, data: user }
 ```
 
-### 3. Kubernetes (Enterprise Scale)
-Full orchestration with service mesh, auto-scaling, and high availability.
-
-```bash
-# Apply K8s manifests
-kubectl apply -k k8s/overlays/production
-```
+---
 
 ## Technology Stack
 
-### Core Runtime
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| Node.js | 22+ | Native TypeScript execution |
-| TypeScript | 5.7+ | Type-safe development |
-| Express.js | 5.x | HTTP REST framework |
+### Architecture Components
 
-### Communication
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| @grpc/grpc-js | 1.12+ | gRPC framework |
-| Protocol Buffers | 3.x | Binary serialization |
-| Axios | 1.7+ | HTTP client with retry |
+```mermaid
+graph LR
+    subgraph "Runtime"
+        NODE[Node.js 22+]
+        TS[TypeScript 5.7]
+    end
 
-### Data Layer
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| Prisma | 6.x | Type-safe ORM |
-| MySQL | 8.0 | Primary database |
-| Redis | 7.x | Cache & job queues |
+    subgraph "Web Framework"
+        EXPRESS[Express.js 5.x]
+        HELMET[Helmet]
+        CORS[CORS]
+    end
 
-### Security
-| Component | Purpose |
-|-----------|---------|
-| jsonwebtoken | JWT authentication |
-| bcrypt | Password hashing (12 rounds) |
-| helmet | Security headers |
-| Zod | Runtime validation |
+    subgraph "Communication"
+        GRPC[gRPC 1.12]
+        PROTO[Protocol Buffers]
+        AXIOS[Axios]
+    end
 
-### Background Processing
-| Component | Purpose |
-|-----------|---------|
-| BullMQ | Distributed job queues |
-| ioredis | Redis client |
+    subgraph "Data"
+        PRISMA[Prisma 6.x]
+        MYSQL[(MySQL 8.0)]
+        REDIS[(Redis 7.x)]
+    end
+
+    subgraph "Security"
+        JWT[JWT]
+        BCRYPT[bcrypt]
+        ZOD[Zod]
+    end
+
+    subgraph "Jobs"
+        BULLMQ[BullMQ]
+        IOREDIS[ioredis]
+    end
+
+    NODE --> EXPRESS --> GRPC --> PRISMA --> MYSQL
+    TS --> ZOD --> JWT
+    BULLMQ --> REDIS
+
+    style NODE fill:#339933,color:#fff
+    style TS fill:#3178C6,color:#fff
+    style GRPC fill:#4285F4,color:#fff
+    style MYSQL fill:#00758F,color:#fff
+    style REDIS fill:#DC382D,color:#fff
+```
+
+### Stack Details
+
+| Layer | Component | Version | Purpose |
+|-------|-----------|---------|---------|
+| **Runtime** | Node.js | 22+ | Native TypeScript execution |
+| **Language** | TypeScript | 5.7+ | Type-safe development |
+| **Web** | Express.js | 5.x | HTTP REST framework |
+| **RPC** | @grpc/grpc-js | 1.12+ | gRPC communication |
+| **ORM** | Prisma | 6.x | Type-safe database access |
+| **Database** | MySQL | 8.0 | Primary data store |
+| **Cache** | Redis | 7.x | Sessions, queues, locks |
+| **Validation** | Zod | 3.x | Runtime type validation |
+| **Auth** | jsonwebtoken | 9.x | JWT authentication |
+| **Jobs** | BullMQ | 5.x | Distributed job queues |
+
+---
 
 ## Project Structure
+
+```mermaid
+graph TB
+    subgraph "src/"
+        CTRL[controllers/]
+        SVC[services/]
+        REPO[repositories/]
+        COMM[communication/]
+        MW[middleware/]
+        MODELS[models/]
+        SCHEMAS[schemas/]
+        TASKS[tasks/]
+        UTILS[utils/]
+        CONFIG[config.ts]
+        CONTAINER[container.ts]
+        APP[app.ts]
+    end
+
+    subgraph "Supporting"
+        PRISMA[prisma/]
+        TESTS[tests/]
+        DOCKER[docker/]
+        K8S[k8s/]
+    end
+
+    CTRL -->|uses| SVC
+    SVC -->|uses| REPO
+    SVC & REPO -->|via| COMM
+    CTRL -->|uses| MW
+    MW -->|uses| SCHEMAS
+    SVC & REPO -->|uses| MODELS
+    APP -->|configures| CTRL & MW
+    CONFIG -->|loads| CONTAINER
+
+    style CTRL fill:#339933,color:#fff
+    style SVC fill:#3178C6,color:#fff
+    style REPO fill:#4285F4,color:#fff
+    style COMM fill:#9B59B6,color:#fff
+```
+
+### Directory Layout
 
 ```
 arcana-cloud-nodejs/
 ├── src/
 │   ├── controllers/          # HTTP request handlers
-│   ├── services/             # Business logic layer
+│   ├── services/
 │   │   ├── interfaces/       # Service contracts
-│   │   └── implementations/  # Service implementations
-│   ├── repositories/         # Data access layer
+│   │   └── implementations/  # Business logic
+│   ├── repositories/
 │   │   ├── interfaces/       # Repository contracts
-│   │   └── implementations/  # Prisma implementations
-│   ├── communication/        # Protocol abstraction
-│   │   ├── interfaces.ts     # Communication contracts
+│   │   └── implementations/  # Prisma data access
+│   ├── communication/
+│   │   ├── interfaces.ts     # Protocol abstractions
 │   │   ├── factory.ts        # Protocol factory
 │   │   └── implementations/  # Direct/HTTP/gRPC
-│   ├── middleware/           # Express middleware
-│   ├── models/               # Domain models
+│   ├── middleware/           # Auth, validation, rate-limit
+│   ├── models/               # Domain entities
 │   ├── schemas/              # Zod validation schemas
-│   ├── tasks/                # Background job processing
-│   ├── utils/                # Shared utilities
+│   ├── tasks/                # BullMQ job processing
+│   ├── utils/                # Helpers, logger, exceptions
 │   ├── config.ts             # Centralized configuration
 │   ├── container.ts          # Dependency injection
 │   └── app.ts                # Express application
@@ -175,6 +409,8 @@ arcana-cloud-nodejs/
 ├── k8s/                      # Kubernetes manifests
 └── docker-compose*.yml       # Compose configurations
 ```
+
+---
 
 ## Quick Start
 
@@ -206,20 +442,20 @@ npx prisma migrate deploy
 npm run dev
 ```
 
-### Running Tests
+### Docker Deployments
 
 ```bash
-# Unit tests
-npm run test:vitest
+# Monolithic
+docker compose up -d
 
-# Database integration tests
-npm run db:test:up
-npm run test:db
+# Layered (gRPC)
+docker compose -f docker-compose.layered.yml up -d
 
 # Run benchmarks
-DATABASE_URL="mysql://..." node --experimental-transform-types \
-  tests/benchmark/mysql-all-modes.benchmark.ts
+docker compose -f docker-compose.benchmark.yml up
 ```
+
+---
 
 ## Configuration
 
@@ -232,20 +468,22 @@ NODE_ENV=development                   # Environment
 DATABASE_URL=mysql://...               # MySQL connection
 REDIS_URL=redis://localhost:6379       # Redis connection
 
-# Deployment
+// Deployment
 DEPLOYMENT_MODE=monolithic             # monolithic|layered|microservices
 DEPLOYMENT_LAYER=monolithic            # monolithic|controller|service|repository
 COMMUNICATION_PROTOCOL=grpc            # grpc|http|direct
 
-# Service URLs (for layered/microservices)
+// Service URLs (for layered/microservices)
 SERVICE_URLS=localhost:50051           # Service layer gRPC
 REPOSITORY_URLS=localhost:50052        # Repository layer gRPC
 
-# Security
+// Security
 JWT_SECRET=your-secret-min-32-chars    # JWT signing key
 JWT_ACCESS_EXPIRES_IN=1h               # Access token TTL
 JWT_REFRESH_EXPIRES_IN=30d             # Refresh token TTL
 ```
+
+---
 
 ## API Endpoints
 
@@ -273,38 +511,84 @@ JWT_REFRESH_EXPIRES_IN=30d             # Refresh token TTL
 | GET | `/health/ready` | Readiness probe |
 | GET | `/health/live` | Liveness probe |
 
+---
+
 ## Security Features
 
-### Authentication & Authorization
-- JWT-based authentication (HS256)
-- Access + Refresh token pairs
-- Role-based access control (ADMIN, USER, GUEST)
-- Token revocation & lifecycle management
-- Session tracking (IP, User-Agent)
+```mermaid
+graph TB
+    subgraph "Authentication"
+        JWT[JWT HS256]
+        ACCESS[Access Token 1h]
+        REFRESH[Refresh Token 30d]
+        BCRYPT[bcrypt 12 rounds]
+    end
 
-### Input Validation
-- Zod schema validation on all inputs
-- Password strength requirements:
-  - Minimum 8 characters
-  - Uppercase, lowercase, number, special char
+    subgraph "Authorization"
+        RBAC[Role-Based Access]
+        ADMIN[ADMIN]
+        USER[USER]
+        GUEST[GUEST]
+    end
 
-### HTTP Security
-- Helmet.js security headers
-- CORS with configurable origins
-- Rate limiting (100 req/hour global, 5 req/15min auth)
-- Request ID tracking for audit trails
+    subgraph "Protection"
+        HELMET[Helmet Headers]
+        CORS[CORS]
+        RATE[Rate Limiting]
+        ZOD[Input Validation]
+    end
 
-## Docker Compose Files
+    JWT --> ACCESS & REFRESH
+    BCRYPT --> JWT
+    RBAC --> ADMIN & USER & GUEST
+    HELMET & CORS & RATE & ZOD --> RBAC
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | Monolithic deployment |
-| `docker-compose.layered.yml` | 3-layer gRPC deployment |
-| `docker-compose.test.yml` | Test environment |
-| `docker-compose.db-test.yml` | Database testing |
-| `docker-compose.benchmark.yml` | Performance testing |
+    style JWT fill:#E74C3C,color:#fff
+    style RBAC fill:#3498DB,color:#fff
+    style HELMET fill:#2ECC71,color:#fff
+```
 
-## Comparison: Node.js vs Python Implementation
+### Security Summary
+
+| Feature | Implementation |
+|---------|----------------|
+| Authentication | JWT (HS256) with access/refresh tokens |
+| Password | bcrypt with 12 salt rounds |
+| Authorization | Role-based (ADMIN, USER, GUEST) |
+| Validation | Zod schemas on all inputs |
+| Headers | Helmet.js security headers |
+| Rate Limiting | 100 req/hour global, 5/15min auth |
+| CORS | Configurable allowed origins |
+
+---
+
+## Comparison: Node.js vs Python
+
+```mermaid
+graph LR
+    subgraph "Node.js Implementation"
+        N_RT[Node.js 22+]
+        N_FW[Express.js 5.x]
+        N_ORM[Prisma 6.x]
+        N_VAL[Zod]
+        N_GRPC[@grpc/grpc-js]
+    end
+
+    subgraph "Python Implementation"
+        P_RT[Python 3.14]
+        P_FW[Flask 3.1.2]
+        P_ORM[SQLAlchemy 2.0]
+        P_VAL[Marshmallow]
+        P_GRPC[grpcio]
+    end
+
+    N_RT -.->|comparable| P_RT
+    N_FW -.->|comparable| P_FW
+    N_ORM -.->|comparable| P_ORM
+
+    style N_RT fill:#339933,color:#fff
+    style P_RT fill:#3776AB,color:#fff
+```
 
 | Feature | Node.js | Python |
 |---------|---------|--------|
@@ -317,24 +601,25 @@ JWT_REFRESH_EXPIRES_IN=30d             # Refresh token TTL
 | **Type System** | TypeScript | Type Hints + mypy |
 | **gRPC Speedup** | 1.80x avg | 2.78x avg |
 
-## Unique Features
-
-### 1. Native TypeScript Execution
-No build step required. Node.js 22+ executes TypeScript directly via `--experimental-transform-types`.
-
-### 2. Communication Abstraction Layer
-Swap between Direct/HTTP/gRPC without code changes. Environment-driven protocol selection.
-
-### 3. Multi-Deployment Architecture
-Single codebase supports monolithic → layered → microservices progression.
-
-### 4. Protocol Buffer Contracts
-Strongly-typed service definitions with auto-generated TypeScript.
-
-### 5. Distributed Job Processing
-BullMQ with priority queues, retry logic, and distributed locks.
+---
 
 ## Recommendations
+
+```mermaid
+graph TD
+    START[Choose Deployment] --> Q1{Scale?}
+    Q1 -->|Small| MONO[Monolithic + Direct]
+    Q1 -->|Medium| LAYER[Layered + gRPC]
+    Q1 -->|Large| K8S[Kubernetes + gRPC]
+
+    MONO --> DEV[Development<br/>Small Production]
+    LAYER --> PROD[Production<br/>Team Development]
+    K8S --> ENT[Enterprise<br/>High Availability]
+
+    style MONO fill:#339933,color:#fff
+    style LAYER fill:#3178C6,color:#fff
+    style K8S fill:#326CE5,color:#fff
+```
 
 | Scenario | Deployment | Protocol |
 |----------|------------|----------|
@@ -344,9 +629,13 @@ BullMQ with priority queues, retry logic, and distributed locks.
 | Large Scale | Kubernetes | gRPC |
 | External APIs | Any | HTTP |
 
+---
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
+
+---
 
 ## Contributing
 
