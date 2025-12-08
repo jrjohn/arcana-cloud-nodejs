@@ -66,3 +66,24 @@ model OAuthToken {
   @@index([accessToken(length: 255)])
   @@index([refreshToken(length: 255)])
 }
+
+// Audit Log for Event-Driven Architecture
+model AuditLog {
+  id            String    @id @db.VarChar(64)
+  eventId       String    @unique @map("event_id") @db.VarChar(36)
+  eventType     String    @map("event_type") @db.VarChar(100)
+  eventVersion  Int       @default(1) @map("event_version")
+  correlationId String?   @map("correlation_id") @db.VarChar(36)
+  payload       Json
+  occurredAt    DateTime  @map("occurred_at")
+  processedAt   DateTime  @default(now()) @map("processed_at")
+  userId        Int?      @map("user_id")
+  ipAddress     String?   @map("ip_address") @db.VarChar(45)
+
+  @@map("audit_logs")
+  @@index([eventType])
+  @@index([correlationId])
+  @@index([userId])
+  @@index([occurredAt])
+  @@index([processedAt])
+}

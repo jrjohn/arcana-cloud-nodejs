@@ -21,6 +21,10 @@ export const TOKENS = {
   ServiceCommunication: Symbol.for('ServiceCommunication'),
   RepositoryCommunication: Symbol.for('RepositoryCommunication'),
 
+  // Events
+  EventBus: Symbol.for('EventBus'),
+  EventStore: Symbol.for('EventStore'),
+
   // Controllers (for dependency injection)
   AuthController: Symbol.for('AuthController'),
   UserController: Symbol.for('UserController'),

@@ -20,6 +20,25 @@ export function registerAllHandlers(): void {
   logger.info('All event handlers registered');
 }
 
+// User handlers
 export { registerUserHandlers } from './user.handler.js';
-export { registerSecurityHandlers, getSecurityMetrics, clearSecurityMetrics } from './security.handler.js';
-export { registerAuditHandler, queryAuditLog, getAuditStats, clearAuditLog } from './audit.handler.js';
+
+// Security handlers (sync and async)
+export {
+  registerSecurityHandlers,
+  getSecurityMetrics,
+  clearSecurityMetrics,
+  getSecurityMetricsAsync,
+  clearSecurityMetricsAsync
+} from './security.handler.js';
+
+// Audit handlers (sync and async)
+export { registerAuditHandler } from './audit.handler.js';
+export {
+  queryAuditLog,
+  getAuditStats,
+  clearAuditLog,
+  queryAuditLogAsync,
+  getAuditStatsAsync,
+  addToInMemoryAuditLog
+} from './audit.queries.js';

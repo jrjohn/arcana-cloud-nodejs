@@ -22,6 +22,10 @@ import { IAuthService } from '../services/interfaces/auth.service.interface.js';
 import { UserServiceImpl } from '../services/implementations/user.service.impl.js';
 import { AuthServiceImpl } from '../services/implementations/auth.service.impl.js';
 
+// Events
+import { EventBus, setEventBusInstance } from '../events/event-bus.js';
+import { EventStore } from '../events/event-store.js';
+
 // Communication
 import { ServiceCommunication, RepositoryCommunication, DeploymentMode, CommunicationProtocol } from '../communication/interfaces.js';
 import { DirectServiceCommunication, DirectRepositoryCommunication } from '../communication/implementations/direct.impl.js';
@@ -46,6 +50,20 @@ function createContainer(): Container {
   // Services
   container.bind<IUserService>(TOKENS.UserService).to(UserServiceImpl).inSingletonScope();
   container.bind<IAuthService>(TOKENS.AuthService).to(AuthServiceImpl).inSingletonScope();
+
+  // Events - EventStore and EventBus
+  container.bind<EventStore>(TOKENS.EventStore).toDynamicValue((context) => {
+    const prisma = context.container.get<PrismaClient>(TOKENS.PrismaClient);
+    return new EventStore(prisma);
+  }).inSingletonScope();
+
+  container.bind<EventBus>(TOKENS.EventBus).toDynamicValue((context) => {
+    const prisma = context.container.get<PrismaClient>(TOKENS.PrismaClient);
+    const eventBus = new EventBus(prisma);
+    // Set as singleton instance for backward compatibility
+    setEventBusInstance(eventBus);
+    return eventBus;
+  }).inSingletonScope();
 
   // Communication Layer - Dynamic binding based on deployment mode
   bindCommunicationLayer(container);

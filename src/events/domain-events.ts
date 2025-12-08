@@ -5,11 +5,17 @@
  * Each event contains all necessary data for handlers to process
  */
 
-// Base event interface
+import { z } from 'zod';
+import { randomUUID } from 'crypto';
+
+// Base event interface with versioning and idempotency
 export interface DomainEvent<T = unknown> {
+  readonly eventId: string;        // UUID for idempotency
   readonly type: string;
+  readonly version: number;        // Schema version for evolution
   readonly occurredAt: Date;
   readonly correlationId?: string;
+  readonly causationId?: string;   // ID of event that caused this event
   readonly payload: T;
 }
 
@@ -21,6 +27,26 @@ export interface EventMetadata {
   ipAddress?: string;
   userAgent?: string;
 }
+
+// Current event schema versions
+export const EVENT_VERSIONS: Record<string, number> = {
+  'user.registered': 1,
+  'user.logged_in': 1,
+  'user.logged_out': 1,
+  'user.updated': 1,
+  'user.deleted': 1,
+  'user.verified': 1,
+  'user.status_changed': 1,
+  'user.password_changed': 1,
+  'user.password_reset_requested': 1,
+  'token.created': 1,
+  'token.revoked': 1,
+  'token.refreshed': 1,
+  'token.all_revoked': 1,
+  'system.health_check': 1,
+  'security.rate_limit_exceeded': 1,
+  'security.alert': 1
+};
 
 // ==================== User Events ====================
 
@@ -163,17 +189,123 @@ export enum EventType {
   SECURITY_ALERT = 'security.alert'
 }
 
+// ==================== Zod Schemas for Validation ====================
+
+export const UserRegisteredSchema = z.object({
+  userId: z.number().int().positive(),
+  username: z.string().min(1).max(50),
+  email: z.string().email(),
+  firstName: z.string().max(50).optional(),
+  lastName: z.string().max(50).optional()
+});
+
+export const UserLoggedInSchema = z.object({
+  userId: z.number().int().positive(),
+  username: z.string().min(1),
+  email: z.string().email(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
+  loginMethod: z.enum(['password', 'oauth', 'token'])
+});
+
+export const UserLoggedOutSchema = z.object({
+  userId: z.number().int().positive(),
+  tokenId: z.number().int().positive().optional(),
+  logoutType: z.enum(['single', 'all'])
+});
+
+export const PasswordChangedSchema = z.object({
+  userId: z.number().int().positive(),
+  changedBy: z.number().int().positive(),
+  ipAddress: z.string().optional()
+});
+
+export const UserStatusChangedSchema = z.object({
+  userId: z.number().int().positive(),
+  oldStatus: z.string(),
+  newStatus: z.string(),
+  changedBy: z.number().int().positive(),
+  reason: z.string().optional()
+});
+
+export const TokenRevokedSchema = z.object({
+  tokenId: z.number().int().positive(),
+  userId: z.number().int().positive(),
+  revokedBy: z.number().int().positive(),
+  reason: z.string().optional()
+});
+
+export const AllTokensRevokedSchema = z.object({
+  userId: z.number().int().positive(),
+  revokedBy: z.number().int().positive(),
+  tokenCount: z.number().int().nonnegative()
+});
+
+export const RateLimitExceededSchema = z.object({
+  userId: z.number().int().positive().optional(),
+  ipAddress: z.string().ip(),
+  endpoint: z.string(),
+  limit: z.number().int().positive(),
+  resetAt: z.date()
+});
+
+export const SecurityAlertSchema = z.object({
+  type: z.enum(['brute_force', 'suspicious_activity', 'unauthorized_access']),
+  userId: z.number().int().positive().optional(),
+  ipAddress: z.string(),
+  details: z.string(),
+  severity: z.enum(['low', 'medium', 'high', 'critical'])
+});
+
+// Schema registry for validation
+export const EVENT_SCHEMAS: Record<string, z.ZodSchema> = {
+  [EventType.USER_REGISTERED]: UserRegisteredSchema,
+  [EventType.USER_LOGGED_IN]: UserLoggedInSchema,
+  [EventType.USER_LOGGED_OUT]: UserLoggedOutSchema,
+  [EventType.PASSWORD_CHANGED]: PasswordChangedSchema,
+  [EventType.USER_STATUS_CHANGED]: UserStatusChangedSchema,
+  [EventType.TOKEN_REVOKED]: TokenRevokedSchema,
+  [EventType.ALL_TOKENS_REVOKED]: AllTokensRevokedSchema,
+  [EventType.RATE_LIMIT_EXCEEDED]: RateLimitExceededSchema,
+  [EventType.SECURITY_ALERT]: SecurityAlertSchema
+};
+
 // ==================== Event Factory ====================
+
+export class EventValidationError extends Error {
+  constructor(
+    public readonly eventType: string,
+    public readonly errors: z.ZodError
+  ) {
+    super(`Event validation failed for ${eventType}: ${errors.message}`);
+    this.name = 'EventValidationError';
+  }
+}
 
 export function createEvent<T>(
   type: EventType,
   payload: T,
-  metadata?: EventMetadata
+  metadata?: EventMetadata,
+  options?: { skipValidation?: boolean }
 ): DomainEvent<T> {
+  // Validate payload if schema exists
+  if (!options?.skipValidation) {
+    const schema = EVENT_SCHEMAS[type];
+    if (schema) {
+      const result = schema.safeParse(payload);
+      if (!result.success) {
+        throw new EventValidationError(type, result.error);
+      }
+    }
+  }
+
   return {
+    eventId: randomUUID(),
     type,
+    version: EVENT_VERSIONS[type] || 1,
     occurredAt: new Date(),
     correlationId: metadata?.correlationId,
+    causationId: metadata?.causationId,
     payload
   };
 }

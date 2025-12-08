@@ -1,7 +1,7 @@
 /**
  * Security Event Handlers
  *
- * Handle security-related domain events
+ * Handle security-related domain events with Redis-backed metrics.
  */
 
 import { DomainEvent, EventType, TokenRevokedPayload, AllTokensRevokedPayload, RateLimitExceededPayload, SecurityAlertPayload } from '../domain-events.js';
@@ -9,8 +9,8 @@ import { getEventBus } from '../event-bus.js';
 import { queueWebhook } from '../../tasks/background.tasks.js';
 import { logger } from '../../utils/logger.js';
 
-// In-memory security metrics (in production, use Redis)
-const securityMetrics = {
+// In-memory fallback metrics (used when EventStore unavailable)
+const localSecurityMetrics = {
   failedLogins: new Map<string, { count: number; lastAttempt: Date }>(),
   rateLimitHits: new Map<string, number>()
 };
@@ -42,18 +42,26 @@ export function registerSecurityHandlers(): void {
     });
   });
 
-  // Track rate limit violations
-  eventBus.on(EventType.RATE_LIMIT_EXCEEDED, (event: DomainEvent<RateLimitExceededPayload>) => {
+  // Track rate limit violations using EventStore
+  eventBus.on(EventType.RATE_LIMIT_EXCEEDED, async (event: DomainEvent<RateLimitExceededPayload>) => {
     const key = event.payload.ipAddress;
-    const currentCount = securityMetrics.rateLimitHits.get(key) || 0;
-    securityMetrics.rateLimitHits.set(key, currentCount + 1);
+    const eventStore = eventBus.getEventStore();
+
+    let totalViolations: number;
+    if (eventStore) {
+      totalViolations = await eventStore.incrementRateLimitHit(key);
+    } else {
+      const currentCount = localSecurityMetrics.rateLimitHits.get(key) || 0;
+      localSecurityMetrics.rateLimitHits.set(key, currentCount + 1);
+      totalViolations = currentCount + 1;
+    }
 
     logger.warn('Rate limit exceeded', {
       userId: event.payload.userId,
       ipAddress: event.payload.ipAddress,
       endpoint: event.payload.endpoint,
       limit: event.payload.limit,
-      totalViolations: currentCount + 1
+      totalViolations
     });
   });
 
@@ -75,20 +83,22 @@ export function registerSecurityHandlers(): void {
     EventType.SECURITY_ALERT,
     async (event) => {
       if (event.payload.severity === 'critical' || event.payload.severity === 'high') {
-        // Send webhook to security monitoring system
-        await queueWebhook(
-          process.env.SECURITY_WEBHOOK_URL || 'https://security.example.com/alerts',
-          {
-            type: 'security_alert',
-            severity: event.payload.severity,
-            alertType: event.payload.type,
-            userId: event.payload.userId,
-            ipAddress: event.payload.ipAddress,
-            details: event.payload.details,
-            timestamp: event.occurredAt
-          },
-          { 'X-Alert-Priority': event.payload.severity }
-        );
+        const webhookUrl = process.env.SECURITY_WEBHOOK_URL;
+        if (webhookUrl) {
+          await queueWebhook(
+            webhookUrl,
+            {
+              type: 'security_alert',
+              severity: event.payload.severity,
+              alertType: event.payload.type,
+              userId: event.payload.userId,
+              ipAddress: event.payload.ipAddress,
+              details: event.payload.details,
+              timestamp: event.occurredAt
+            },
+            { 'X-Alert-Priority': event.payload.severity }
+          );
+        }
       }
     },
     { async: true, priority: 10 }
@@ -99,12 +109,19 @@ export function registerSecurityHandlers(): void {
     EventType.RATE_LIMIT_EXCEEDED,
     async (event) => {
       const key = event.payload.ipAddress;
-      const count = securityMetrics.rateLimitHits.get(key) || 0;
+      const eventStore = eventBus.getEventStore();
 
-      // If more than 10 violations in a session, escalate to security alert
+      let count: number;
+      if (eventStore) {
+        count = await eventStore.getRateLimitHits(key);
+      } else {
+        count = localSecurityMetrics.rateLimitHits.get(key) || 0;
+      }
+
+      // If more than 10 violations, escalate to security alert
       if (count >= 10) {
         const { Events } = await import('../domain-events.js');
-        await getEventBus().publish(
+        await eventBus.publish(
           Events.securityAlert({
             type: 'brute_force',
             userId: event.payload.userId,
@@ -122,19 +139,50 @@ export function registerSecurityHandlers(): void {
 }
 
 /**
- * Get security metrics (for monitoring)
+ * Get security metrics
+ * Uses EventStore if available, falls back to local
+ */
+export async function getSecurityMetricsAsync(): Promise<{
+  rateLimitHits: Map<string, number>;
+  failedLogins: Map<string, { count: number; lastAttempt: Date }>;
+}> {
+  const eventStore = getEventBus().getEventStore();
+
+  if (eventStore) {
+    return eventStore.getSecurityMetrics();
+  }
+
+  return localSecurityMetrics;
+}
+
+/**
+ * Synchronous getter for backward compatibility
  */
 export function getSecurityMetrics(): {
   failedLogins: Map<string, { count: number; lastAttempt: Date }>;
   rateLimitHits: Map<string, number>;
 } {
-  return securityMetrics;
+  return localSecurityMetrics;
 }
 
 /**
  * Clear security metrics (for testing)
  */
+export async function clearSecurityMetricsAsync(): Promise<void> {
+  const eventStore = getEventBus().getEventStore();
+
+  if (eventStore) {
+    await eventStore.clearSecurityMetrics();
+  }
+
+  localSecurityMetrics.failedLogins.clear();
+  localSecurityMetrics.rateLimitHits.clear();
+}
+
+/**
+ * Synchronous clear for backward compatibility
+ */
 export function clearSecurityMetrics(): void {
-  securityMetrics.failedLogins.clear();
-  securityMetrics.rateLimitHits.clear();
+  localSecurityMetrics.failedLogins.clear();
+  localSecurityMetrics.rateLimitHits.clear();
 }

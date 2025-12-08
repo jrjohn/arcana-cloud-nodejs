@@ -48,6 +48,16 @@ vi.mock('../../../src/tasks/background.tasks.js', () => ({
   }
 }));
 
+// Mock crypto for UUID generation
+vi.mock('crypto', async () => {
+  const actual = await vi.importActual('crypto');
+  let counter = 0;
+  return {
+    ...actual,
+    randomUUID: () => `test-uuid-${++counter}`
+  };
+});
+
 import {
   EventBus,
   Events,

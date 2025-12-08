@@ -4,16 +4,21 @@
  * Features:
  * - Synchronous event handlers (in-process)
  * - Asynchronous event handlers (via BullMQ)
- * - Event persistence for replay
- * - Dead letter queue for failed events
+ * - Idempotency checking via Redis
+ * - Event persistence via database
+ * - Redis pub/sub for multi-instance coordination
  * - Event filtering and middleware
+ * - DI-integrated with InversifyJS
  */
 
-import { injectable } from 'inversify';
+import { injectable, inject, optional } from 'inversify';
 import { Job } from 'bullmq';
+import { PrismaClient } from '@prisma/client';
 import { DomainEvent, EventType } from './domain-events.js';
+import { EventStore } from './event-store.js';
 import { createQueue, createWorker, addJob, queues } from '../tasks/queue.js';
 import { logger } from '../utils/logger.js';
+import { TOKENS } from '../di/tokens.js';
 
 // Event handler types
 export type SyncEventHandler<T = unknown> = (event: DomainEvent<T>) => void | Promise<void>;
@@ -29,6 +34,9 @@ interface HandlerRegistration<T = unknown> {
 // Event bus configuration
 export interface EventBusConfig {
   enableAsync: boolean;
+  enableIdempotency: boolean;
+  enablePubSub: boolean;
+  enableAuditLog: boolean;
   asyncQueueName: string;
   deadLetterQueueName: string;
   maxRetries: number;
@@ -37,6 +45,9 @@ export interface EventBusConfig {
 
 const defaultConfig: EventBusConfig = {
   enableAsync: true,
+  enableIdempotency: true,
+  enablePubSub: true,
+  enableAuditLog: true,
   asyncQueueName: 'events',
   deadLetterQueueName: 'events-dlq',
   maxRetries: 3,
@@ -56,48 +67,80 @@ export class EventBus {
   private middleware: EventMiddleware[] = [];
   private config: EventBusConfig;
   private initialized = false;
+  private eventStore: EventStore | null = null;
 
-  constructor(config: Partial<EventBusConfig> = {}) {
+  constructor(
+    @inject(TOKENS.PrismaClient) @optional() private prisma?: PrismaClient,
+    config: Partial<EventBusConfig> = {}
+  ) {
     this.config = { ...defaultConfig, ...config };
   }
 
   /**
-   * Initialize the event bus with BullMQ queues
+   * Set configuration (for non-DI usage)
+   */
+  configure(config: Partial<EventBusConfig>): this {
+    this.config = { ...this.config, ...config };
+    return this;
+  }
+
+  /**
+   * Initialize the event bus with BullMQ queues and EventStore
    */
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    // Initialize EventStore if Prisma is available
+    if (this.prisma) {
+      this.eventStore = new EventStore(this.prisma);
+
+      // Subscribe to Redis pub/sub for multi-instance sync
+      if (this.config.enablePubSub) {
+        await this.eventStore.subscribeToChannel((event) => {
+          // Process event from other instances (skip idempotency for local handlers)
+          this.processLocalHandlers(event).catch((err) => {
+            logger.error('Failed to process pub/sub event:', err);
+          });
+        });
+      }
+    }
+
     if (this.config.enableAsync) {
-      // Create event queue
-      createQueue({
-        name: this.config.asyncQueueName,
-        defaultJobOptions: {
-          attempts: this.config.maxRetries,
-          backoff: { type: 'exponential', delay: this.config.retryDelay },
-          removeOnComplete: 100,
-          removeOnFail: 50
-        }
-      });
+      try {
+        // Create event queue
+        createQueue({
+          name: this.config.asyncQueueName,
+          defaultJobOptions: {
+            attempts: this.config.maxRetries,
+            backoff: { type: 'exponential', delay: this.config.retryDelay },
+            removeOnComplete: 100,
+            removeOnFail: 50
+          }
+        });
 
-      // Create dead letter queue
-      createQueue({
-        name: this.config.deadLetterQueueName,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false
-        }
-      });
+        // Create dead letter queue
+        createQueue({
+          name: this.config.deadLetterQueueName,
+          defaultJobOptions: {
+            removeOnComplete: false,
+            removeOnFail: false
+          }
+        });
 
-      // Create worker for async events
-      createWorker<DomainEvent>(
-        this.config.asyncQueueName,
-        async (job: Job<DomainEvent>) => this.processAsyncEvent(job),
-        { concurrency: 5 }
-      );
+        // Create worker for async events
+        createWorker<DomainEvent>(
+          this.config.asyncQueueName,
+          async (job: Job<DomainEvent>) => this.processAsyncEvent(job),
+          { concurrency: 5 }
+        );
 
-      logger.info('Event bus initialized with async support', {
-        queue: this.config.asyncQueueName
-      });
+        logger.info('Event bus initialized with async support', {
+          queue: this.config.asyncQueueName
+        });
+      } catch (error) {
+        logger.warn('Async event processing not available (Redis required):', error);
+        this.config.enableAsync = false;
+      }
     }
 
     this.initialized = true;
@@ -176,34 +219,67 @@ export class EventBus {
    */
   async publish<T>(event: DomainEvent<T>): Promise<void> {
     logger.debug(`Publishing event: ${event.type}`, {
-      correlationId: event.correlationId,
-      occurredAt: event.occurredAt
+      eventId: event.eventId,
+      version: event.version,
+      correlationId: event.correlationId
     });
+
+    // Idempotency check
+    if (this.config.enableIdempotency && this.eventStore) {
+      const isProcessed = await this.eventStore.isEventProcessed(event.eventId);
+      if (isProcessed) {
+        logger.debug(`Event already processed, skipping: ${event.eventId}`);
+        return;
+      }
+    }
 
     // Execute middleware chain
     await this.executeMiddleware(event, async () => {
-      // Get handlers for this event type
-      const typeHandlers = this.handlers.get(event.type) || [];
-      const allHandlers = [...typeHandlers, ...this.globalHandlers];
-
-      // Separate sync and async handlers
-      const syncHandlers = allHandlers.filter(h => !h.async);
-      const asyncHandlers = allHandlers.filter(h => h.async);
-
-      // Execute sync handlers immediately
-      for (const registration of syncHandlers) {
-        try {
-          await registration.handler(event);
-        } catch (error) {
-          logger.error(`Sync handler failed for event: ${event.type}`, { error });
-        }
+      // Save to audit log
+      if (this.config.enableAuditLog && this.eventStore) {
+        await this.eventStore.saveAuditLog(event);
       }
 
-      // Queue async handlers
-      if (asyncHandlers.length > 0 && this.config.enableAsync) {
-        await this.queueAsyncEvent(event);
+      // Mark as processed (idempotency)
+      if (this.config.enableIdempotency && this.eventStore) {
+        await this.eventStore.markEventProcessed(event.eventId);
       }
+
+      // Publish to Redis pub/sub for other instances
+      if (this.config.enablePubSub && this.eventStore) {
+        await this.eventStore.publishToChannel(event);
+      }
+
+      // Process handlers
+      await this.processLocalHandlers(event);
     });
+  }
+
+  /**
+   * Process handlers for an event
+   */
+  private async processLocalHandlers<T>(event: DomainEvent<T>): Promise<void> {
+    // Get handlers for this event type
+    const typeHandlers = this.handlers.get(event.type) || [];
+    const allHandlers = [...typeHandlers, ...this.globalHandlers];
+
+    // Separate sync and async handlers
+    const syncHandlers = allHandlers.filter(h => !h.async);
+    const asyncHandlers = allHandlers.filter(h => h.async);
+
+    // Execute sync handlers immediately
+    for (const registration of syncHandlers) {
+      try {
+        await registration.handler(event);
+      } catch (error) {
+        logger.error(`Sync handler failed for event: ${event.type}`, { error });
+      }
+    }
+
+    // Queue async handlers
+    if (asyncHandlers.length > 0 && this.config.enableAsync) {
+      await this.queueAsyncEvent(event);
+    }
   }
 
   /**
@@ -226,10 +302,13 @@ export class EventBus {
       this.config.asyncQueueName,
       event.type,
       event,
-      { priority: this.getEventPriority(event.type) }
+      {
+        priority: this.getEventPriority(event.type),
+        jobId: `event-${event.eventId}` // Prevent duplicate jobs
+      }
     );
 
-    logger.debug(`Queued async event: ${event.type}`);
+    logger.debug(`Queued async event: ${event.type}`, { eventId: event.eventId });
   }
 
   /**
@@ -238,8 +317,12 @@ export class EventBus {
   private async processAsyncEvent(job: Job<DomainEvent>): Promise<void> {
     const event = job.data;
 
+    // Reconstitute Date object
+    event.occurredAt = new Date(event.occurredAt);
+
     logger.info(`Processing async event: ${event.type}`, {
       jobId: job.id,
+      eventId: event.eventId,
       attempt: job.attemptsMade + 1
     });
 
@@ -280,7 +363,9 @@ export class EventBus {
       }
     );
 
-    logger.warn(`Event moved to dead letter queue: ${event.type}`);
+    logger.warn(`Event moved to dead letter queue: ${event.type}`, {
+      eventId: event.eventId
+    });
   }
 
   /**
@@ -324,6 +409,13 @@ export class EventBus {
   }
 
   /**
+   * Get the event store instance
+   */
+  getEventStore(): EventStore | null {
+    return this.eventStore;
+  }
+
+  /**
    * Get pending event count
    */
   async getPendingCount(): Promise<number> {
@@ -361,9 +453,19 @@ export class EventBus {
     logger.info(`Replayed ${replayed} events from dead letter queue`);
     return replayed;
   }
+
+  /**
+   * Close event bus and release resources
+   */
+  async close(): Promise<void> {
+    if (this.eventStore) {
+      await this.eventStore.close();
+    }
+    this.initialized = false;
+  }
 }
 
-// Singleton instance
+// Singleton instance for backward compatibility
 let eventBusInstance: EventBus | null = null;
 
 export function getEventBus(): EventBus {
@@ -373,12 +475,29 @@ export function getEventBus(): EventBus {
   return eventBusInstance;
 }
 
-export async function initializeEventBus(config?: Partial<EventBusConfig>): Promise<EventBus> {
-  eventBusInstance = new EventBus(config);
+export async function initializeEventBus(
+  config?: Partial<EventBusConfig>,
+  prisma?: PrismaClient
+): Promise<EventBus> {
+  if (eventBusInstance) {
+    await eventBusInstance.close();
+  }
+
+  eventBusInstance = new EventBus(prisma, config);
   await eventBusInstance.initialize();
   return eventBusInstance;
 }
 
 export function resetEventBus(): void {
+  if (eventBusInstance) {
+    eventBusInstance.close().catch(() => {});
+  }
   eventBusInstance = null;
+}
+
+/**
+ * Set the singleton instance (for DI integration)
+ */
+export function setEventBusInstance(instance: EventBus): void {
+  eventBusInstance = instance;
 }
