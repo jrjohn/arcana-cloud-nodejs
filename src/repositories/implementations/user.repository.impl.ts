@@ -1,13 +1,16 @@
 import { PrismaClient } from '@prisma/client';
+import { injectable, inject } from 'inversify';
 import {
   IUserRepository,
   UserFilterParams,
   PaginatedResult
 } from '../interfaces/user.repository.interface.js';
 import { User, CreateUserData, UserRole, UserStatus } from '../../models/user.model.js';
+import { TOKENS } from '../../di/tokens.js';
 
+@injectable()
 export class UserRepositoryImpl implements IUserRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(@inject(TOKENS.PrismaClient) private prisma: PrismaClient) {}
 
   async create(data: CreateUserData & { passwordHash: string }): Promise<User> {
     const { password, ...userData } = data as CreateUserData & { passwordHash: string; password?: string };

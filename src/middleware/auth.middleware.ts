@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { container } from '../container.js';
+import { resolve, TOKENS } from '../di/index.js';
 import { AuthenticationError, AuthorizationError } from '../utils/exceptions.js';
 import { UserRole } from '../models/user.model.js';
 import { IAuthService } from '../services/interfaces/auth.service.interface.js';
@@ -16,7 +16,7 @@ export const tokenRequired = async (
     }
 
     const token = authHeader.split(' ')[1];
-    const authService = container.get<IAuthService>('authService');
+    const authService = resolve<IAuthService>(TOKENS.AuthService);
     const user = await authService.validateToken(token);
 
     req.user = {
@@ -61,7 +61,7 @@ export const optionalAuth = async (
     }
 
     const token = authHeader.split(' ')[1];
-    const authService = container.get<IAuthService>('authService');
+    const authService = resolve<IAuthService>(TOKENS.AuthService);
 
     try {
       const user = await authService.validateToken(token);

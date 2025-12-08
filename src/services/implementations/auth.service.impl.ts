@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { injectable, inject } from 'inversify';
 import { IAuthService, LoginData, AuthResult } from '../interfaces/auth.service.interface.js';
 import { IUserRepository } from '../../repositories/interfaces/user.repository.interface.js';
 import { IOAuthTokenRepository } from '../../repositories/interfaces/oauth-token.repository.interface.js';
@@ -8,6 +9,7 @@ import { User, UserPublic, CreateUserData, UserStatus } from '../../models/user.
 import { OAuthToken, TokenPair } from '../../models/oauth-token.model.js';
 import { AuthenticationError, ConflictError } from '../../utils/exceptions.js';
 import { config } from '../../config.js';
+import { TOKENS } from '../../di/tokens.js';
 
 interface JWTPayload {
   userId: number;
@@ -20,12 +22,13 @@ interface JWTPayload {
   exp: number;
 }
 
+@injectable()
 export class AuthServiceImpl implements IAuthService {
   private readonly SALT_ROUNDS = 12;
 
   constructor(
-    private userRepository: IUserRepository,
-    private tokenRepository: IOAuthTokenRepository
+    @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
+    @inject(TOKENS.OAuthTokenRepository) private tokenRepository: IOAuthTokenRepository
   ) {}
 
   private excludePassword(user: User): UserPublic {

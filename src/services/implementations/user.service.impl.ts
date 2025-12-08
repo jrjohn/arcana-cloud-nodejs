@@ -1,13 +1,16 @@
 import bcrypt from 'bcrypt';
+import { injectable, inject } from 'inversify';
 import { IUserService } from '../interfaces/user.service.interface.js';
 import { IUserRepository, UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/exceptions.js';
+import { TOKENS } from '../../di/tokens.js';
 
+@injectable()
 export class UserServiceImpl implements IUserService {
   private readonly SALT_ROUNDS = 12;
 
-  constructor(private userRepository: IUserRepository) {}
+  constructor(@inject(TOKENS.UserRepository) private userRepository: IUserRepository) {}
 
   private excludePassword(user: User): UserPublic {
     const { passwordHash, ...publicUser } = user;

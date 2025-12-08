@@ -5,17 +5,18 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)
 ![gRPC](https://img.shields.io/badge/gRPC-1.12-4285F4?logo=google&logoColor=white)
+![InversifyJS](https://img.shields.io/badge/InversifyJS-7.x-FF6B6B?logo=inversify&logoColor=white)
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
-![tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-485%20passing-brightgreen)
 ![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
 ![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-Enterprise-grade cloud platform with **gRPC-first architecture** (1.80x faster than HTTP REST), supporting dual-protocol communication and three flexible deployment modes (Monolithic, Layered, Microservices).
+Enterprise-grade cloud platform with **gRPC-first architecture** (1.80x faster than HTTP REST), **InversifyJS dependency injection**, supporting dual-protocol communication and three flexible deployment modes (Monolithic, Layered, Microservices).
 
 ## Overview
 
-Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** featuring **gRPC-first architecture** with dual-protocol support. The system achieves **1.80x average speedup** with gRPC delivering up to **2.32x faster read operations** compared to HTTP REST in layered deployments.
+Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** featuring **gRPC-first architecture** with dual-protocol support and **InversifyJS** for type-safe dependency injection. The system achieves **1.80x average speedup** with gRPC delivering up to **2.32x faster read operations** compared to HTTP REST in layered deployments.
 
 > **Sister Project**: [Arcana Cloud Python](https://github.com/jrjohn/arcana-cloud-python) - Flask/gRPC implementation with 2.78x performance gains
 
@@ -23,7 +24,7 @@ Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** 
 
 ## Architecture
 
-### Clean 3-Layer Architecture
+### Clean 3-Layer Architecture with Dependency Injection
 
 ```mermaid
 graph TB
@@ -31,6 +32,11 @@ graph TB
         WEB["Web Browser"]
         MOBILE["Mobile App"]
         API["API Client"]
+    end
+
+    subgraph DI["InversifyJS Container"]
+        TOKENS["DI Tokens"]
+        CONTAINER["Container Config"]
     end
 
     subgraph Controller
@@ -62,6 +68,10 @@ graph TB
     CTRL --> AUTH
     AUTH --> VALID
     VALID --> RATE
+    DI --> CTRL
+    DI --> USER_SVC
+    DI --> AUTH_SVC
+    DI --> USER_REPO
     RATE --> USER_SVC
     RATE --> AUTH_SVC
     AUTH_SVC --> TOKEN_SVC
@@ -72,6 +82,7 @@ graph TB
     AUTH_SVC --> REDIS
     TOKEN_SVC --> REDIS
 
+    style DI fill:#FF6B6B,color:#fff
     style CTRL fill:#339933,color:#fff
     style USER_SVC fill:#3178C6,color:#fff
     style AUTH_SVC fill:#3178C6,color:#fff
@@ -108,6 +119,73 @@ flowchart LR
     style GRPC fill:#4285F4,color:#fff
     style DIRECT fill:#339933,color:#fff
     style HTTP fill:#FF6B6B,color:#fff
+```
+
+---
+
+## Dependency Injection
+
+### InversifyJS Integration
+
+The project uses **InversifyJS** for enterprise-grade dependency injection with type-safe tokens and constructor injection.
+
+```mermaid
+graph TB
+    subgraph "DI Container"
+        TOKENS["Symbol Tokens"]
+        CONTAINER["Container"]
+        RESOLVE["resolve<T>()"]
+    end
+
+    subgraph "Bindings"
+        PRISMA["PrismaClient"]
+        REPOS["Repositories"]
+        SVCS["Services"]
+        COMM["Communication"]
+    end
+
+    TOKENS --> CONTAINER
+    CONTAINER --> RESOLVE
+    CONTAINER --> PRISMA
+    CONTAINER --> REPOS
+    CONTAINER --> SVCS
+    CONTAINER --> COMM
+
+    style TOKENS fill:#FF6B6B,color:#fff
+    style CONTAINER fill:#FF6B6B,color:#fff
+```
+
+### DI Features
+
+| Feature | Implementation |
+|---------|----------------|
+| **Token System** | Type-safe Symbols for each dependency |
+| **Injection** | Constructor injection with `@inject` decorator |
+| **Decorators** | `@injectable` for all services and repositories |
+| **Scope** | Singleton scope by default |
+| **Environment-Aware** | Different bindings for Direct/HTTP/gRPC |
+
+### Usage Example
+
+```typescript
+// Define tokens
+export const TOKENS = {
+  UserService: Symbol.for('UserService'),
+  UserRepository: Symbol.for('UserRepository'),
+  PrismaClient: Symbol.for('PrismaClient'),
+};
+
+// Injectable service
+@injectable()
+export class UserServiceImpl implements IUserService {
+  constructor(
+    @inject(TOKENS.UserRepository) private userRepository: IUserRepository
+  ) {}
+}
+
+// Resolve dependency
+import { resolve, TOKENS } from './di/index.js';
+const userService = resolve<IUserService>(TOKENS.UserService);
 ```
 
 ---
@@ -211,6 +289,55 @@ pie showData
 
 ---
 
+## Testing
+
+### Test Suite Overview
+
+```mermaid
+pie showData
+    title "Test Distribution (485 Total)"
+    "Unit Tests" : 386
+    "Integration Tests" : 60
+    "Database Tests" : 39
+```
+
+### Test Results
+
+| Category | Tests | Status |
+|----------|-------|--------|
+| **Unit Tests** | 386 | ✅ Passing |
+| **Integration Tests** | 60 | ✅ Passing |
+| **Database Tests** | 39 | ✅ Passing |
+| **DI Container Tests** | 8 | ✅ Passing |
+| **Total** | **485** | **100%** |
+
+### Running Tests
+
+```bash
+# Start test database
+npm run db:test:up
+
+# Run all tests
+npm run test:all
+
+# Run unit tests only
+npm run test:vitest -- --run tests/unit
+
+# Run integration tests
+npm run test:integration
+
+# Run database tests
+npm run test:db
+
+# Run with coverage
+npm run test:coverage
+
+# View HTML test report
+open docs/test-reports/test-report.html
+```
+
+---
+
 ## Request Flow
 
 ### Authentication Flow
@@ -287,6 +414,11 @@ graph LR
         CORS["CORS"]
     end
 
+    subgraph DI
+        INVERSIFY["InversifyJS 7.x"]
+        REFLECT["reflect-metadata"]
+    end
+
     subgraph Communication
         GRPC["gRPC 1.12"]
         PROTO["Protocol Buffers"]
@@ -311,7 +443,8 @@ graph LR
     end
 
     NODE --> EXPRESS
-    EXPRESS --> GRPC
+    EXPRESS --> INVERSIFY
+    INVERSIFY --> GRPC
     GRPC --> PRISMA
     PRISMA --> MYSQL
     TS --> ZOD
@@ -320,6 +453,7 @@ graph LR
 
     style NODE fill:#339933,color:#fff
     style TS fill:#3178C6,color:#fff
+    style INVERSIFY fill:#FF6B6B,color:#fff
     style GRPC fill:#4285F4,color:#fff
     style MYSQL fill:#00758F,color:#fff
     style REDIS fill:#DC382D,color:#fff
@@ -331,6 +465,7 @@ graph LR
 |-------|-----------|---------|---------|
 | **Runtime** | Node.js | 22+ | Native TypeScript execution |
 | **Language** | TypeScript | 5.7+ | Type-safe development |
+| **DI** | InversifyJS | 7.x | Dependency injection |
 | **Web** | Express.js | 5.x | HTTP REST framework |
 | **RPC** | @grpc/grpc-js | 1.12+ | gRPC communication |
 | **ORM** | Prisma | 6.x | Type-safe database access |
@@ -339,6 +474,7 @@ graph LR
 | **Validation** | Zod | 3.x | Runtime type validation |
 | **Auth** | jsonwebtoken | 9.x | JWT authentication |
 | **Jobs** | BullMQ | 5.x | Distributed job queues |
+| **Testing** | Vitest | 2.x | Unit & integration testing |
 
 ---
 
@@ -347,6 +483,7 @@ graph LR
 ```mermaid
 graph TB
     subgraph src
+        DI[di]
         CTRL[controllers]
         SVC[services]
         REPO[repositories]
@@ -357,17 +494,21 @@ graph TB
         TASKS[tasks]
         UTILS[utils]
         CONFIG[config.ts]
-        CONTAINER[container.ts]
         APP[app.ts]
     end
 
     subgraph Supporting
         PRISMA[prisma]
         TESTS[tests]
-        DOCKER[docker]
-        K8S[k8s]
+        DOCKER[deploy/docker]
+        K8S[deploy/k8s]
+        DOCS[docs]
     end
 
+    DI --> CTRL
+    DI --> SVC
+    DI --> REPO
+    DI --> COMM
     CTRL --> SVC
     SVC --> REPO
     SVC --> COMM
@@ -377,8 +518,8 @@ graph TB
     SVC --> MODELS
     REPO --> MODELS
     APP --> CTRL
-    CONFIG --> CONTAINER
 
+    style DI fill:#FF6B6B,color:#fff
     style CTRL fill:#339933,color:#fff
     style SVC fill:#3178C6,color:#fff
     style REPO fill:#4285F4,color:#fff
@@ -390,10 +531,17 @@ graph TB
 ```
 arcana-cloud-nodejs/
 ├── src/                          # Application source code
+│   ├── di/                       # Dependency injection (InversifyJS)
+│   │   ├── tokens.ts             # DI token symbols
+│   │   ├── container.ts          # Container configuration
+│   │   └── index.ts              # DI exports
 │   ├── controllers/              # HTTP request handlers
 │   ├── services/                 # Business logic layer
+│   │   └── implementations/      # @injectable service classes
 │   ├── repositories/             # Data access layer
+│   │   └── implementations/      # @injectable repository classes
 │   ├── communication/            # Protocol abstraction (Direct/HTTP/gRPC)
+│   │   └── implementations/      # @injectable communication classes
 │   ├── middleware/               # Auth, validation, rate-limit
 │   ├── models/                   # Domain entities
 │   ├── schemas/                  # Zod validation schemas
@@ -402,18 +550,24 @@ arcana-cloud-nodejs/
 │   ├── config.ts                 # Centralized configuration
 │   └── app.ts                    # Express application
 ├── docs/                         # Documentation
+│   ├── test-reports/             # Test reports (HTML, JSON)
 │   ├── architecture/             # Architecture docs
-│   ├── benchmarks/               # Performance reports
-│   └── api/                      # API documentation
+│   └── benchmarks/               # Performance reports
 ├── deploy/                       # Deployment configurations
 │   ├── docker/                   # Dockerfiles & compose files
 │   └── k8s/                      # Kubernetes manifests
 ├── tests/                        # Test suites
-│   ├── unit/                     # Unit tests
-│   ├── database/                 # Integration tests
-│   └── benchmark/                # Performance benchmarks
+│   ├── unit/                     # Unit tests (386 tests)
+│   │   ├── di/                   # DI container tests
+│   │   ├── services/             # Service tests
+│   │   ├── repositories/         # Repository tests
+│   │   ├── communication/        # Communication tests
+│   │   └── middleware/           # Middleware tests
+│   ├── integration/              # Integration tests (60 tests)
+│   └── database/                 # Database tests (39 tests)
 ├── prisma/                       # Database schema & migrations
-├── docker-compose.yml            # Development stack
+├── vitest.config.ts              # Vitest configuration
+├── vitest.config.db.ts           # Database test configuration
 └── package.json                  # Dependencies & scripts
 ```
 
@@ -585,6 +739,7 @@ graph LR
     subgraph "Node.js Implementation"
         N_RT["Node.js 22+"]
         N_FW["Express.js 5.x"]
+        N_DI["InversifyJS"]
         N_ORM["Prisma 6.x"]
         N_VAL["Zod"]
         N_GRPC["grpc-js"]
@@ -593,6 +748,7 @@ graph LR
     subgraph "Python Implementation"
         P_RT["Python 3.14"]
         P_FW["Flask 3.1.2"]
+        P_DI["dependency-injector"]
         P_ORM["SQLAlchemy 2.0"]
         P_VAL["Marshmallow"]
         P_GRPC["grpcio"]
@@ -600,16 +756,19 @@ graph LR
 
     N_RT -.-> P_RT
     N_FW -.-> P_FW
+    N_DI -.-> P_DI
     N_ORM -.-> P_ORM
 
     style N_RT fill:#339933,color:#fff
     style P_RT fill:#3776AB,color:#fff
+    style N_DI fill:#FF6B6B,color:#fff
 ```
 
 | Feature | Node.js | Python |
 |---------|---------|--------|
 | **Runtime** | Node.js 22+ | Python 3.14 |
 | **Framework** | Express.js 5.x | Flask 3.1.2 |
+| **DI** | InversifyJS 7.x | dependency-injector |
 | **ORM** | Prisma 6.x | SQLAlchemy 2.0 |
 | **Validation** | Zod | Marshmallow |
 | **gRPC Library** | @grpc/grpc-js | grpcio |
@@ -663,4 +822,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Status**: Production-ready with comprehensive test coverage, documented APIs, and enterprise-grade security controls.
+**Status**: Production-ready with **485 passing tests**, comprehensive documentation, InversifyJS dependency injection, and enterprise-grade security controls.

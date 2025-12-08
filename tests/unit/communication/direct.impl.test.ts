@@ -1,16 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import 'reflect-metadata';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { Container } from 'inversify';
 import { DirectServiceCommunication, DirectRepositoryCommunication } from '../../../src/communication/implementations/direct.impl.js';
-import { container } from '../../../src/container.js';
+import { TOKENS } from '../../../src/di/tokens.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
-import { mockUser, mockOAuthToken, mockCreateUserData } from '../../fixtures.js';
-
-vi.mock('../../../src/container.js', () => ({
-  container: {
-    get: vi.fn()
-  }
-}));
+import { mockOAuthToken, mockCreateUserData } from '../../fixtures.js';
+import { IUserService } from '../../../src/services/interfaces/user.service.interface.js';
+import { IAuthService } from '../../../src/services/interfaces/auth.service.interface.js';
 
 describe('DirectServiceCommunication', () => {
+  let container: Container;
   let communication: DirectServiceCommunication;
   let mockUserService: Record<string, ReturnType<typeof vi.fn>>;
   let mockAuthService: Record<string, ReturnType<typeof vi.fn>>;
@@ -45,9 +44,12 @@ describe('DirectServiceCommunication', () => {
   };
 
   beforeEach(() => {
+    // Create mock services
     mockUserService = {
       getUsers: vi.fn(),
       getUserById: vi.fn(),
+      getUserByUsername: vi.fn(),
+      getUserByEmail: vi.fn(),
       createUser: vi.fn(),
       updateUser: vi.fn(),
       deleteUser: vi.fn(),
@@ -63,16 +65,22 @@ describe('DirectServiceCommunication', () => {
       validateToken: vi.fn(),
       register: vi.fn(),
       revokeAllTokens: vi.fn(),
-      getUserTokens: vi.fn()
+      getUserTokens: vi.fn(),
+      verifyPassword: vi.fn()
     };
 
-    vi.mocked(container.get).mockImplementation((key: string) => {
-      if (key === 'userService') return mockUserService;
-      if (key === 'authService') return mockAuthService;
-      return null;
-    });
+    // Create test container with mocks
+    container = new Container();
+    container.bind<IUserService>(TOKENS.UserService).toConstantValue(mockUserService as unknown as IUserService);
+    container.bind<IAuthService>(TOKENS.AuthService).toConstantValue(mockAuthService as unknown as IAuthService);
 
-    communication = new DirectServiceCommunication();
+    // Get the communication instance from container
+    container.bind<DirectServiceCommunication>(DirectServiceCommunication).toSelf();
+    communication = container.get(DirectServiceCommunication);
+  });
+
+  afterEach(() => {
+    container.unbindAll();
   });
 
   describe('User operations', () => {
@@ -83,7 +91,6 @@ describe('DirectServiceCommunication', () => {
 
       const response = await communication.getUsers(params);
 
-      expect(container.get).toHaveBeenCalledWith('userService');
       expect(mockUserService.getUsers).toHaveBeenCalledWith(params);
       expect(response).toEqual(result);
     });

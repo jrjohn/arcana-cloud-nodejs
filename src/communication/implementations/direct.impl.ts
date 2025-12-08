@@ -1,4 +1,4 @@
-import { container } from '../../container.js';
+import { injectable, inject } from 'inversify';
 import {
   ServiceCommunication,
   RepositoryCommunication,
@@ -12,15 +12,14 @@ import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
 import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 import { IUserService } from '../../services/interfaces/user.service.interface.js';
 import { IAuthService } from '../../services/interfaces/auth.service.interface.js';
+import { TOKENS } from '../../di/tokens.js';
 
+@injectable()
 export class DirectServiceCommunication implements ServiceCommunication {
-  private get userService(): IUserService {
-    return container.get<IUserService>('userService');
-  }
-
-  private get authService(): IAuthService {
-    return container.get<IAuthService>('authService');
-  }
+  constructor(
+    @inject(TOKENS.UserService) private userService: IUserService,
+    @inject(TOKENS.AuthService) private authService: IAuthService
+  ) {}
 
   async getUsers(params: GetUsersParams): Promise<PaginatedResult<UserPublic>> {
     return this.userService.getUsers(params);
@@ -83,6 +82,7 @@ export class DirectServiceCommunication implements ServiceCommunication {
   }
 }
 
+@injectable()
 export class DirectRepositoryCommunication implements RepositoryCommunication {
   async query<T>(_entity: string, _params: Record<string, unknown>): Promise<T[]> {
     throw new Error('Direct repository communication not fully implemented');

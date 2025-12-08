@@ -1,7 +1,8 @@
+import 'reflect-metadata';
 import { createApp } from './app.js';
 import { config } from './config.js';
 import { logger } from './utils/logger.js';
-import { closeDependencies } from './container.js';
+import { closeContainer } from './di/index.js';
 import { initializeTasks, shutdownTasks } from './tasks/index.js';
 
 async function main() {
@@ -30,8 +31,8 @@ async function main() {
       // Shutdown tasks first (let jobs complete)
       await shutdownTasks();
 
-      await closeDependencies();
-      logger.info('Dependencies closed');
+      await closeContainer();
+      logger.info('DI Container closed');
       process.exit(0);
     });
 

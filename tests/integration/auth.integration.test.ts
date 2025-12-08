@@ -1,23 +1,39 @@
+import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp } from './helpers/app.js';
-import { CommunicationFactory } from '../../src/communication/factory.js';
-import { container } from '../../src/container.js';
 import { UserRole, UserStatus } from '../../src/models/user.model.js';
 import { AuthenticationError, ConflictError } from '../../src/utils/exceptions.js';
 
-// Mock the communication factory
-vi.mock('../../src/communication/factory.js', () => ({
-  CommunicationFactory: {
-    getServiceCommunication: vi.fn()
-  }
-}));
+// Create mock service that will be shared
+const mockService = {
+  register: vi.fn(),
+  login: vi.fn(),
+  logout: vi.fn(),
+  refreshToken: vi.fn(),
+  validateToken: vi.fn(),
+  getUserById: vi.fn(),
+  getUserTokens: vi.fn(),
+  revokeAllTokens: vi.fn()
+};
 
-// Mock the container for auth middleware
-vi.mock('../../src/container.js', () => ({
+// Mock the DI module
+vi.mock('../../src/di/index.js', () => ({
+  resolve: vi.fn(() => mockService),
+  TOKENS: {
+    ServiceCommunication: Symbol('ServiceCommunication'),
+    AuthService: Symbol('AuthService'),
+    UserService: Symbol('UserService'),
+    UserRepository: Symbol('UserRepository'),
+    OAuthTokenRepository: Symbol('OAuthTokenRepository'),
+    PrismaClient: Symbol('PrismaClient'),
+    RepositoryCommunication: Symbol('RepositoryCommunication')
+  },
   container: {
-    get: vi.fn()
-  }
+    get: vi.fn(() => mockService)
+  },
+  closeContainer: vi.fn(),
+  resetContainer: vi.fn()
 }));
 
 // Mock rate limiter
@@ -56,7 +72,6 @@ vi.mock('../../src/config.js', () => ({
 
 describe('Auth Integration Tests', () => {
   const app = createTestApp();
-  let mockService: Record<string, ReturnType<typeof vi.fn>>;
 
   const mockUser = {
     id: 1,
@@ -88,21 +103,8 @@ describe('Auth Integration Tests', () => {
   };
 
   beforeEach(() => {
-    mockService = {
-      register: vi.fn(),
-      login: vi.fn(),
-      logout: vi.fn(),
-      refreshToken: vi.fn(),
-      validateToken: vi.fn(),
-      getUserById: vi.fn(),
-      getUserTokens: vi.fn(),
-      revokeAllTokens: vi.fn()
-    };
-
-    vi.mocked(CommunicationFactory.getServiceCommunication).mockReturnValue(mockService as any);
-
-    // Mock container.get to return our mockService for auth middleware
-    vi.mocked(container.get).mockReturnValue(mockService as any);
+    // Reset all mock functions
+    vi.clearAllMocks();
   });
 
   describe('POST /api/auth/register', () => {

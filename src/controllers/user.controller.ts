@@ -2,7 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { tokenRequired, roleRequired } from '../middleware/auth.middleware.js';
 import { validateSchema, validatePagination } from '../middleware/validation.middleware.js';
 import { successResponse, paginatedResponse } from '../utils/response.js';
-import { CommunicationFactory } from '../communication/factory.js';
+import { resolve, TOKENS } from '../di/index.js';
+import { ServiceCommunication } from '../communication/interfaces.js';
 import { UserRole, UserStatus } from '../models/user.model.js';
 import { AuthorizationError } from '../utils/exceptions.js';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../schemas/user.schema.js';
 
 const router = Router();
-const getService = () => CommunicationFactory.getServiceCommunication();
+const getService = () => resolve<ServiceCommunication>(TOKENS.ServiceCommunication);
 
 router.get('/',
   tokenRequired,

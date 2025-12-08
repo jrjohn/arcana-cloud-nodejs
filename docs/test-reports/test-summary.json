@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-12-08T06:56:15.946Z",
+  "totalTests": 0,
+  "totalPassed": 0,
+  "totalFailed": 0,
+  "totalSkipped": 0,
+  "results": [
+    {
+      "mode": "unit",
+      "protocol": "N/A",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "N/A",
+      "timestamp": "2025-12-08T06:56:15.946Z"
+    },
+    {
+      "mode": "database",
+      "protocol": "N/A",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "N/A",
+      "timestamp": "2025-12-08T06:56:15.946Z"
+    },
+    {
+      "mode": "monolithic",
+      "protocol": "direct",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "N/A",
+      "timestamp": "2025-12-08T06:56:15.946Z"
+    },
+    {
+      "mode": "layered",
+      "protocol": "grpc",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "N/A",
+      "timestamp": "2025-12-08T06:56:15.946Z"
+    },
+    {
+      "mode": "layered",
+      "protocol": "http",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "N/A",
+      "timestamp": "2025-12-08T06:56:15.946Z"
+    }
+  ]
+}

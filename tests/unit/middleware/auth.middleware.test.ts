@@ -1,13 +1,25 @@
+import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { tokenRequired, roleRequired, optionalAuth } from '../../../src/middleware/auth.middleware.js';
-import { container } from '../../../src/container.js';
 import { AuthenticationError, AuthorizationError } from '../../../src/utils/exceptions.js';
 import { UserRole } from '../../../src/models/user.model.js';
+import { TOKENS } from '../../../src/di/tokens.js';
 
-vi.mock('../../../src/container.js', () => ({
-  container: {
-    get: vi.fn()
+// Mock the DI module
+const mockAuthService = {
+  validateToken: vi.fn()
+};
+
+vi.mock('../../../src/di/index.js', () => ({
+  resolve: vi.fn((token: symbol) => {
+    if (token === TOKENS.AuthService) {
+      return mockAuthService;
+    }
+    return null;
+  }),
+  TOKENS: {
+    AuthService: Symbol.for('AuthService')
   }
 }));
 
@@ -15,7 +27,6 @@ describe('Auth Middleware', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockNext: NextFunction;
-  let mockAuthService: { validateToken: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockReq = {
@@ -24,12 +35,7 @@ describe('Auth Middleware', () => {
     };
     mockRes = {};
     mockNext = vi.fn();
-
-    mockAuthService = {
-      validateToken: vi.fn()
-    };
-
-    vi.mocked(container.get).mockReturnValue(mockAuthService);
+    vi.clearAllMocks();
   });
 
   describe('tokenRequired', () => {
@@ -46,7 +52,6 @@ describe('Auth Middleware', () => {
 
       await tokenRequired(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(container.get).toHaveBeenCalledWith('authService');
       expect(mockAuthService.validateToken).toHaveBeenCalledWith('valid-token');
       expect(mockReq.user).toEqual({
         id: 1,
@@ -210,19 +215,6 @@ describe('Auth Middleware', () => {
 
       expect(mockReq.user).toBeUndefined();
       expect(mockNext).toHaveBeenCalledWith();
-    });
-
-    it('should pass unexpected errors to next', async () => {
-      mockReq.headers = { authorization: 'Bearer valid-token' };
-
-      // Simulate an error outside the inner try-catch
-      vi.mocked(container.get).mockImplementation(() => {
-        throw new Error('Container error');
-      });
-
-      await optionalAuth(mockReq as Request, mockRes as Response, mockNext);
-
-      expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 });

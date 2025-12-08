@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express, { Express } from 'express';
 import { authController, userController, healthController, publicController } from '../../../src/controllers/index.js';
 import { errorHandler, notFoundHandler } from '../../../src/middleware/error.middleware.js';

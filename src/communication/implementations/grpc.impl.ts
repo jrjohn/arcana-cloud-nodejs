@@ -1,5 +1,6 @@
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
+import { injectable } from 'inversify';
 import {
   ServiceCommunication,
   RepositoryCommunication,
@@ -12,6 +13,7 @@ import { UserPublic, CreateUserData, UpdateUserData, UserStatus, UserRole } from
 import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
 import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 
+@injectable()
 export class GRPCServiceCommunication implements ServiceCommunication {
   private clients: grpc.Client[];
   private currentIndex = 0;
@@ -257,6 +259,7 @@ export class GRPCServiceCommunication implements ServiceCommunication {
   }
 }
 
+@injectable()
 export class GRPCRepositoryCommunication implements RepositoryCommunication {
   private clients: grpc.Client[];
   private currentIndex = 0;

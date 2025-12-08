@@ -1,9 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { injectable, inject } from 'inversify';
 import { IOAuthTokenRepository } from '../interfaces/oauth-token.repository.interface.js';
 import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
+import { TOKENS } from '../../di/tokens.js';
 
+@injectable()
 export class OAuthTokenRepositoryImpl implements IOAuthTokenRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(@inject(TOKENS.PrismaClient) private prisma: PrismaClient) {}
 
   async create(data: CreateTokenData): Promise<OAuthToken> {
     return this.prisma.oAuthToken.create({

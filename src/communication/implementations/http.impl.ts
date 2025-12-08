@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { injectable } from 'inversify';
 import {
   ServiceCommunication,
   RepositoryCommunication,
@@ -12,6 +13,7 @@ import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
 import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 import { delay } from '../../utils/helpers.js';
 
+@injectable()
 export class HTTPServiceCommunication implements ServiceCommunication {
   private clients: AxiosInstance[];
   private currentIndex = 0;
@@ -160,6 +162,7 @@ export class HTTPServiceCommunication implements ServiceCommunication {
   }
 }
 
+@injectable()
 export class HTTPRepositoryCommunication implements RepositoryCommunication {
   private clients: AxiosInstance[];
   private currentIndex = 0;

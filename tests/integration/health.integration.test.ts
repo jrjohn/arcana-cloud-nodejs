@@ -1,6 +1,26 @@
+import 'reflect-metadata';
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import { createTestApp } from './helpers/app.js';
+
+// Mock the DI module
+vi.mock('../../src/di/index.js', () => ({
+  resolve: vi.fn(() => ({})),
+  TOKENS: {
+    ServiceCommunication: Symbol('ServiceCommunication'),
+    AuthService: Symbol('AuthService'),
+    UserService: Symbol('UserService'),
+    UserRepository: Symbol('UserRepository'),
+    OAuthTokenRepository: Symbol('OAuthTokenRepository'),
+    PrismaClient: Symbol('PrismaClient'),
+    RepositoryCommunication: Symbol('RepositoryCommunication')
+  },
+  container: {
+    get: vi.fn(() => ({}))
+  },
+  closeContainer: vi.fn(),
+  resetContainer: vi.fn()
+}));
 
 // Mock rate limiter
 vi.mock('../../src/middleware/rate-limit.middleware.js', () => ({

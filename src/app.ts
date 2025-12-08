@@ -1,9 +1,10 @@
+import 'reflect-metadata';
 import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { config } from './config.js';
-import { initializeDependencies } from './container.js';
+import { container } from './di/index.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { requestIdMiddleware, requestLoggerMiddleware } from './middleware/request.middleware.js';
 import { apiRateLimiter } from './middleware/rate-limit.middleware.js';
@@ -15,7 +16,11 @@ import healthController from './controllers/health.controller.js';
 export function createApp(): Express {
   const app = express();
 
-  initializeDependencies();
+  // Container is automatically initialized on import
+  // Validate that container is ready
+  if (!container) {
+    throw new Error('DI Container failed to initialize');
+  }
 
   app.use(helmet());
   app.use(cors({

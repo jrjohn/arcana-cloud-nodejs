@@ -3,11 +3,12 @@ import { validateSchema } from '../middleware/validation.middleware.js';
 import { tokenRequired } from '../middleware/auth.middleware.js';
 import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { successResponse } from '../utils/response.js';
-import { CommunicationFactory } from '../communication/factory.js';
+import { resolve, TOKENS } from '../di/index.js';
+import { ServiceCommunication } from '../communication/interfaces.js';
 import { LoginSchema, RegisterSchema, RefreshTokenSchema } from '../schemas/auth.schema.js';
 
 const router = Router();
-const getService = () => CommunicationFactory.getServiceCommunication();
+const getService = () => resolve<ServiceCommunication>(TOKENS.ServiceCommunication);
 
 router.post('/register',
   validateSchema(RegisterSchema),
