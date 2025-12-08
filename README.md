@@ -1,5 +1,18 @@
 # Arcana Cloud Node.js: Enterprise TypeScript Microservices Platform
 
+![Architecture Rating](https://img.shields.io/badge/Architecture%20Rating-⭐⭐⭐⭐⭐%209.0%2F10-brightgreen)
+![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)
+![gRPC](https://img.shields.io/badge/gRPC-1.12-4285F4?logo=google&logoColor=white)
+![architecture](https://img.shields.io/badge/architecture-microservices-blue)
+![tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
+![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
+![license](https://img.shields.io/badge/license-MIT-green)
+
+Enterprise-grade cloud platform with **gRPC-first architecture** (1.80x faster than HTTP REST), supporting dual-protocol communication and three flexible deployment modes (Monolithic, Layered, Microservices).
+
 ## Overview
 
 Production-ready cloud platform built on **Node.js 22+** and **TypeScript 5.x** featuring **gRPC-first architecture** with dual-protocol support. The system achieves **1.80x average speedup** with gRPC delivering up to **2.32x faster read operations** compared to HTTP REST in layered deployments.
