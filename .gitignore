@@ -24,8 +24,13 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Test coverage
+# Test coverage (never commit coverage reports - they cause false SonarQube issues)
 coverage/
+.nyc_output/
+docs/test-reports/coverage/
+**/.coverage/
+**/lcov-report/
+*.lcov
 
 # Prisma
 prisma/migrations/**/migration_lock.toml
