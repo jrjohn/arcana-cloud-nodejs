@@ -1,0 +1,9 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./coverage:/output
+    command: sh -c "npx vitest run --coverage --coverage.reporter=lcov --coverage.reportsDirectory=./coverage 2>&1; cp -r ./coverage/* /output/ 2>/dev/null || true"
