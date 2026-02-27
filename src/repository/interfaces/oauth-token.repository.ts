@@ -1,13 +1,13 @@
 /**
- * OAuthTokenDao
+ * OAuthTokenRepository
  *
- * Domain-specific DAO for the OAuthToken entity.
- * Extends BaseDao with token-lifecycle query methods.
+ * Domain-specific Repository interface for the OAuthToken entity.
+ * Extends BaseRepository with token-lifecycle query methods.
  */
-import { BaseDao } from './base.dao.js';
+import { BaseRepository } from './base.repository.js';
 import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
 
-export interface OAuthTokenDao extends BaseDao<OAuthToken, number> {
+export interface OAuthTokenRepository extends BaseRepository<OAuthToken, number> {
   /**
    * Persist a new OAuth token record.
    */

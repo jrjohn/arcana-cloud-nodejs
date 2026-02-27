@@ -1,20 +1,20 @@
 /**
- * UserDao
+ * UserRepository
  *
- * Domain-specific DAO for the User entity.
- * Extends BaseDao with user-centric query methods.
+ * Domain-specific Repository interface for the User entity.
+ * Extends BaseRepository with user-centric query methods.
  */
-import { BaseDao } from './base.dao.js';
+import { BaseRepository } from './base.repository.js';
 import { User, CreateUserData, UserStatus } from '../../models/user.model.js';
 import {
   UserFilterParams,
   PaginatedResult
 } from '../../repositories/interfaces/user.repository.interface.js';
 
-export interface UserDao extends BaseDao<User, number> {
+export interface UserRepository extends BaseRepository<User, number> {
   /**
    * Persist a new user. Accepts the standard CreateUserData payload plus the
-   * pre-hashed password so that the DAO layer never deals with raw passwords.
+   * pre-hashed password so that the Repository layer never deals with raw passwords.
    */
   save(data: CreateUserData & { passwordHash: string }): Promise<User>;
 

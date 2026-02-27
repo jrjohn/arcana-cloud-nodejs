@@ -9,13 +9,13 @@ export const TOKENS = {
   // Database
   PrismaClient: Symbol.for('PrismaClient'),
 
-  // Repositories
-  UserRepository: Symbol.for('UserRepository'),
-  OAuthTokenRepository: Symbol.for('OAuthTokenRepository'),
-
-  // DAOs
+  // DAOs (Prisma/ORM layer — technical implementation)
   UserDao: Symbol.for('UserDao'),
   OAuthTokenDao: Symbol.for('OAuthTokenDao'),
+
+  // Repositories (abstraction layer — called by Services)
+  UserRepository: Symbol.for('UserRepository'),
+  OAuthTokenRepository: Symbol.for('OAuthTokenRepository'),
 
   // Services
   UserService: Symbol.for('UserService'),

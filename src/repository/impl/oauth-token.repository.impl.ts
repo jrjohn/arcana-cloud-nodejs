@@ -1,25 +1,25 @@
 /**
- * OAuthTokenDaoImpl
+ * OAuthTokenRepositoryImpl
  *
- * Implementation of OAuthTokenDao. Delegates all persistence calls to the
- * IOAuthTokenRepository (which in turn uses Prisma).
+ * Implementation of OAuthTokenRepository. Delegates all persistence calls to the
+ * IOAuthTokenRepository DAO (which in turn uses Prisma).
  */
 import { injectable, inject } from 'inversify';
-import { OAuthTokenDao } from '../interfaces/oauth-token.dao.js';
+import { OAuthTokenRepository } from '../interfaces/oauth-token.repository.js';
 import { IOAuthTokenRepository } from '../../repositories/interfaces/oauth-token.repository.interface.js';
 import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
 import { TOKENS } from '../../di/tokens.js';
 
 @injectable()
-export class OAuthTokenDaoImpl implements OAuthTokenDao {
+export class OAuthTokenRepositoryImpl implements OAuthTokenRepository {
   constructor(
-    @inject(TOKENS.OAuthTokenRepository) private readonly tokenRepository: IOAuthTokenRepository
+    @inject(TOKENS.OAuthTokenDao) private readonly tokenDao: IOAuthTokenRepository
   ) {}
 
-  // ── BaseDao ──────────────────────────────────────────────────────────────
+  // ── BaseRepository ────────────────────────────────────────────────────────
 
   async save(data: CreateTokenData): Promise<OAuthToken> {
-    return this.tokenRepository.create(data);
+    return this.tokenDao.create(data);
   }
 
   async update(id: number, data: Partial<OAuthToken>): Promise<OAuthToken> {
@@ -28,60 +28,60 @@ export class OAuthTokenDaoImpl implements OAuthTokenDao {
     // For a full generic update, we fall back to repository-level approach.
     // If only isRevoked is changing, use revoke() for clarity.
     if (Object.keys(data).length === 1 && data.isRevoked === true) {
-      await this.tokenRepository.revoke(id);
-      const token = await this.tokenRepository.getById(id);
+      await this.tokenDao.revoke(id);
+      const token = await this.tokenDao.getById(id);
       return token as OAuthToken;
     }
     // Extend IOAuthTokenRepository if richer update semantics are needed.
-    throw new Error('OAuthTokenRepository does not support generic updates. Use domain-specific methods.');
+    throw new Error('OAuthTokenDao does not support generic updates. Use domain-specific methods.');
   }
 
   async findById(id: number): Promise<OAuthToken | null> {
-    return this.tokenRepository.getById(id);
+    return this.tokenDao.getById(id);
   }
 
   async findAll(): Promise<OAuthToken[]> {
-    // No direct "get all" on the repository; not a typical use-case for tokens.
+    // No direct "get all" on the DAO; not a typical use-case for tokens.
     throw new Error('findAll() is not supported for OAuthToken. Use findActiveByUserId() instead.');
   }
 
   async count(): Promise<number> {
-    // Not exposed by IOAuthTokenRepository; extend the repository if needed.
+    // Not exposed by IOAuthTokenRepository; extend the DAO if needed.
     throw new Error('count() is not supported for OAuthToken directly.');
   }
 
   async deleteById(id: number): Promise<boolean> {
-    return this.tokenRepository.revoke(id);
+    return this.tokenDao.revoke(id);
   }
 
   async existsById(id: number): Promise<boolean> {
-    const token = await this.tokenRepository.getById(id);
+    const token = await this.tokenDao.getById(id);
     return token !== null;
   }
 
-  // ── OAuthTokenDao ─────────────────────────────────────────────────────────
+  // ── OAuthTokenRepository ──────────────────────────────────────────────────
 
   async findByAccessToken(accessToken: string): Promise<OAuthToken | null> {
-    return this.tokenRepository.getByAccessToken(accessToken);
+    return this.tokenDao.getByAccessToken(accessToken);
   }
 
   async findByRefreshToken(refreshToken: string): Promise<OAuthToken | null> {
-    return this.tokenRepository.getByRefreshToken(refreshToken);
+    return this.tokenDao.getByRefreshToken(refreshToken);
   }
 
   async findActiveByUserId(userId: number): Promise<OAuthToken[]> {
-    return this.tokenRepository.getActiveForUser(userId);
+    return this.tokenDao.getActiveForUser(userId);
   }
 
   async revoke(id: number): Promise<boolean> {
-    return this.tokenRepository.revoke(id);
+    return this.tokenDao.revoke(id);
   }
 
   async revokeAllByUserId(userId: number): Promise<number> {
-    return this.tokenRepository.revokeAllForUser(userId);
+    return this.tokenDao.revokeAllForUser(userId);
   }
 
   async deleteExpired(): Promise<number> {
-    return this.tokenRepository.deleteExpired();
+    return this.tokenDao.deleteExpired();
   }
 }

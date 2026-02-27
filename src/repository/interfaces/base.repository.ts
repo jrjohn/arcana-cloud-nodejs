@@ -1,13 +1,13 @@
 /**
- * BaseDao<T, K>
+ * BaseRepository<T, K>
  *
- * Generic DAO interface following the arcana-cloud-springboot pattern.
+ * Generic Repository interface following the arcana-cloud-springboot pattern.
  * Provides standard CRUD operations for all domain entities.
  *
  * T = Entity type
  * K = Primary key type (e.g. number, string)
  */
-export interface BaseDao<T, K> {
+export interface BaseRepository<T, K> {
   /**
    * Persist a new entity.
    */

@@ -16,11 +16,11 @@ import { IOAuthTokenRepository } from '../repositories/interfaces/oauth-token.re
 import { UserRepositoryImpl } from '../repositories/implementations/user.repository.impl.js';
 import { OAuthTokenRepositoryImpl } from '../repositories/implementations/oauth-token.repository.impl.js';
 
-// DAOs
-import { UserDao } from '../dao/interfaces/user.dao.js';
-import { OAuthTokenDao } from '../dao/interfaces/oauth-token.dao.js';
-import { UserDaoImpl } from '../dao/impl/user.dao.impl.js';
-import { OAuthTokenDaoImpl } from '../dao/impl/oauth-token.dao.impl.js';
+// Repositories (abstraction layer)
+import { UserRepository } from '../repository/interfaces/user.repository.js';
+import { OAuthTokenRepository } from '../repository/interfaces/oauth-token.repository.js';
+import { UserRepositoryImpl as UserRepositoryAbstractImpl } from '../repository/impl/user.repository.impl.js';
+import { OAuthTokenRepositoryImpl as OAuthTokenRepositoryAbstractImpl } from '../repository/impl/oauth-token.repository.impl.js';
 
 // Services
 import { IUserService } from '../services/interfaces/user.service.interface.js';
@@ -49,15 +49,15 @@ function createContainer(): Container {
     return new PrismaClient();
   }).inSingletonScope();
 
-  // Repositories
-  container.bind<IUserRepository>(TOKENS.UserRepository).to(UserRepositoryImpl).inSingletonScope();
-  container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryImpl).inSingletonScope();
+  // DAOs — Prisma/ORM technical implementations
+  container.bind<IUserRepository>(TOKENS.UserDao).to(UserRepositoryImpl).inSingletonScope();
+  container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenDao).to(OAuthTokenRepositoryImpl).inSingletonScope();
 
-  // DAOs (depend on Repositories)
-  container.bind<UserDao>(TOKENS.UserDao).to(UserDaoImpl).inSingletonScope();
-  container.bind<OAuthTokenDao>(TOKENS.OAuthTokenDao).to(OAuthTokenDaoImpl).inSingletonScope();
+  // Repositories — abstraction layer (depend on DAOs, called by Services)
+  container.bind<UserRepository>(TOKENS.UserRepository).to(UserRepositoryAbstractImpl).inSingletonScope();
+  container.bind<OAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryAbstractImpl).inSingletonScope();
 
-  // Services (depend on DAOs)
+  // Services (depend on Repositories)
   container.bind<IUserService>(TOKENS.UserService).to(UserServiceImpl).inSingletonScope();
   container.bind<IAuthService>(TOKENS.AuthService).to(AuthServiceImpl).inSingletonScope();
 
@@ -152,10 +152,10 @@ export function resetContainer(): Container {
     return new PrismaClient();
   }).inSingletonScope();
 
-  container.bind<IUserRepository>(TOKENS.UserRepository).to(UserRepositoryImpl).inSingletonScope();
-  container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryImpl).inSingletonScope();
-  container.bind<UserDao>(TOKENS.UserDao).to(UserDaoImpl).inSingletonScope();
-  container.bind<OAuthTokenDao>(TOKENS.OAuthTokenDao).to(OAuthTokenDaoImpl).inSingletonScope();
+  container.bind<IUserRepository>(TOKENS.UserDao).to(UserRepositoryImpl).inSingletonScope();
+  container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenDao).to(OAuthTokenRepositoryImpl).inSingletonScope();
+  container.bind<UserRepository>(TOKENS.UserRepository).to(UserRepositoryAbstractImpl).inSingletonScope();
+  container.bind<OAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryAbstractImpl).inSingletonScope();
   container.bind<IUserService>(TOKENS.UserService).to(UserServiceImpl).inSingletonScope();
   container.bind<IAuthService>(TOKENS.AuthService).to(AuthServiceImpl).inSingletonScope();
 

@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { injectable, inject } from 'inversify';
 import { IAuthService, LoginData, AuthResult } from '../interfaces/auth.service.interface.js';
-import { UserDao } from '../../dao/interfaces/user.dao.js';
-import { OAuthTokenDao } from '../../dao/interfaces/oauth-token.dao.js';
+import { UserRepository } from '../../repository/interfaces/user.repository.js';
+import { OAuthTokenRepository } from '../../repository/interfaces/oauth-token.repository.js';
 import { User, UserPublic, CreateUserData, UserStatus } from '../../models/user.model.js';
 import { OAuthToken, TokenPair } from '../../models/oauth-token.model.js';
 import { AuthenticationError, ConflictError } from '../../utils/exceptions.js';
@@ -28,8 +28,8 @@ export class AuthServiceImpl implements IAuthService {
   private readonly SALT_ROUNDS = 12;
 
   constructor(
-    @inject(TOKENS.UserDao) private userDao: UserDao,
-    @inject(TOKENS.OAuthTokenDao) private tokenDao: OAuthTokenDao
+    @inject(TOKENS.UserRepository) private userDao: UserRepository,
+    @inject(TOKENS.OAuthTokenRepository) private tokenDao: OAuthTokenRepository
   ) {}
 
   private excludePassword(user: User): UserPublic {

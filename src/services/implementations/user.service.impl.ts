@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { injectable, inject } from 'inversify';
 import { IUserService } from '../interfaces/user.service.interface.js';
-import { UserDao } from '../../dao/interfaces/user.dao.js';
+import { UserRepository } from '../../repository/interfaces/user.repository.js';
 import { UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/exceptions.js';
@@ -12,7 +12,7 @@ import { getEventBus, Events } from '../../events/index.js';
 export class UserServiceImpl implements IUserService {
   private readonly SALT_ROUNDS = 12;
 
-  constructor(@inject(TOKENS.UserDao) private userDao: UserDao) {}
+  constructor(@inject(TOKENS.UserRepository) private userDao: UserRepository) {}
 
   private excludePassword(user: User): UserPublic {
     const { passwordHash, ...publicUser } = user;
