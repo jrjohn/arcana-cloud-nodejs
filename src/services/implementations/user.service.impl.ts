@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import { injectable, inject } from 'inversify';
 import { IUserService } from '../interfaces/user.service.interface.js';
-import { IUserRepository, UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
+import { UserDao } from '../../dao/interfaces/user.dao.js';
+import { UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
 import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/exceptions.js';
 import { TOKENS } from '../../di/tokens.js';
@@ -11,7 +12,7 @@ import { getEventBus, Events } from '../../events/index.js';
 export class UserServiceImpl implements IUserService {
   private readonly SALT_ROUNDS = 12;
 
-  constructor(@inject(TOKENS.UserRepository) private userRepository: IUserRepository) {}
+  constructor(@inject(TOKENS.UserDao) private userDao: UserDao) {}
 
   private excludePassword(user: User): UserPublic {
     const { passwordHash, ...publicUser } = user;
@@ -19,19 +20,19 @@ export class UserServiceImpl implements IUserService {
   }
 
   async createUser(data: CreateUserData): Promise<UserPublic> {
-    const existingUsername = await this.userRepository.getByUsername(data.username);
+    const existingUsername = await this.userDao.findByUsername(data.username);
     if (existingUsername) {
       throw new ConflictError('Username already exists');
     }
 
-    const existingEmail = await this.userRepository.getByEmail(data.email);
+    const existingEmail = await this.userDao.findByEmail(data.email);
     if (existingEmail) {
       throw new ConflictError('Email already exists');
     }
 
     const passwordHash = await bcrypt.hash(data.password, this.SALT_ROUNDS);
 
-    const user = await this.userRepository.create({
+    const user = await this.userDao.save({
       ...data,
       passwordHash
     });
@@ -40,7 +41,7 @@ export class UserServiceImpl implements IUserService {
   }
 
   async getUserById(id: number): Promise<UserPublic> {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userDao.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -48,7 +49,7 @@ export class UserServiceImpl implements IUserService {
   }
 
   async getUserByUsername(username: string): Promise<UserPublic> {
-    const user = await this.userRepository.getByUsername(username);
+    const user = await this.userDao.findByUsername(username);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -56,7 +57,7 @@ export class UserServiceImpl implements IUserService {
   }
 
   async getUserByEmail(email: string): Promise<UserPublic> {
-    const user = await this.userRepository.getByEmail(email);
+    const user = await this.userDao.findByEmail(email);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -64,32 +65,32 @@ export class UserServiceImpl implements IUserService {
   }
 
   async updateUser(id: number, data: UpdateUserData): Promise<UserPublic> {
-    const existingUser = await this.userRepository.getById(id);
+    const existingUser = await this.userDao.findById(id);
     if (!existingUser) {
       throw new NotFoundError('User not found');
     }
 
     if (data.email && data.email !== existingUser.email) {
-      const existingEmail = await this.userRepository.getByEmail(data.email);
+      const existingEmail = await this.userDao.findByEmail(data.email);
       if (existingEmail) {
         throw new ConflictError('Email already exists');
       }
     }
 
-    const updatedUser = await this.userRepository.update(id, data);
+    const updatedUser = await this.userDao.update(id, data);
     return this.excludePassword(updatedUser);
   }
 
   async deleteUser(id: number): Promise<boolean> {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userDao.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
-    return this.userRepository.delete(id);
+    return this.userDao.deleteById(id);
   }
 
   async changePassword(id: number, oldPassword: string, newPassword: string): Promise<boolean> {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userDao.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -100,7 +101,7 @@ export class UserServiceImpl implements IUserService {
     }
 
     const passwordHash = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
-    await this.userRepository.update(id, { passwordHash } as Partial<User>);
+    await this.userDao.update(id, { passwordHash } as Partial<User>);
 
     // Emit password changed event
     await getEventBus().publish(
@@ -114,7 +115,7 @@ export class UserServiceImpl implements IUserService {
   }
 
   async verifyUser(id: number): Promise<UserPublic> {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userDao.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -123,7 +124,7 @@ export class UserServiceImpl implements IUserService {
       throw new ConflictError('User is already verified');
     }
 
-    const updatedUser = await this.userRepository.update(id, { isVerified: true });
+    const updatedUser = await this.userDao.update(id, { isVerified: true });
 
     // Emit user verified event
     await getEventBus().publish(
@@ -137,13 +138,13 @@ export class UserServiceImpl implements IUserService {
   }
 
   async updateUserStatus(id: number, status: UserStatus): Promise<UserPublic> {
-    const user = await this.userRepository.getById(id);
+    const user = await this.userDao.findById(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
     const oldStatus = user.status;
-    const updatedUser = await this.userRepository.update(id, { status });
+    const updatedUser = await this.userDao.updateStatus(id, status);
 
     // Emit user status changed event
     await getEventBus().publish(
@@ -159,7 +160,7 @@ export class UserServiceImpl implements IUserService {
   }
 
   async getUsers(params: UserFilterParams): Promise<PaginatedResult<UserPublic>> {
-    const result = await this.userRepository.getAll(params);
+    const result = await this.userDao.findAllPaginated(params);
     return {
       items: result.items.map(user => this.excludePassword(user)),
       pagination: result.pagination

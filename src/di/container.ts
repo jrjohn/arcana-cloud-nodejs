@@ -16,6 +16,12 @@ import { IOAuthTokenRepository } from '../repositories/interfaces/oauth-token.re
 import { UserRepositoryImpl } from '../repositories/implementations/user.repository.impl.js';
 import { OAuthTokenRepositoryImpl } from '../repositories/implementations/oauth-token.repository.impl.js';
 
+// DAOs
+import { UserDao } from '../dao/interfaces/user.dao.js';
+import { OAuthTokenDao } from '../dao/interfaces/oauth-token.dao.js';
+import { UserDaoImpl } from '../dao/impl/user.dao.impl.js';
+import { OAuthTokenDaoImpl } from '../dao/impl/oauth-token.dao.impl.js';
+
 // Services
 import { IUserService } from '../services/interfaces/user.service.interface.js';
 import { IAuthService } from '../services/interfaces/auth.service.interface.js';
@@ -47,7 +53,11 @@ function createContainer(): Container {
   container.bind<IUserRepository>(TOKENS.UserRepository).to(UserRepositoryImpl).inSingletonScope();
   container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryImpl).inSingletonScope();
 
-  // Services
+  // DAOs (depend on Repositories)
+  container.bind<UserDao>(TOKENS.UserDao).to(UserDaoImpl).inSingletonScope();
+  container.bind<OAuthTokenDao>(TOKENS.OAuthTokenDao).to(OAuthTokenDaoImpl).inSingletonScope();
+
+  // Services (depend on DAOs)
   container.bind<IUserService>(TOKENS.UserService).to(UserServiceImpl).inSingletonScope();
   container.bind<IAuthService>(TOKENS.AuthService).to(AuthServiceImpl).inSingletonScope();
 
@@ -144,6 +154,8 @@ export function resetContainer(): Container {
 
   container.bind<IUserRepository>(TOKENS.UserRepository).to(UserRepositoryImpl).inSingletonScope();
   container.bind<IOAuthTokenRepository>(TOKENS.OAuthTokenRepository).to(OAuthTokenRepositoryImpl).inSingletonScope();
+  container.bind<UserDao>(TOKENS.UserDao).to(UserDaoImpl).inSingletonScope();
+  container.bind<OAuthTokenDao>(TOKENS.OAuthTokenDao).to(OAuthTokenDaoImpl).inSingletonScope();
   container.bind<IUserService>(TOKENS.UserService).to(UserServiceImpl).inSingletonScope();
   container.bind<IAuthService>(TOKENS.AuthService).to(AuthServiceImpl).inSingletonScope();
 

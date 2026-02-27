@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { injectable, inject } from 'inversify';
 import { IAuthService, LoginData, AuthResult } from '../interfaces/auth.service.interface.js';
-import { IUserRepository } from '../../repositories/interfaces/user.repository.interface.js';
-import { IOAuthTokenRepository } from '../../repositories/interfaces/oauth-token.repository.interface.js';
+import { UserDao } from '../../dao/interfaces/user.dao.js';
+import { OAuthTokenDao } from '../../dao/interfaces/oauth-token.dao.js';
 import { User, UserPublic, CreateUserData, UserStatus } from '../../models/user.model.js';
 import { OAuthToken, TokenPair } from '../../models/oauth-token.model.js';
 import { AuthenticationError, ConflictError } from '../../utils/exceptions.js';
@@ -28,8 +28,8 @@ export class AuthServiceImpl implements IAuthService {
   private readonly SALT_ROUNDS = 12;
 
   constructor(
-    @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
-    @inject(TOKENS.OAuthTokenRepository) private tokenRepository: IOAuthTokenRepository
+    @inject(TOKENS.UserDao) private userDao: UserDao,
+    @inject(TOKENS.OAuthTokenDao) private tokenDao: OAuthTokenDao
   ) {}
 
   private excludePassword(user: User): UserPublic {
@@ -77,9 +77,9 @@ export class AuthServiceImpl implements IAuthService {
   async login(data: LoginData): Promise<AuthResult> {
     const { usernameOrEmail, password, ipAddress, userAgent } = data;
 
-    let user = await this.userRepository.getByUsername(usernameOrEmail);
+    let user = await this.userDao.findByUsername(usernameOrEmail);
     if (!user) {
-      user = await this.userRepository.getByEmail(usernameOrEmail);
+      user = await this.userDao.findByEmail(usernameOrEmail);
     }
 
     if (!user) {
@@ -98,7 +98,7 @@ export class AuthServiceImpl implements IAuthService {
     const tokens = this.generateTokenPair(user);
 
     const expiresAt = new Date(Date.now() + config.jwt.refreshExpiresInSeconds * 1000);
-    await this.tokenRepository.create({
+    await this.tokenDao.save({
       userId: user.id,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -107,7 +107,7 @@ export class AuthServiceImpl implements IAuthService {
       userAgent
     });
 
-    await this.userRepository.updateLastLogin(user.id);
+    await this.userDao.updateLastLogin(user.id);
 
     // Emit user logged in event
     await getEventBus().publish(
@@ -128,12 +128,12 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async logout(accessToken: string): Promise<boolean> {
-    const token = await this.tokenRepository.getByAccessToken(accessToken);
+    const token = await this.tokenDao.findByAccessToken(accessToken);
     if (!token) {
       return true;
     }
 
-    await this.tokenRepository.revoke(token.id);
+    await this.tokenDao.revoke(token.id);
 
     // Emit user logged out event
     await getEventBus().publish(
@@ -159,22 +159,22 @@ export class AuthServiceImpl implements IAuthService {
       throw new AuthenticationError('Invalid token type');
     }
 
-    const storedToken = await this.tokenRepository.getByRefreshToken(refreshToken);
+    const storedToken = await this.tokenDao.findByRefreshToken(refreshToken);
     if (!storedToken || storedToken.isRevoked) {
       throw new AuthenticationError('Token has been revoked');
     }
 
-    const user = await this.userRepository.getById(payload.userId);
+    const user = await this.userDao.findById(payload.userId);
     if (!user || user.status !== UserStatus.ACTIVE) {
       throw new AuthenticationError('User not found or inactive');
     }
 
-    await this.tokenRepository.revoke(storedToken.id);
+    await this.tokenDao.revoke(storedToken.id);
 
     const tokens = this.generateTokenPair(user);
 
     const expiresAt = new Date(Date.now() + config.jwt.refreshExpiresInSeconds * 1000);
-    await this.tokenRepository.create({
+    await this.tokenDao.save({
       userId: user.id,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -198,12 +198,12 @@ export class AuthServiceImpl implements IAuthService {
       throw new AuthenticationError('Invalid token type');
     }
 
-    const storedToken = await this.tokenRepository.getByAccessToken(accessToken);
+    const storedToken = await this.tokenDao.findByAccessToken(accessToken);
     if (storedToken?.isRevoked) {
       throw new AuthenticationError('Token has been revoked');
     }
 
-    const user = await this.userRepository.getById(payload.userId);
+    const user = await this.userDao.findById(payload.userId);
     if (!user) {
       throw new AuthenticationError('User not found');
     }
@@ -212,19 +212,19 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async register(data: CreateUserData): Promise<AuthResult> {
-    const existingUsername = await this.userRepository.getByUsername(data.username);
+    const existingUsername = await this.userDao.findByUsername(data.username);
     if (existingUsername) {
       throw new ConflictError('Username already exists');
     }
 
-    const existingEmail = await this.userRepository.getByEmail(data.email);
+    const existingEmail = await this.userDao.findByEmail(data.email);
     if (existingEmail) {
       throw new ConflictError('Email already exists');
     }
 
     const passwordHash = await bcrypt.hash(data.password, this.SALT_ROUNDS);
 
-    const user = await this.userRepository.create({
+    const user = await this.userDao.save({
       ...data,
       passwordHash
     });
@@ -232,7 +232,7 @@ export class AuthServiceImpl implements IAuthService {
     const tokens = this.generateTokenPair(user);
 
     const expiresAt = new Date(Date.now() + config.jwt.refreshExpiresInSeconds * 1000);
-    await this.tokenRepository.create({
+    await this.tokenDao.save({
       userId: user.id,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -261,7 +261,7 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async revokeAllTokens(userId: number): Promise<number> {
-    const count = await this.tokenRepository.revokeAllForUser(userId);
+    const count = await this.tokenDao.revokeAllByUserId(userId);
 
     // Emit all tokens revoked event
     if (count > 0) {
@@ -278,6 +278,6 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async getUserTokens(userId: number): Promise<OAuthToken[]> {
-    return this.tokenRepository.getActiveForUser(userId);
+    return this.tokenDao.findActiveByUserId(userId);
   }
 }

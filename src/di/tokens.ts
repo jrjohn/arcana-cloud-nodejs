@@ -13,6 +13,10 @@ export const TOKENS = {
   UserRepository: Symbol.for('UserRepository'),
   OAuthTokenRepository: Symbol.for('OAuthTokenRepository'),
 
+  // DAOs
+  UserDao: Symbol.for('UserDao'),
+  OAuthTokenDao: Symbol.for('OAuthTokenDao'),
+
   // Services
   UserService: Symbol.for('UserService'),
   AuthService: Symbol.for('AuthService'),
