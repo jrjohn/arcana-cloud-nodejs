@@ -43,7 +43,7 @@ vi.mock('../../../src/events/index.js', () => ({
   }
 }));
 
-import { UserServiceImpl } from '../../../src/services/implementations/user.service.impl.js';
+import { UserServiceImpl } from '../../../src/services/impl/user.service.impl.js';
 import { IUserRepository } from '../../../src/repositories/interfaces/user.repository.interface.js';
 import { mockUser, mockCreateUserData, mockUpdateUserData, createMockUsers } from '../../fixtures.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../../src/utils/exceptions.js';

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { OAuthTokenRepositoryImpl } from '../../../src/repositories/implementations/oauth-token.repository.impl.js';
+import { OAuthTokenRepositoryImpl } from '../../../src/repositories/impl/oauth-token.repository.impl.js';
 import { mockPrisma, mockPrismaOAuthToken, resetPrismaMocks } from '../../mocks/prisma.mock.js';
 import { mockOAuthToken } from '../../fixtures.js';
 

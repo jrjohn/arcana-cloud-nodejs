@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { Container } from 'inversify';
-import { DirectServiceCommunication, DirectRepositoryCommunication } from '../../../src/communication/implementations/direct.impl.js';
+import { DirectServiceCommunication, DirectRepositoryCommunication } from '../../../src/communication/impl/direct.impl.js';
 import { TOKENS } from '../../../src/di/tokens.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 import { mockOAuthToken, mockCreateUserData } from '../../fixtures.js';

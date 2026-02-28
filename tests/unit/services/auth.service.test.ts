@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { AuthServiceImpl } from '../../../src/services/implementations/auth.service.impl.js';
+import { AuthServiceImpl } from '../../../src/services/impl/auth.service.impl.js';
 import { IUserRepository } from '../../../src/repositories/interfaces/user.repository.interface.js';
 import { IOAuthTokenRepository } from '../../../src/repositories/interfaces/oauth-token.repository.interface.js';
 import { mockUser, mockOAuthToken, mockCreateUserData, mockLoginData } from '../../fixtures.js';

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UserRepositoryImpl } from '../../../src/repositories/implementations/user.repository.impl.js';
+import { UserRepositoryImpl } from '../../../src/repositories/impl/user.repository.impl.js';
 import { mockPrisma, mockPrismaUser, resetPrismaMocks } from '../../mocks/prisma.mock.js';
 import { mockUser, createMockUsers, mockCreateUserData } from '../../fixtures.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';

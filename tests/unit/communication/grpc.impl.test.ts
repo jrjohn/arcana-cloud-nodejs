@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
-import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../../../src/communication/implementations/grpc.impl.js';
+import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../../../src/communication/impl/grpc.impl.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 
 vi.mock('@grpc/grpc-js');

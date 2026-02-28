@@ -13,8 +13,8 @@ import { TOKENS } from './tokens.js';
 // Repositories
 import { IUserRepository } from '../repositories/interfaces/user.repository.interface.js';
 import { IOAuthTokenRepository } from '../repositories/interfaces/oauth-token.repository.interface.js';
-import { UserRepositoryImpl } from '../repositories/implementations/user.repository.impl.js';
-import { OAuthTokenRepositoryImpl } from '../repositories/implementations/oauth-token.repository.impl.js';
+import { UserRepositoryImpl } from '../repositories/impl/user.repository.impl.js';
+import { OAuthTokenRepositoryImpl } from '../repositories/impl/oauth-token.repository.impl.js';
 
 // Repositories (abstraction layer)
 import { UserRepository } from '../repository/interfaces/user.repository.js';
@@ -25,8 +25,8 @@ import { OAuthTokenRepositoryImpl as OAuthTokenRepositoryAbstractImpl } from '..
 // Services
 import { IUserService } from '../services/interfaces/user.service.interface.js';
 import { IAuthService } from '../services/interfaces/auth.service.interface.js';
-import { UserServiceImpl } from '../services/implementations/user.service.impl.js';
-import { AuthServiceImpl } from '../services/implementations/auth.service.impl.js';
+import { UserServiceImpl } from '../services/impl/user.service.impl.js';
+import { AuthServiceImpl } from '../services/impl/auth.service.impl.js';
 
 // Events
 import { EventBus, setEventBusInstance } from '../events/event-bus.js';
@@ -34,9 +34,9 @@ import { EventStore } from '../events/event-store.js';
 
 // Communication
 import { ServiceCommunication, RepositoryCommunication, DeploymentMode, CommunicationProtocol } from '../communication/interfaces.js';
-import { DirectServiceCommunication, DirectRepositoryCommunication } from '../communication/implementations/direct.impl.js';
-import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../communication/implementations/http.impl.js';
-import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../communication/implementations/grpc.impl.js';
+import { DirectServiceCommunication, DirectRepositoryCommunication } from '../communication/impl/direct.impl.js';
+import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../communication/impl/http.impl.js';
+import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../communication/impl/grpc.impl.js';
 
 /**
  * Create and configure the DI container

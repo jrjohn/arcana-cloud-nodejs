@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import axios from 'axios';
-import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../../../src/communication/implementations/http.impl.js';
+import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../../../src/communication/impl/http.impl.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 
 vi.mock('axios');
