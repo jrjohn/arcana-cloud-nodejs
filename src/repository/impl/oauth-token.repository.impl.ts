@@ -5,8 +5,8 @@
  * IOAuthTokenRepository DAO (which in turn uses Prisma).
  */
 import { injectable, inject } from 'inversify';
-import { OAuthTokenRepository } from '../interfaces/oauth-token.repository.js';
-import { IOAuthTokenRepository } from '../../repositories/interfaces/oauth-token.repository.interface.js';
+import { OAuthTokenRepository } from '../oauth-token.repository.js';
+import { IOAuthTokenRepository } from '../../repositories/oauth-token.repository.interface.js';
 import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
 import { TOKENS } from '../../di/tokens.js';
 

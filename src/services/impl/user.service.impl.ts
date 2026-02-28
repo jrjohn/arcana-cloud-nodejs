@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import { injectable, inject } from 'inversify';
-import { IUserService } from '../interfaces/user.service.interface.js';
-import { UserRepository } from '../../repository/interfaces/user.repository.js';
-import { UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
+import { IUserService } from '../user.service.interface.js';
+import { UserRepository } from '../../repository/user.repository.js';
+import { UserFilterParams, PaginatedResult } from '../../repositories/user.repository.interface.js';
 import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/exceptions.js';
 import { TOKENS } from '../../di/tokens.js';

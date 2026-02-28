@@ -10,7 +10,7 @@ import {
 } from '../interfaces.js';
 import { UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
-import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
+import { PaginatedResult } from '../../repositories/user.repository.interface.js';
 import { delay } from '../../utils/helpers.js';
 
 @injectable()

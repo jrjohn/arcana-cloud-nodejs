@@ -5,8 +5,8 @@ import { DirectServiceCommunication, DirectRepositoryCommunication } from '../..
 import { TOKENS } from '../../../src/di/tokens.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 import { mockOAuthToken, mockCreateUserData } from '../../fixtures.js';
-import { IUserService } from '../../../src/services/interfaces/user.service.interface.js';
-import { IAuthService } from '../../../src/services/interfaces/auth.service.interface.js';
+import { IUserService } from '../../../src/services/user.service.interface.js';
+import { IAuthService } from '../../../src/services/auth.service.interface.js';
 
 describe('DirectServiceCommunication', () => {
   let container: Container;

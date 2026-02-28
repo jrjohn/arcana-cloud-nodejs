@@ -11,20 +11,20 @@ import { PrismaClient } from '@prisma/client';
 import { TOKENS } from './tokens.js';
 
 // Repositories
-import { IUserRepository } from '../repositories/interfaces/user.repository.interface.js';
-import { IOAuthTokenRepository } from '../repositories/interfaces/oauth-token.repository.interface.js';
+import { IUserRepository } from '../repositories/user.repository.interface.js';
+import { IOAuthTokenRepository } from '../repositories/oauth-token.repository.interface.js';
 import { UserRepositoryImpl } from '../repositories/impl/user.repository.impl.js';
 import { OAuthTokenRepositoryImpl } from '../repositories/impl/oauth-token.repository.impl.js';
 
 // Repositories (abstraction layer)
-import { UserRepository } from '../repository/interfaces/user.repository.js';
-import { OAuthTokenRepository } from '../repository/interfaces/oauth-token.repository.js';
+import { UserRepository } from '../repository/user.repository.js';
+import { OAuthTokenRepository } from '../repository/oauth-token.repository.js';
 import { UserRepositoryImpl as UserRepositoryAbstractImpl } from '../repository/impl/user.repository.impl.js';
 import { OAuthTokenRepositoryImpl as OAuthTokenRepositoryAbstractImpl } from '../repository/impl/oauth-token.repository.impl.js';
 
 // Services
-import { IUserService } from '../services/interfaces/user.service.interface.js';
-import { IAuthService } from '../services/interfaces/auth.service.interface.js';
+import { IUserService } from '../services/user.service.interface.js';
+import { IAuthService } from '../services/auth.service.interface.js';
 import { UserServiceImpl } from '../services/impl/user.service.impl.js';
 import { AuthServiceImpl } from '../services/impl/auth.service.impl.js';
 

@@ -11,7 +11,7 @@ import {
 } from '../interfaces.js';
 import { UserPublic, CreateUserData, UpdateUserData, UserStatus, UserRole } from '../../models/user.model.js';
 import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
-import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
+import { PaginatedResult } from '../../repositories/user.repository.interface.js';
 
 @injectable()
 export class GRPCServiceCommunication implements ServiceCommunication {

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { injectable, inject } from 'inversify';
-import { IOAuthTokenRepository } from '../interfaces/oauth-token.repository.interface.js';
+import { IOAuthTokenRepository } from '../oauth-token.repository.interface.js';
 import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
 import { TOKENS } from '../../di/tokens.js';
 

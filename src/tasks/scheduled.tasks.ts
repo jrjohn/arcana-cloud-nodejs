@@ -2,7 +2,7 @@ import { Job } from 'bullmq';
 import { createQueue, createWorker, addJob } from './queue.js';
 import { LeaderElection } from './distributed-lock.js';
 import { container } from '../container.js';
-import { IOAuthTokenRepository } from '../repositories/interfaces/oauth-token.repository.interface.js';
+import { IOAuthTokenRepository } from '../repositories/oauth-token.repository.interface.js';
 import { logger } from '../utils/logger.js';
 
 // Queue names

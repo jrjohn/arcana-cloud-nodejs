@@ -7,8 +7,8 @@
  * without touching business logic in Services.
  */
 import { injectable, inject } from 'inversify';
-import { UserRepository } from '../interfaces/user.repository.js';
-import { IUserRepository, UserFilterParams, PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
+import { UserRepository } from '../user.repository.js';
+import { IUserRepository, UserFilterParams, PaginatedResult } from '../../repositories/user.repository.interface.js';
 import { User, CreateUserData, UserStatus } from '../../models/user.model.js';
 import { TOKENS } from '../../di/tokens.js';
 

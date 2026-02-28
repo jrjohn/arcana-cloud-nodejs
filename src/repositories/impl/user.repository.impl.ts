@@ -4,7 +4,7 @@ import {
   IUserRepository,
   UserFilterParams,
   PaginatedResult
-} from '../interfaces/user.repository.interface.js';
+} from '../user.repository.interface.js';
 import { User, CreateUserData, UserRole, UserStatus } from '../../models/user.model.js';
 import { TOKENS } from '../../di/tokens.js';
 

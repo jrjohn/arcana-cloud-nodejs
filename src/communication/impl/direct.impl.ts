@@ -9,9 +9,9 @@ import {
 } from '../interfaces.js';
 import { UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../../models/user.model.js';
 import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
-import { PaginatedResult } from '../../repositories/interfaces/user.repository.interface.js';
-import { IUserService } from '../../services/interfaces/user.service.interface.js';
-import { IAuthService } from '../../services/interfaces/auth.service.interface.js';
+import { PaginatedResult } from '../../repositories/user.repository.interface.js';
+import { IUserService } from '../../services/user.service.interface.js';
+import { IAuthService } from '../../services/auth.service.interface.js';
 import { TOKENS } from '../../di/tokens.js';
 
 @injectable()

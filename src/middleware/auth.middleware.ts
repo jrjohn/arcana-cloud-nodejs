@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { resolve, TOKENS } from '../di/index.js';
 import { AuthenticationError, AuthorizationError } from '../utils/exceptions.js';
 import { UserRole } from '../models/user.model.js';
-import { IAuthService } from '../services/interfaces/auth.service.interface.js';
+import { IAuthService } from '../services/auth.service.interface.js';
 
 export const tokenRequired = async (
   req: Request,
