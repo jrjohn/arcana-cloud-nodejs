@@ -44,7 +44,7 @@ vi.mock('../../../src/events/index.js', () => ({
 }));
 
 import { UserServiceImpl } from '../../../src/services/impl/user.service.impl.js';
-import { IUserRepository } from '../../../src/repositories/user.repository.interface.js';
+import { UserRepository } from '../../../src/repository/user.repository.js';
 import { mockUser, mockCreateUserData, mockUpdateUserData, createMockUsers } from '../../fixtures.js';
 import { NotFoundError, ConflictError, AuthenticationError } from '../../../src/utils/exceptions.js';
 import { UserStatus } from '../../../src/models/user.model.js';
@@ -53,20 +53,23 @@ vi.mock('bcrypt');
 
 describe('UserServiceImpl', () => {
   let service: UserServiceImpl;
-  let mockRepository: IUserRepository;
+  let mockRepository: UserRepository;
 
   beforeEach(() => {
     mockRepository = {
-      create: vi.fn(),
-      getById: vi.fn(),
-      getByUsername: vi.fn(),
-      getByEmail: vi.fn(),
+      save: vi.fn(),
+      findById: vi.fn(),
+      findByUsername: vi.fn(),
+      findByEmail: vi.fn(),
       update: vi.fn(),
-      delete: vi.fn(),
-      getAll: vi.fn(),
-      getCount: vi.fn(),
-      updateLastLogin: vi.fn()
-    };
+      deleteById: vi.fn(),
+      findAll: vi.fn(),
+      findAllPaginated: vi.fn(),
+      count: vi.fn(),
+      existsById: vi.fn(),
+      updateLastLogin: vi.fn(),
+      updateStatus: vi.fn()
+    } as unknown as UserRepository;
 
     service = new UserServiceImpl(mockRepository);
 
@@ -76,29 +79,29 @@ describe('UserServiceImpl', () => {
 
   describe('createUser', () => {
     it('should create a new user', async () => {
-      vi.mocked(mockRepository.getByUsername).mockResolvedValue(null);
-      vi.mocked(mockRepository.getByEmail).mockResolvedValue(null);
-      vi.mocked(mockRepository.create).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByUsername).mockResolvedValue(null);
+      vi.mocked(mockRepository.findByEmail).mockResolvedValue(null);
+      vi.mocked(mockRepository.save).mockResolvedValue(mockUser);
 
       const result = await service.createUser(mockCreateUserData);
 
-      expect(mockRepository.getByUsername).toHaveBeenCalledWith(mockCreateUserData.username);
-      expect(mockRepository.getByEmail).toHaveBeenCalledWith(mockCreateUserData.email);
+      expect(mockRepository.findByUsername).toHaveBeenCalledWith(mockCreateUserData.username);
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(mockCreateUserData.email);
       expect(bcrypt.hash).toHaveBeenCalledWith(mockCreateUserData.password, 12);
-      expect(mockRepository.create).toHaveBeenCalled();
+      expect(mockRepository.save).toHaveBeenCalled();
       expect(result).not.toHaveProperty('passwordHash');
     });
 
     it('should throw ConflictError if username exists', async () => {
-      vi.mocked(mockRepository.getByUsername).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByUsername).mockResolvedValue(mockUser);
 
       await expect(service.createUser(mockCreateUserData)).rejects.toThrow(ConflictError);
       await expect(service.createUser(mockCreateUserData)).rejects.toThrow('Username already exists');
     });
 
     it('should throw ConflictError if email exists', async () => {
-      vi.mocked(mockRepository.getByUsername).mockResolvedValue(null);
-      vi.mocked(mockRepository.getByEmail).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByUsername).mockResolvedValue(null);
+      vi.mocked(mockRepository.findByEmail).mockResolvedValue(mockUser);
 
       await expect(service.createUser(mockCreateUserData)).rejects.toThrow(ConflictError);
       await expect(service.createUser(mockCreateUserData)).rejects.toThrow('Email already exists');
@@ -107,17 +110,17 @@ describe('UserServiceImpl', () => {
 
   describe('getUserById', () => {
     it('should return user by id', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
 
       const result = await service.getUserById(1);
 
-      expect(mockRepository.getById).toHaveBeenCalledWith(1);
+      expect(mockRepository.findById).toHaveBeenCalledWith(1);
       expect(result).not.toHaveProperty('passwordHash');
       expect(result.id).toBe(mockUser.id);
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.getUserById(999)).rejects.toThrow(NotFoundError);
       await expect(service.getUserById(999)).rejects.toThrow('User not found');
@@ -126,16 +129,16 @@ describe('UserServiceImpl', () => {
 
   describe('getUserByUsername', () => {
     it('should return user by username', async () => {
-      vi.mocked(mockRepository.getByUsername).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByUsername).mockResolvedValue(mockUser);
 
       const result = await service.getUserByUsername('testuser');
 
-      expect(mockRepository.getByUsername).toHaveBeenCalledWith('testuser');
+      expect(mockRepository.findByUsername).toHaveBeenCalledWith('testuser');
       expect(result.username).toBe(mockUser.username);
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getByUsername).mockResolvedValue(null);
+      vi.mocked(mockRepository.findByUsername).mockResolvedValue(null);
 
       await expect(service.getUserByUsername('nonexistent')).rejects.toThrow(NotFoundError);
     });
@@ -143,16 +146,16 @@ describe('UserServiceImpl', () => {
 
   describe('getUserByEmail', () => {
     it('should return user by email', async () => {
-      vi.mocked(mockRepository.getByEmail).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByEmail).mockResolvedValue(mockUser);
 
       const result = await service.getUserByEmail('test@example.com');
 
-      expect(mockRepository.getByEmail).toHaveBeenCalledWith('test@example.com');
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
       expect(result.email).toBe(mockUser.email);
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getByEmail).mockResolvedValue(null);
+      vi.mocked(mockRepository.findByEmail).mockResolvedValue(null);
 
       await expect(service.getUserByEmail('nonexistent@example.com')).rejects.toThrow(NotFoundError);
     });
@@ -161,7 +164,7 @@ describe('UserServiceImpl', () => {
   describe('updateUser', () => {
     it('should update user', async () => {
       const updatedUser = { ...mockUser, ...mockUpdateUserData };
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
       vi.mocked(mockRepository.update).mockResolvedValue(updatedUser);
 
       const result = await service.updateUser(1, mockUpdateUserData);
@@ -171,41 +174,41 @@ describe('UserServiceImpl', () => {
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.updateUser(999, mockUpdateUserData)).rejects.toThrow(NotFoundError);
     });
 
     it('should throw ConflictError if new email already exists', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
-      vi.mocked(mockRepository.getByEmail).mockResolvedValue({ ...mockUser, id: 2 });
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findByEmail).mockResolvedValue({ ...mockUser, id: 2 });
 
       await expect(service.updateUser(1, { email: 'existing@example.com' })).rejects.toThrow(ConflictError);
     });
 
     it('should allow updating to same email', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
       vi.mocked(mockRepository.update).mockResolvedValue(mockUser);
 
       await service.updateUser(1, { email: mockUser.email });
 
-      expect(mockRepository.getByEmail).not.toHaveBeenCalled();
+      expect(mockRepository.findByEmail).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteUser', () => {
     it('should delete user', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
-      vi.mocked(mockRepository.delete).mockResolvedValue(true);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.deleteById).mockResolvedValue(true);
 
       const result = await service.deleteUser(1);
 
-      expect(mockRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockRepository.deleteById).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.deleteUser(999)).rejects.toThrow(NotFoundError);
     });
@@ -213,7 +216,7 @@ describe('UserServiceImpl', () => {
 
   describe('changePassword', () => {
     it('should change password', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
       vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
       vi.mocked(mockRepository.update).mockResolvedValue(mockUser);
 
@@ -225,13 +228,13 @@ describe('UserServiceImpl', () => {
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.changePassword(999, 'old', 'new')).rejects.toThrow(NotFoundError);
     });
 
     it('should throw AuthenticationError if old password is incorrect', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
       vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
       await expect(service.changePassword(1, 'wrongPassword', 'NewPass@123'))
@@ -243,7 +246,7 @@ describe('UserServiceImpl', () => {
     it('should verify user', async () => {
       const unverifiedUser = { ...mockUser, isVerified: false };
       const verifiedUser = { ...mockUser, isVerified: true };
-      vi.mocked(mockRepository.getById).mockResolvedValue(unverifiedUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(unverifiedUser);
       vi.mocked(mockRepository.update).mockResolvedValue(verifiedUser);
 
       const result = await service.verifyUser(1);
@@ -253,13 +256,13 @@ describe('UserServiceImpl', () => {
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.verifyUser(999)).rejects.toThrow(NotFoundError);
     });
 
     it('should throw ConflictError if already verified', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser); // mockUser.isVerified = true
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser); // mockUser.isVerified = true
 
       await expect(service.verifyUser(1)).rejects.toThrow(ConflictError);
       await expect(service.verifyUser(1)).rejects.toThrow('User is already verified');
@@ -269,17 +272,17 @@ describe('UserServiceImpl', () => {
   describe('updateUserStatus', () => {
     it('should update user status', async () => {
       const suspendedUser = { ...mockUser, status: UserStatus.SUSPENDED };
-      vi.mocked(mockRepository.getById).mockResolvedValue(mockUser);
-      vi.mocked(mockRepository.update).mockResolvedValue(suspendedUser);
+      vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
+      vi.mocked(mockRepository.updateStatus).mockResolvedValue(suspendedUser);
 
       const result = await service.updateUserStatus(1, UserStatus.SUSPENDED);
 
-      expect(mockRepository.update).toHaveBeenCalledWith(1, { status: UserStatus.SUSPENDED });
+      expect(mockRepository.updateStatus).toHaveBeenCalledWith(1, UserStatus.SUSPENDED);
       expect(result.status).toBe(UserStatus.SUSPENDED);
     });
 
     it('should throw NotFoundError if user not found', async () => {
-      vi.mocked(mockRepository.getById).mockResolvedValue(null);
+      vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
       await expect(service.updateUserStatus(999, UserStatus.INACTIVE)).rejects.toThrow(NotFoundError);
     });
@@ -289,7 +292,7 @@ describe('UserServiceImpl', () => {
     it('should return paginated users', async () => {
       const users = createMockUsers(5);
       const pagination = { page: 1, perPage: 10, total: 5, totalPages: 1 };
-      vi.mocked(mockRepository.getAll).mockResolvedValue({ items: users, pagination });
+      vi.mocked(mockRepository.findAllPaginated).mockResolvedValue({ items: users, pagination });
 
       const result = await service.getUsers({ page: 1, perPage: 10 });
 
