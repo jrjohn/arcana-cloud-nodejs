@@ -42,7 +42,7 @@ function loadConfig() {
     port: Number.parseInt(env.PORT || '3000'),
     host: env.HOST || '0.0.0.0',
     nodeEnv: env.NODE_ENV || 'development',
-    databaseUrl: env.DATABASE_URL || 'mysql://arcana:arcana_pass@localhost:3306/arcana_cloud',
+    databaseUrl: env.DATABASE_URL || 'mysql://localhost:3306/arcana_cloud',
     redisUrl: env.REDIS_URL,
     jwt: {
       secret: env.JWT_SECRET || (env.NODE_ENV === 'production' ? undefined : 'dev-secret-key-min-32-characters!'),
