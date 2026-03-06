@@ -12,7 +12,7 @@ import { getEventBus, Events } from '../../events/index.js';
 export class UserServiceImpl implements IUserService {
   private readonly SALT_ROUNDS = 12;
 
-  constructor(@inject(TOKENS.UserRepository) private userDao: UserRepository) {}
+  constructor(@inject(TOKENS.UserRepository) private readonly userDao: UserRepository) {}
 
   private excludePassword(user: User): UserPublic {
     const { passwordHash, ...publicUser } = user;
@@ -101,7 +101,7 @@ export class UserServiceImpl implements IUserService {
     }
 
     const passwordHash = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
-    await this.userDao.update(id, { passwordHash } as Partial<User>);
+    await this.userDao.update(id, { passwordHash });
 
     // Emit password changed event
     await getEventBus().publish(

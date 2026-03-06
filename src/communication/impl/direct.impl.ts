@@ -17,8 +17,8 @@ import { TOKENS } from '../../di/tokens.js';
 @injectable()
 export class DirectServiceCommunication implements ServiceCommunication {
   constructor(
-    @inject(TOKENS.UserService) private userService: IUserService,
-    @inject(TOKENS.AuthService) private authService: IAuthService
+    @inject(TOKENS.UserService) private readonly userService: IUserService,
+    @inject(TOKENS.AuthService) private readonly authService: IAuthService
   ) {}
 
   async getUsers(params: GetUsersParams): Promise<PaginatedResult<UserPublic>> {

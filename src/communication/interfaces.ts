@@ -1,4 +1,4 @@
-import { User, UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../models/user.model.js';
+import { UserPublic, CreateUserData, UpdateUserData, UserStatus } from '../models/user.model.js';
 import { TokenPair, OAuthToken } from '../models/oauth-token.model.js';
 import { PaginatedResult, UserFilterParams } from '../repositories/user.repository.interface.js';
 

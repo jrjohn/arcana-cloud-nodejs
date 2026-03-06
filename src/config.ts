@@ -39,17 +39,17 @@ function loadConfig() {
   const env = process.env;
 
   const rawConfig = {
-    port: parseInt(env.PORT || '3000'),
+    port: Number.parseInt(env.PORT || '3000'),
     host: env.HOST || '0.0.0.0',
     nodeEnv: env.NODE_ENV || 'development',
     databaseUrl: env.DATABASE_URL || 'mysql://arcana:arcana_pass@localhost:3306/arcana_cloud',
     redisUrl: env.REDIS_URL,
     jwt: {
-      secret: env.JWT_SECRET || (env.NODE_ENV !== 'production' ? 'dev-secret-key-min-32-characters!' : undefined),
+      secret: env.JWT_SECRET || (env.NODE_ENV === 'production' ? undefined : 'dev-secret-key-min-32-characters!'),
       accessExpiresIn: env.JWT_ACCESS_EXPIRES_IN || '1h',
-      accessExpiresInSeconds: parseInt(env.JWT_ACCESS_EXPIRES_IN_SECONDS || '3600'),
+      accessExpiresInSeconds: Number.parseInt(env.JWT_ACCESS_EXPIRES_IN_SECONDS || '3600'),
       refreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN || '30d',
-      refreshExpiresInSeconds: parseInt(env.JWT_REFRESH_EXPIRES_IN_SECONDS || '2592000')
+      refreshExpiresInSeconds: Number.parseInt(env.JWT_REFRESH_EXPIRES_IN_SECONDS || '2592000')
     },
     deploymentMode: env.DEPLOYMENT_MODE || 'monolithic',
     deploymentLayer: env.DEPLOYMENT_LAYER || 'monolithic',
@@ -58,8 +58,8 @@ function loadConfig() {
     repositoryUrls: env.REPOSITORY_URLS?.split(',') || ['localhost:50052'],
     rateLimit: {
       enabled: env.RATE_LIMIT_ENABLED !== 'false',
-      windowMs: parseInt(env.RATE_LIMIT_WINDOW_MS || '3600000'),
-      max: parseInt(env.RATE_LIMIT_MAX || '100')
+      windowMs: Number.parseInt(env.RATE_LIMIT_WINDOW_MS || '3600000'),
+      max: Number.parseInt(env.RATE_LIMIT_MAX || '100')
     },
     corsOrigins: env.CORS_ORIGINS?.split(',') || ['http://localhost:3000']
   };

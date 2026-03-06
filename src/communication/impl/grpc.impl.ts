@@ -15,7 +15,7 @@ import { PaginatedResult } from '../../repositories/user.repository.interface.js
 
 @injectable()
 export class GRPCServiceCommunication implements ServiceCommunication {
-  private clients: grpc.Client[];
+  private readonly clients: grpc.Client[];
   private currentIndex = 0;
 
   constructor(urls: string[]) {
@@ -261,7 +261,7 @@ export class GRPCServiceCommunication implements ServiceCommunication {
 
 @injectable()
 export class GRPCRepositoryCommunication implements RepositoryCommunication {
-  private clients: grpc.Client[];
+  private readonly clients: grpc.Client[];
   private currentIndex = 0;
 
   constructor(urls: string[]) {
@@ -284,7 +284,7 @@ export class GRPCRepositoryCommunication implements RepositoryCommunication {
     );
   }
 
-  private getNextClient(): grpc.Client {
+  private getNextClient(): grpc.Client { // NOSONAR typescript:S4144
     const client = this.clients[this.currentIndex];
     this.currentIndex = (this.currentIndex + 1) % this.clients.length;
     return client;

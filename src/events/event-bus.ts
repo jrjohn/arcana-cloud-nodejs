@@ -62,15 +62,15 @@ export type EventMiddleware = (
 
 @injectable()
 export class EventBus {
-  private handlers: Map<string, HandlerRegistration[]> = new Map();
-  private globalHandlers: HandlerRegistration[] = [];
-  private middleware: EventMiddleware[] = [];
+  private readonly handlers: Map<string, HandlerRegistration[]> = new Map();
+  private readonly globalHandlers: HandlerRegistration[] = [];
+  private readonly middleware: EventMiddleware[] = [];
   private config: EventBusConfig;
   private initialized = false;
   private eventStore: EventStore | null = null;
 
   constructor(
-    @inject(TOKENS.PrismaClient) @optional() private prisma?: PrismaClient,
+    @inject(TOKENS.PrismaClient) @optional() private readonly prisma?: PrismaClient,
     config: Partial<EventBusConfig> = {}
   ) {
     this.config = { ...defaultConfig, ...config };
@@ -469,9 +469,7 @@ export class EventBus {
 let eventBusInstance: EventBus | null = null;
 
 export function getEventBus(): EventBus {
-  if (!eventBusInstance) {
-    eventBusInstance = new EventBus();
-  }
+  eventBusInstance ??= new EventBus();
   return eventBusInstance;
 }
 

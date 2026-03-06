@@ -6,7 +6,6 @@
  */
 
 import { getEventBus } from '../event-bus.js';
-import { EventType } from '../domain-events.js';
 
 // In-memory fallback for testing
 interface AuditLogEntry {
@@ -181,7 +180,7 @@ export function getAuditStats(): {
     totalEvents: inMemoryAuditLog.length,
     eventsByType,
     oldestEvent: inMemoryAuditLog[0]?.occurredAt,
-    newestEvent: inMemoryAuditLog[inMemoryAuditLog.length - 1]?.occurredAt
+    newestEvent: inMemoryAuditLog.at(-1)?.occurredAt
   };
 }
 

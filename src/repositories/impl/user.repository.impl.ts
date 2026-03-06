@@ -10,7 +10,7 @@ import { TOKENS } from '../../di/tokens.js';
 
 @injectable()
 export class UserRepositoryImpl implements IUserRepository {
-  constructor(@inject(TOKENS.PrismaClient) private prisma: PrismaClient) {}
+  constructor(@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient) {}
 
   async create(data: CreateUserData & { passwordHash: string }): Promise<User> {
     const { password, ...userData } = data as CreateUserData & { passwordHash: string; password?: string };

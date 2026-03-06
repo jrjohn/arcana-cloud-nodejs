@@ -51,7 +51,9 @@ async function main() {
   process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
-main().catch((error) => {
+try {
+  await main();
+} catch (error) {
   logger.error('Failed to start server:', error);
   process.exit(1);
-});
+}

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Redis from 'ioredis';
 import { logger } from '../utils/logger.js';
 import { config } from '../config.js';
@@ -19,17 +20,17 @@ function getRedis(): Redis {
  * Implements Redlock-like single instance algorithm
  */
 export class DistributedLock {
-  private lockKey: string;
-  private lockValue: string;
-  private ttlMs: number;
+  private readonly lockKey: string;
+  private readonly lockValue: string;
+  private readonly ttlMs: number;
   private renewInterval?: NodeJS.Timeout;
 
   constructor(
-    private name: string,
+    private readonly name: string,
     options?: { ttlMs?: number }
   ) {
     this.lockKey = `lock:${name}`;
-    this.lockValue = `${process.pid}-${Date.now()}-${Math.random()}`;
+    this.lockValue = `${process.pid}-${Date.now()}-${randomUUID()}`;
     this.ttlMs = options?.ttlMs || 30000; // 30 seconds default
   }
 
@@ -165,14 +166,14 @@ export async function withLock<T>(
  * Only one instance becomes leader and runs scheduled jobs
  */
 export class LeaderElection {
-  private lock: DistributedLock;
+  private readonly lock: DistributedLock;
   private isLeader = false;
   private electionInterval?: NodeJS.Timeout;
-  private onBecomeLeader?: () => void;
-  private onLoseLeadership?: () => void;
+  private readonly onBecomeLeader?: () => void;
+  private readonly onLoseLeadership?: () => void;
 
   constructor(
-    private name: string,
+    private readonly name: string,
     options?: {
       ttlMs?: number;
       electionIntervalMs?: number;
@@ -226,8 +227,6 @@ export class LeaderElection {
   }
 
   private async tryBecomeLeader(): Promise<void> {
-    const wasLeader = this.isLeader;
-
     if (this.isLeader) {
       // Try to extend leadership
       const extended = await this.lock.extend();

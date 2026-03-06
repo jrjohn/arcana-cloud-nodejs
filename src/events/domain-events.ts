@@ -6,7 +6,7 @@
  */
 
 import { z } from 'zod';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 // Base event interface with versioning and idempotency
 export interface DomainEvent<T = unknown> {

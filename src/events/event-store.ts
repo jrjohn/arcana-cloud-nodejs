@@ -36,15 +36,15 @@ export interface SecurityMetrics {
 export class EventStore {
   private redis: Redis | null = null;
   private subscriber: Redis | null = null;
-  private localProcessedEvents: Set<string> = new Set();
-  private localSecurityMetrics: SecurityMetrics = {
+  private readonly localProcessedEvents: Set<string> = new Set();
+  private readonly localSecurityMetrics: SecurityMetrics = {
     rateLimitHits: new Map(),
     failedLogins: new Map()
   };
-  private eventHandlers: ((event: DomainEvent) => void)[] = [];
+  private readonly eventHandlers: ((event: DomainEvent) => void)[] = [];
 
   constructor(
-    @inject(TOKENS.PrismaClient) private prisma: PrismaClient
+    @inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
   ) {
     this.initializeRedis();
   }
@@ -262,7 +262,7 @@ export class EventStore {
     if (this.redis) {
       try {
         const count = await this.redis.get(`security:ratelimit:${ipAddress}`);
-        return parseInt(count || '0', 10);
+        return Number.parseInt(count || '0', 10);
       } catch (error) {
         logger.error('Redis get rate limit failed:', error);
       }
@@ -282,7 +282,7 @@ export class EventStore {
         for (const key of keys) {
           const ip = key.replace('security:ratelimit:', '');
           const count = await this.redis.get(key);
-          rateLimitHits.set(ip, parseInt(count || '0', 10));
+          rateLimitHits.set(ip, Number.parseInt(count || '0', 10));
         }
 
         return { rateLimitHits, failedLogins: new Map() };

@@ -30,8 +30,8 @@ export const validatePagination = (options: { maxPerPage?: number } = {}) => {
   const { maxPerPage = 100 } = options;
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    let page = parseInt(req.query.page as string) || 1;
-    let perPage = parseInt(req.query.perPage as string) || 20;
+    let page = Number.parseInt(req.query.page as string) || 1;
+    let perPage = Number.parseInt(req.query.perPage as string) || 20;
 
     if (page < 1) page = 1;
     if (perPage < 1) perPage = 1;

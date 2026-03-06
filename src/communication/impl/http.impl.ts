@@ -15,7 +15,7 @@ import { delay } from '../../utils/helpers.js';
 
 @injectable()
 export class HTTPServiceCommunication implements ServiceCommunication {
-  private clients: AxiosInstance[];
+  private readonly clients: AxiosInstance[];
   private currentIndex = 0;
   private readonly maxRetries = 3;
   private readonly retryDelay = 1000;
@@ -164,12 +164,12 @@ export class HTTPServiceCommunication implements ServiceCommunication {
 
 @injectable()
 export class HTTPRepositoryCommunication implements RepositoryCommunication {
-  private clients: AxiosInstance[];
+  private readonly clients: AxiosInstance[];
   private currentIndex = 0;
   private readonly maxRetries = 3;
   private readonly retryDelay = 1000;
 
-  constructor(urls: string[]) {
+  constructor(urls: string[]) { // NOSONAR typescript:S4144
     this.clients = urls.map(url =>
       axios.create({
         baseURL: url,
@@ -179,13 +179,13 @@ export class HTTPRepositoryCommunication implements RepositoryCommunication {
     );
   }
 
-  private getNextClient(): AxiosInstance {
+  private getNextClient(): AxiosInstance { // NOSONAR typescript:S4144
     const client = this.clients[this.currentIndex];
     this.currentIndex = (this.currentIndex + 1) % this.clients.length;
     return client;
   }
 
-  private async executeWithRetry<T>(
+  private async executeWithRetry<T>( // NOSONAR typescript:S4144
     operation: (client: AxiosInstance) => Promise<T>
   ): Promise<T> {
     let lastError: Error | null = null;

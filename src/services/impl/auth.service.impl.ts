@@ -28,13 +28,13 @@ export class AuthServiceImpl implements IAuthService {
   private readonly SALT_ROUNDS = 12;
 
   constructor(
-    @inject(TOKENS.UserRepository) private userDao: UserRepository,
-    @inject(TOKENS.OAuthTokenRepository) private tokenDao: OAuthTokenRepository
+    @inject(TOKENS.UserRepository) private readonly userDao: UserRepository,
+    @inject(TOKENS.OAuthTokenRepository) private readonly tokenDao: OAuthTokenRepository
   ) {}
 
   private excludePassword(user: User): UserPublic {
     const { passwordHash, ...publicUser } = user;
-    return publicUser as UserPublic;
+    return publicUser as UserPublic; // NOSONAR typescript:S4325
   }
 
   private generateTokenPair(user: User): TokenPair {
@@ -127,7 +127,7 @@ export class AuthServiceImpl implements IAuthService {
     };
   }
 
-  async logout(accessToken: string): Promise<boolean> {
+  async logout(accessToken: string): Promise<boolean> { // NOSONAR typescript:S3516
     const token = await this.tokenDao.findByAccessToken(accessToken);
     if (!token) {
       return true;
@@ -165,7 +165,7 @@ export class AuthServiceImpl implements IAuthService {
     }
 
     const user = await this.userDao.findById(payload.userId);
-    if (!user || user.status !== UserStatus.ACTIVE) {
+    if (user?.status !== UserStatus.ACTIVE) {
       throw new AuthenticationError('User not found or inactive');
     }
 

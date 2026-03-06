@@ -6,7 +6,7 @@ import { TOKENS } from '../../di/tokens.js';
 
 @injectable()
 export class OAuthTokenRepositoryImpl implements IOAuthTokenRepository {
-  constructor(@inject(TOKENS.PrismaClient) private prisma: PrismaClient) {}
+  constructor(@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient) {}
 
   async create(data: CreateTokenData): Promise<OAuthToken> {
     return this.prisma.oAuthToken.create({
