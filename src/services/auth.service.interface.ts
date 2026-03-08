@@ -1,5 +1,5 @@
-import { User, UserPublic, CreateUserData } from '../../models/user.model.js';
-import { OAuthToken, TokenPair } from '../../models/oauth-token.model.js';
+import { User, UserPublic, CreateUserData } from '../models/user.model.js';
+import { OAuthToken, TokenPair } from '../models/oauth-token.model.js';
 
 export interface LoginData {
   usernameOrEmail: string;

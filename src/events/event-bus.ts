@@ -318,7 +318,7 @@ export class EventBus {
     const event = job.data;
 
     // Reconstitute Date object
-    event.occurredAt = new Date(event.occurredAt);
+    (event as any).occurredAt = new Date(event.occurredAt);
 
     logger.info(`Processing async event: ${event.type}`, {
       jobId: job.id,

@@ -343,7 +343,7 @@ export class EventStore {
           try {
             const event = JSON.parse(message) as DomainEvent;
             // Reconstitute Date objects
-            event.occurredAt = new Date(event.occurredAt);
+            (event as any).occurredAt = new Date(event.occurredAt);
             for (const eventHandler of this.eventHandlers) {
               eventHandler(event);
             }

@@ -1,4 +1,4 @@
-import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
+import { OAuthToken, CreateTokenData } from '../models/oauth-token.model.js';
 
 export interface IOAuthTokenRepository {
   create(data: CreateTokenData): Promise<OAuthToken>;
