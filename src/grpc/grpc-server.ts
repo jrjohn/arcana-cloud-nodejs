@@ -36,7 +36,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       });
     },
 
-    Query: async (call: any, callback: any) => {
+    Query: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, params } = call.request;
         const parsed = JSON.parse(params || '{}');
@@ -52,7 +52,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       }
     },
 
-    GetById: async (call: any, callback: any) => {
+    GetById: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, id } = call.request;
         const userRepo = resolve<IUserRepository>(TOKENS.UserDao);
@@ -67,7 +67,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Create: async (call: any, callback: any) => {
+    Create: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, data } = call.request;
         const parsed = JSON.parse(data || '{}');
@@ -83,7 +83,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Update: async (call: any, callback: any) => {
+    Update: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, id, data } = call.request;
         const parsed = JSON.parse(data || '{}');
@@ -99,7 +99,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Delete: async (call: any, callback: any) => {
+    Delete: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, id } = call.request;
         const userRepo = resolve<IUserRepository>(TOKENS.UserDao);
@@ -114,7 +114,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Count: async (call: any, callback: any) => {
+    Count: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const { entity, params } = call.request;
         const parsed = JSON.parse(params || '{}');
@@ -199,7 +199,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       });
     },
 
-    Login: async (call: any, callback: any) => {
+    Login: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const { username_or_email, password, ip_address, user_agent } = call.request;
@@ -223,7 +223,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Register: async (call: any, callback: any) => {
+    Register: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const { username, email, password, first_name, last_name } = call.request;
@@ -248,7 +248,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    ValidateToken: async (call: any, callback: any) => {
+    ValidateToken: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const user = await authService.validateToken(call.request.token);
@@ -258,7 +258,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    Logout: async (call: any, callback: any) => {
+    Logout: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const success = await authService.logout(call.request.token);
@@ -268,7 +268,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    GetUsers: async (call: any, callback: any) => {
+    GetUsers: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const { page, per_page, role, status } = call.request;
@@ -292,7 +292,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    GetUserById: async (call: any, callback: any) => {
+    GetUserById: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const user = await userService.getUserById(call.request.user_id);
@@ -302,7 +302,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    RefreshToken: async (call: any, callback: any) => {
+    RefreshToken: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const tokens = await authService.refreshToken(call.request.refresh_token);
@@ -317,7 +317,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    RevokeAllTokens: async (call: any, callback: any) => {
+    RevokeAllTokens: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const count = await authService.revokeAllTokens(call.request.user_id);
@@ -327,7 +327,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    CreateUser: async (call: any, callback: any) => {
+    CreateUser: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const { username, email, password, first_name, last_name, phone, role } = call.request;
@@ -346,7 +346,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    UpdateUser: async (call: any, callback: any) => {
+    UpdateUser: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const { user_id, email, first_name, last_name, phone, avatar_url } = call.request;
@@ -363,7 +363,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    DeleteUser: async (call: any, callback: any) => {
+    DeleteUser: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const success = await userService.deleteUser(call.request.user_id);
@@ -373,7 +373,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    ChangePassword: async (call: any, callback: any) => {
+    ChangePassword: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const success = await userService.changePassword(
@@ -387,7 +387,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    VerifyUser: async (call: any, callback: any) => {
+    VerifyUser: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const user = await userService.verifyUser(call.request.user_id);
@@ -397,7 +397,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    UpdateUserStatus: async (call: any, callback: any) => {
+    UpdateUserStatus: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const userService = resolve<IUserService>(TOKENS.UserService);
         const user = await userService.updateUserStatus(
@@ -410,7 +410,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
       }
     },
 
-    GetUserTokens: async (call: any, callback: any) => {
+    GetUserTokens: async (call: any, callback: any) => { // NOSONAR typescript:S6544 - async gRPC handler, Promise<void> is safe
       try {
         const authService = resolve<IAuthService>(TOKENS.AuthService);
         const tokens = await authService.getUserTokens(call.request.user_id);
