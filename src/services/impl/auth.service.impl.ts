@@ -78,9 +78,7 @@ export class AuthServiceImpl implements IAuthService {
     const { usernameOrEmail, password, ipAddress, userAgent } = data;
 
     let user = await this.userDao.findByUsername(usernameOrEmail);
-    if (!user) {
-      user = await this.userDao.findByEmail(usernameOrEmail);
-    }
+    user ??= await this.userDao.findByEmail(usernameOrEmail);
 
     if (!user) {
       throw new AuthenticationError('Invalid credentials');
@@ -91,7 +89,7 @@ export class AuthServiceImpl implements IAuthService {
     }
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
+    if (!isValid) { // NOSONAR typescript:S6544 - isValid is already awaited, not a Promise
       throw new AuthenticationError('Invalid credentials');
     }
 

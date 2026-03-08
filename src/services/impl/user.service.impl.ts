@@ -96,7 +96,7 @@ export class UserServiceImpl implements IUserService {
     }
 
     const isValid = await bcrypt.compare(oldPassword, user.passwordHash);
-    if (!isValid) {
+    if (!isValid) { // NOSONAR typescript:S6544 - isValid is already awaited, not a Promise
       throw new AuthenticationError('Current password is incorrect');
     }
 
