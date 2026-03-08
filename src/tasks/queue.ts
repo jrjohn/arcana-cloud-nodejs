@@ -1,4 +1,4 @@
-import { Queue, Worker, Job, QueueEvents, QueueScheduler } from 'bullmq';
+import { Queue, Worker, Job, QueueEvents } from 'bullmq';
 import Redis from 'ioredis';
 import { logger } from '../utils/logger.js';
 import { config } from '../config.js';
@@ -37,7 +37,7 @@ const defaultJobOptions = {
 
 export const queues: Map<string, Queue> = new Map();
 export const workers: Map<string, Worker> = new Map();
-export const schedulers: Map<string, QueueScheduler> = new Map();
+export const schedulers: Map<string, Queue> = new Map(); // QueueScheduler removed in bullmq v5
 
 export function createQueue(queueConfig: QueueConfig): Queue {
   const conn = getRedisConnection();
@@ -45,10 +45,6 @@ export function createQueue(queueConfig: QueueConfig): Queue {
   if (queues.has(queueConfig.name)) {
     return queues.get(queueConfig.name)!;
   }
-
-  // QueueScheduler handles delayed jobs and retries in distributed environment
-  const scheduler = new QueueScheduler(queueConfig.name, { connection: conn });
-  schedulers.set(queueConfig.name, scheduler);
 
   const queue = new Queue(queueConfig.name, {
     connection: conn,
@@ -163,11 +159,6 @@ export async function closeQueues(): Promise<void> {
   for (const [name, worker] of workers) {
     logger.info(`Closing worker for queue ${name}`);
     await worker.close();
-  }
-
-  for (const [name, scheduler] of schedulers) {
-    logger.info(`Closing scheduler for queue ${name}`);
-    await scheduler.close();
   }
 
   for (const [name, queue] of queues) {
