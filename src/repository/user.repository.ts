@@ -5,11 +5,11 @@
  * Extends BaseRepository with user-centric query methods.
  */
 import { BaseRepository } from './base.repository.js';
-import { User, CreateUserData, UserStatus } from '../../models/user.model.js';
+import { User, CreateUserData, UserStatus } from '../models/user.model.js';
 import {
   UserFilterParams,
   PaginatedResult
-} from '../../repositories/user.repository.interface.js';
+} from '../repositories/user.repository.interface.js';
 
 export interface UserRepository extends BaseRepository<User, number> {
   /**

@@ -1,4 +1,4 @@
-import { User, CreateUserData, UserRole, UserStatus } from '../../models/user.model.js';
+import { User, CreateUserData, UserRole, UserStatus } from '../models/user.model.js';
 
 export interface PaginationParams {
   page: number;

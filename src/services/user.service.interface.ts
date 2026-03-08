@@ -3,8 +3,8 @@ import {
   CreateUserData,
   UpdateUserData,
   UserStatus
-} from '../../models/user.model.js';
-import { PaginatedResult, UserFilterParams } from '../../repositories/user.repository.interface.js';
+} from '../models/user.model.js';
+import { PaginatedResult, UserFilterParams } from '../repositories/user.repository.interface.js';
 
 export interface IUserService {
   createUser(data: CreateUserData): Promise<UserPublic>;

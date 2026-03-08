@@ -5,7 +5,7 @@
  * Extends BaseRepository with token-lifecycle query methods.
  */
 import { BaseRepository } from './base.repository.js';
-import { OAuthToken, CreateTokenData } from '../../models/oauth-token.model.js';
+import { OAuthToken, CreateTokenData } from '../models/oauth-token.model.js';
 
 export interface OAuthTokenRepository extends BaseRepository<OAuthToken, number> {
   /**
