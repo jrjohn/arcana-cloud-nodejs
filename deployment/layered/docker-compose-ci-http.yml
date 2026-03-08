@@ -43,7 +43,7 @@ services:
       redis:
         condition: service_started
     environment:
-      NODE_ENV: ci
+      NODE_ENV: testing
       PORT: "3002"
       DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
       REDIS_URL: "redis://redis:6379"
@@ -67,7 +67,7 @@ services:
       repository:
         condition: service_healthy
     environment:
-      NODE_ENV: ci
+      NODE_ENV: testing
       PORT: "3001"
       DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
       REDIS_URL: "redis://redis:6379"
@@ -92,7 +92,7 @@ services:
       service:
         condition: service_healthy
     environment:
-      NODE_ENV: ci
+      NODE_ENV: testing
       PORT: "3000"
       DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
       REDIS_URL: "redis://redis:6379"
