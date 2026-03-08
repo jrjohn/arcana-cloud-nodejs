@@ -115,3 +115,4 @@ services:
 networks:
   arcana-ci-node-net:
     driver: bridge
+    name: arcana-ci-node-net
