@@ -19,6 +19,8 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
+# Proto files are needed at runtime for gRPC server/client
+COPY src/grpc/protos ./src/grpc/protos
 EXPOSE 3000
 # Default: run app. Override with 'sh -c "npx prisma migrate deploy && node dist/index.js"' for migration
 CMD ["node", "dist/index.js"]

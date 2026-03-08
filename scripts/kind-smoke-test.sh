@@ -149,8 +149,8 @@ run_test() {
 HEALTH=$(curl -sf --max-time 10 "${BASE_URL}/health" || echo '{}')
 run_test "GET /health" "ok" "${HEALTH}"
 
-TIMESTAMP=$(date +%s)
-TEST_USER="kindsmoke_${TIMESTAMP}"
+TIMESTAMP=$(date +%s%3N)
+TEST_USER="kindsmoke${TIMESTAMP}"
 TEST_EMAIL="${TEST_USER}@test.arcana"
 TEST_PASS="KindSmoke@123!"
 

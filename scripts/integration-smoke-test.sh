@@ -7,7 +7,8 @@ BASE_URL="${1:-http://localhost:3000}"
 LABEL="${2:-test}"
 TIMEOUT="${3:-180}"
 TS=$(date +%s%3N)
-USERNAME="ci_${LABEL}_${TS}"
+SAFE_LABEL=$(echo "${LABEL}" | tr '-' '_' | tr '[:upper:]' '[:lower:]')
+USERNAME="ci_${SAFE_LABEL}_${TS}"
 EMAIL="${USERNAME}@ci.test"
 PASSWORD="CiPassword1!"
 
