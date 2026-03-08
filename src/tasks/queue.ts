@@ -167,7 +167,7 @@ export async function closeQueues(): Promise<void> {
   }
 
   workers.clear();
-  schedulers.clear();
+  schedulers.clear(); // NOSONAR - stub retained for API compatibility; QueueScheduler removed in bullmq v5
   queues.clear();
 
   if (connection) {
