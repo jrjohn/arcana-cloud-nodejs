@@ -25,6 +25,7 @@ const ConfigSchema = z.object({
   communicationProtocol: z.enum(['direct', 'http', 'grpc']).default('grpc'),
   serviceUrls: z.array(z.string()).default(['localhost:50051']),
   repositoryUrls: z.array(z.string()).default(['localhost:50052']),
+  grpcPort: z.number().default(9090),
 
   rateLimit: z.object({
     enabled: z.boolean().default(true),
@@ -56,6 +57,7 @@ function loadConfig() {
     communicationProtocol: env.COMMUNICATION_PROTOCOL || 'grpc',
     serviceUrls: env.SERVICE_URLS?.split(',') || ['localhost:50051'],
     repositoryUrls: env.REPOSITORY_URLS?.split(',') || ['localhost:50052'],
+    grpcPort: Number.parseInt(env.GRPC_PORT || '9090'),
     rateLimit: {
       enabled: env.RATE_LIMIT_ENABLED !== 'false',
       windowMs: Number.parseInt(env.RATE_LIMIT_WINDOW_MS || '3600000'),

@@ -5,6 +5,7 @@ import { logger } from './utils/logger.js';
 import { closeContainer } from './di/index.js';
 import { initializeTasks, shutdownTasks } from './tasks/index.js';
 import { initializeEventSystem } from './events/index.js';
+import { startRepositoryGRPCServer, startServiceGRPCServer } from './grpc/grpc-server.js';
 
 async function main() {
   const app = createApp();
@@ -27,8 +28,20 @@ async function main() {
     logger.info(`Communication protocol: ${config.communicationProtocol}`);
   });
 
+  // Start gRPC server for layered deployments
+  let grpcServer: ReturnType<typeof startRepositoryGRPCServer> | null = null;
+  if (config.communicationProtocol === 'grpc' && config.deploymentMode === 'layered') {
+    if (config.deploymentLayer === 'repository') {
+      grpcServer = startRepositoryGRPCServer(config.grpcPort);
+    } else if (config.deploymentLayer === 'service') {
+      grpcServer = startServiceGRPCServer(config.grpcPort);
+    }
+  }
+
   const shutdown = async (signal: string) => {
     logger.info(`${signal} received, shutting down gracefully...`);
+
+    grpcServer?.forceShutdown();
 
     httpServer.close(async () => {
       logger.info('HTTP server closed');

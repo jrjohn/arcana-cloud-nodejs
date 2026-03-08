@@ -1,0 +1,106 @@
+services:
+  repository:
+    container_name: arcana-ci-node-repository
+    image: ${NODE_IMAGE:-localhost:5000/arcana/node-app:latest}
+    environment:
+      NODE_ENV: testing
+      DEPLOYMENT_MODE: layered
+      DEPLOYMENT_LAYER: repository
+      COMMUNICATION_PROTOCOL: http
+      PORT: "3002"
+      DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "ci-secret-key-minimum-32-characters-for-testing"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - arcana-ci-node-net
+    restart: "no"
+
+  service:
+    container_name: arcana-ci-node-service
+    image: ${NODE_IMAGE:-localhost:5000/arcana/node-app:latest}
+    environment:
+      NODE_ENV: testing
+      DEPLOYMENT_MODE: layered
+      DEPLOYMENT_LAYER: service
+      COMMUNICATION_PROTOCOL: http
+      PORT: "3001"
+      REPOSITORY_URLS: "http://arcana-ci-node-repository:3002"
+      DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "ci-secret-key-minimum-32-characters-for-testing"
+    depends_on:
+      repository:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - arcana-ci-node-net
+    restart: "no"
+
+  controller:
+    container_name: arcana-ci-node-controller
+    image: ${NODE_IMAGE:-localhost:5000/arcana/node-app:latest}
+    environment:
+      NODE_ENV: testing
+      DEPLOYMENT_MODE: layered
+      DEPLOYMENT_LAYER: controller
+      COMMUNICATION_PROTOCOL: http
+      PORT: "3000"
+      SERVICE_URLS: "http://arcana-ci-node-service:3001"
+      DATABASE_URL: "mysql://arcana:ci_arcana@mysql:3306/arcana_cloud"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "ci-secret-key-minimum-32-characters-for-testing"
+    depends_on:
+      service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - arcana-ci-node-net
+    restart: "no"
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ci_root
+      MYSQL_DATABASE: arcana_cloud
+      MYSQL_USER: arcana
+      MYSQL_PASSWORD: ci_arcana
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "arcana", "-pci_arcana"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - arcana-ci-node-net
+    restart: "no"
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - arcana-ci-node-net
+    restart: "no"
+
+networks:
+  arcana-ci-node-net:
+    name: arcana-ci-node-net

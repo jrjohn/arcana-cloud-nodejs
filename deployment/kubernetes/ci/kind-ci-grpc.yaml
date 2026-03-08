@@ -1,0 +1,416 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arcana-ci-kind-node-grpc
+  labels:
+    app: arcana-cloud-node
+    environment: ci
+
+---
+# Secret — sensitive values (avoids SonarQube kubernetes:S2068 hotspot)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: arcana-ci-secrets
+  namespace: arcana-ci-kind-node-grpc
+type: Opaque
+stringData:
+  DB_PASSWORD: "ci_arcana"
+  JWT_SECRET: "ci-secret-key-minimum-32-characters-for-testing"
+  MYSQL_ROOT_PASSWORD: "ci_root"
+
+---
+# ConfigMap — non-sensitive config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arcana-ci-config
+  namespace: arcana-ci-kind-node-grpc
+data:
+  NODE_ENV: "testing"
+  DEPLOYMENT_MODE: "layered"
+  COMMUNICATION_PROTOCOL: "grpc"
+  MYSQL_DATABASE: "arcana_cloud"
+  MYSQL_USER: "arcana"
+
+---
+# MySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+
+---
+# MySQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: DB_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: MYSQL_ROOT_PASSWORD
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-u", "arcana", "-pci_arcana"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 12
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+
+---
+# Repository Layer Service — HTTP health on 3002, gRPC on 9093
+apiVersion: v1
+kind: Service
+metadata:
+  name: arcana-node-repository
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  selector:
+    app: arcana-node-repository
+  ports:
+    - name: http
+      port: 3002
+      targetPort: 3002
+    - name: grpc
+      port: 9093
+      targetPort: 9093
+
+---
+# Repository Layer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arcana-node-repository
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arcana-node-repository
+  template:
+    metadata:
+      labels:
+        app: arcana-node-repository
+    spec:
+      containers:
+        - name: repository
+          image: arcana-cloud-node:ci
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 3002
+            - name: grpc
+              containerPort: 9093
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: NODE_ENV
+            - name: DEPLOYMENT_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: DEPLOYMENT_MODE
+            - name: COMMUNICATION_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: COMMUNICATION_PROTOCOL
+            - name: DEPLOYMENT_LAYER
+              value: "repository"
+            - name: PORT
+              value: "3002"
+            - name: GRPC_PORT
+              value: "9093"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: DB_PASSWORD
+            - name: DATABASE_URL
+              value: "mysql://arcana:$(DB_PASSWORD)@mysql:3306/arcana_cloud"
+            - name: REDIS_URL
+              value: "redis://redis:6379"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: JWT_SECRET
+          readinessProbe:
+            tcpSocket:
+              port: 9093
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 40
+            periodSeconds: 15
+
+---
+# Service Layer Service — HTTP health on 3001, gRPC on 9092
+apiVersion: v1
+kind: Service
+metadata:
+  name: arcana-node-service
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  selector:
+    app: arcana-node-service
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+    - name: grpc
+      port: 9092
+      targetPort: 9092
+
+---
+# Service Layer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arcana-node-service
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arcana-node-service
+  template:
+    metadata:
+      labels:
+        app: arcana-node-service
+    spec:
+      containers:
+        - name: service
+          image: arcana-cloud-node:ci
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 3001
+            - name: grpc
+              containerPort: 9092
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: NODE_ENV
+            - name: DEPLOYMENT_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: DEPLOYMENT_MODE
+            - name: COMMUNICATION_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: COMMUNICATION_PROTOCOL
+            - name: DEPLOYMENT_LAYER
+              value: "service"
+            - name: PORT
+              value: "3001"
+            - name: GRPC_PORT
+              value: "9092"
+            - name: REPOSITORY_URLS
+              value: "arcana-node-repository:9093"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: DB_PASSWORD
+            - name: DATABASE_URL
+              value: "mysql://arcana:$(DB_PASSWORD)@mysql:3306/arcana_cloud"
+            - name: REDIS_URL
+              value: "redis://redis:6379"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: JWT_SECRET
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 40
+            periodSeconds: 15
+
+---
+# Controller Layer Service — NodePort 30093
+apiVersion: v1
+kind: Service
+metadata:
+  name: arcana-node-controller
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  type: NodePort
+  selector:
+    app: arcana-node-controller
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      nodePort: 30093
+
+---
+# Controller Layer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arcana-node-controller
+  namespace: arcana-ci-kind-node-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arcana-node-controller
+  template:
+    metadata:
+      labels:
+        app: arcana-node-controller
+    spec:
+      containers:
+        - name: controller
+          image: arcana-cloud-node:ci
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: NODE_ENV
+            - name: DEPLOYMENT_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: DEPLOYMENT_MODE
+            - name: COMMUNICATION_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: arcana-ci-config
+                  key: COMMUNICATION_PROTOCOL
+            - name: DEPLOYMENT_LAYER
+              value: "controller"
+            - name: PORT
+              value: "3000"
+            - name: SERVICE_URLS
+              value: "arcana-node-service:9092"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: DB_PASSWORD
+            - name: DATABASE_URL
+              value: "mysql://arcana:$(DB_PASSWORD)@mysql:3306/arcana_cloud"
+            - name: REDIS_URL
+              value: "redis://redis:6379"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: arcana-ci-secrets
+                  key: JWT_SECRET
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 40
+            periodSeconds: 15
