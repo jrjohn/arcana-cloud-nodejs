@@ -52,7 +52,7 @@ services:
       DEPLOYMENT_LAYER: repository
       COMMUNICATION_PROTOCOL: direct
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3002/health"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -77,7 +77,7 @@ services:
       COMMUNICATION_PROTOCOL: http
       REPOSITORY_URLS: "http://arcana-ci-node-repository:3002"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -104,7 +104,7 @@ services:
     ports:
       - "18093:3000"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
       interval: 10s
       timeout: 5s
       retries: 12
