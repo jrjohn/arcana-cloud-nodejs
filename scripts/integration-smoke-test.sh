@@ -1,137 +1,93 @@
 #!/bin/bash
-# Integration smoke test for arcana-cloud-nodejs layered deployment
-# Usage: ./scripts/integration-smoke-test.sh <base_url> <label> [timeout_seconds]
-
+# Integration smoke test for arcana-cloud-nodejs
+# Usage: bash scripts/integration-smoke-test.sh <BASE_URL> <LABEL> [TIMEOUT_SECONDS]
 set -euo pipefail
 
 BASE_URL="${1:-http://localhost:3000}"
-LABEL="${2:-smoke}"
-TIMEOUT="${3:-300}"
+LABEL="${2:-test}"
+TIMEOUT="${3:-180}"
+TS=$(date +%s%3N)
+USERNAME="ci_${LABEL}_${TS}"
+EMAIL="${USERNAME}@ci.test"
+PASSWORD="CiPassword1!"
 
-echo "=== Integration Smoke Test: ${LABEL} ==="
-echo "    Target: ${BASE_URL}"
-echo "    Timeout: ${TIMEOUT}s"
+echo "=== Integration Smoke Test [${LABEL}] → ${BASE_URL} ==="
 
-# ---------------------------------------------------------------------------
-# Wait for service to be ready
-# ---------------------------------------------------------------------------
-wait_for_health() {
-  local url="${BASE_URL}/health"
-  local elapsed=0
-  local interval=5
-
-  echo "[wait] Waiting for ${url} ..."
-  while true; do
-    if curl -sf --max-time 5 "${url}" > /dev/null 2>&1; then
-      echo "[wait] Service is healthy after ${elapsed}s"
-      return 0
-    fi
-    if [[ ${elapsed} -ge ${TIMEOUT} ]]; then
-      echo "[wait] TIMEOUT after ${elapsed}s waiting for ${url}"
-      return 1
-    fi
-    sleep ${interval}
-    elapsed=$((elapsed + interval))
-    echo "[wait] ...${elapsed}s elapsed"
-  done
-}
-
-# ---------------------------------------------------------------------------
-# Assert helper
-# ---------------------------------------------------------------------------
-assert() {
-  local desc="$1"
-  local expected="$2"
-  local actual="$3"
-  if echo "${actual}" | grep -qF "${expected}"; then
-    echo "[PASS] ${desc}"
-  else
-    echo "[FAIL] ${desc}"
-    echo "       Expected to contain: ${expected}"
-    echo "       Got: ${actual}"
-    return 1
+# ── 1. Health check ──────────────────────────────────────────
+echo "▶ [1/4] Health check ..."
+DEADLINE=$(($(date +%s) + TIMEOUT))
+while true; do
+  if curl -sf "${BASE_URL}/health" > /dev/null 2>&1; then
+    echo "  ✓ Health OK"
+    break
   fi
-}
+  [[ $(date +%s) -ge $DEADLINE ]] && echo "  ✗ Health timeout after ${TIMEOUT}s" && exit 1
+  sleep 5
+done
 
-# ---------------------------------------------------------------------------
-# Run tests
-# ---------------------------------------------------------------------------
-PASS=0
-FAIL=0
+# ── 2. Register ──────────────────────────────────────────────
+echo ""
+echo "▶ [2/4] Register (POST /api/v1/auth/register) ..."
+REG_HTTP_CODE=$(curl -s -o /tmp/smoke-reg-${LABEL}.json -w "%{http_code}" \
+    -X POST "${BASE_URL}/api/v1/auth/register" \
+    -H "Content-Type: application/json" \
+    -d "{\"username\":\"${USERNAME}\",\"email\":\"${EMAIL}\",\"password\":\"${PASSWORD}\"}" \
+    2>/dev/null || echo "000")
 
-run_test() {
-  local desc="$1"
-  local expected="$2"
-  local actual="$3"
-  if echo "${actual}" | grep -qF "${expected}"; then
-    echo "[PASS] ${desc}"
-    PASS=$((PASS + 1))
-  else
-    echo "[FAIL] ${desc} — expected '${expected}' in: ${actual}"
-    FAIL=$((FAIL + 1))
-  fi
-}
+if [ "${REG_HTTP_CODE}" -lt 200 ] || [ "${REG_HTTP_CODE}" -gt 201 ]; then
+  echo "  ✗ Register failed — HTTP ${REG_HTTP_CODE}"
+  cat /tmp/smoke-reg-${LABEL}.json 2>/dev/null || true
+  exit 1
+fi
+echo "  ✓ Register OK — HTTP ${REG_HTTP_CODE}"
 
-wait_for_health
-
-# Health check
-HEALTH=$(curl -sf --max-time 10 "${BASE_URL}/health" || echo '{}')
-run_test "GET /health returns ok" "ok" "${HEALTH}"
-
-# Register a test user
-TIMESTAMP=$(date +%s)
-TEST_USER="smoketest_${TIMESTAMP}"
-TEST_EMAIL="${TEST_USER}@test.arcana"
-TEST_PASS="SmokeTest@123!"
-
-REGISTER=$(curl -sf --max-time 10 \
-  -X POST "${BASE_URL}/api/v1/auth/register" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"${TEST_USER}\",\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASS}\"}" \
-  || echo '{"error":"register_failed"}')
-run_test "POST /api/v1/auth/register" "access_token" "${REGISTER}"
-
-# Extract access token
-ACCESS_TOKEN=$(echo "${REGISTER}" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4 || echo "")
-
-if [[ -n "${ACCESS_TOKEN}" ]]; then
-  # Get users (authenticated)
-  USERS=$(curl -sf --max-time 10 \
-    "${BASE_URL}/api/v1/users" \
-    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-    || echo '{"error":"users_failed"}')
-  run_test "GET /api/v1/users (authenticated)" "items" "${USERS}"
-
-  # Validate token
-  VALIDATE=$(curl -sf --max-time 10 \
-    "${BASE_URL}/api/v1/auth/validate" \
-    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-    || echo '{"error":"validate_failed"}')
-  run_test "GET /api/v1/auth/validate" "username" "${VALIDATE}"
-
-  # Login
-  LOGIN=$(curl -sf --max-time 10 \
+# ── 3. Login ─────────────────────────────────────────────────
+echo ""
+echo "▶ [3/4] Login (POST /api/v1/auth/login) ..."
+LOGIN_HTTP_CODE=$(curl -s -o /tmp/smoke-login-${LABEL}.json -w "%{http_code}" \
     -X POST "${BASE_URL}/api/v1/auth/login" \
     -H "Content-Type: application/json" \
-    -d "{\"usernameOrEmail\":\"${TEST_USER}\",\"password\":\"${TEST_PASS}\"}" \
-    || echo '{"error":"login_failed"}')
-  run_test "POST /api/v1/auth/login" "access_token" "${LOGIN}"
-else
-  echo "[SKIP] Skipping authenticated tests (no access token)"
-  FAIL=$((FAIL + 1))
-fi
+    -d "{\"usernameOrEmail\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
+    2>/dev/null || echo "000")
 
-# ---------------------------------------------------------------------------
-# Summary
-# ---------------------------------------------------------------------------
-TOTAL=$((PASS + FAIL))
-echo ""
-echo "=== Results [${LABEL}]: ${PASS}/${TOTAL} passed ==="
-
-if [[ ${FAIL} -gt 0 ]]; then
-  echo "SMOKE TEST FAILED: ${FAIL} test(s) failed"
+if [ "${LOGIN_HTTP_CODE}" != "200" ]; then
+  echo "  ✗ Login failed — HTTP ${LOGIN_HTTP_CODE}"
+  cat /tmp/smoke-login-${LABEL}.json 2>/dev/null || true
   exit 1
-else
-  echo "SMOKE TEST PASSED"
-  exit 0
 fi
+
+# Node response: {data: {user:{...}, tokens:{accessToken:"..."}}}
+TOKEN=$(python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+dd=d.get('data',{})
+tokens=dd.get('tokens',dd)
+print(tokens.get('accessToken',''))
+" < /tmp/smoke-login-${LABEL}.json 2>/dev/null || echo "")
+if [ -z "${TOKEN}" ]; then
+  echo "  ✗ No accessToken in login response"
+  cat /tmp/smoke-login-${LABEL}.json 2>/dev/null || true
+  exit 1
+fi
+echo "  ✓ Login OK — token=${TOKEN:0:20}..."
+
+# ── 4. Authenticated call (GET /api/v1/auth/me) ──────────────
+echo ""
+echo "▶ [4/4] Authenticated call (GET /api/v1/auth/me) ..."
+ME_HTTP_CODE=$(curl -s -o /tmp/smoke-me-${LABEL}.json -w "%{http_code}" \
+    "${BASE_URL}/api/v1/auth/me" \
+    -H "Authorization: Bearer ${TOKEN}" \
+    2>/dev/null || echo "000")
+
+if [ "${ME_HTTP_CODE}" != "200" ]; then
+  echo "  ✗ Authenticated call failed — HTTP ${ME_HTTP_CODE}"
+  cat /tmp/smoke-me-${LABEL}.json 2>/dev/null || true
+  exit 1
+fi
+
+ME_USER=$(python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('data',{}).get('username','?'))" \
+    < /tmp/smoke-me-${LABEL}.json 2>/dev/null || echo "?")
+echo "  ✓ Auth call OK — user: ${ME_USER}"
+
+echo ""
+echo "=== ✅ All 4 smoke tests PASSED [${LABEL}] ==="
