@@ -63,12 +63,12 @@ function createContainer(): Container {
 
   // Events - EventStore and EventBus
   container.bind<EventStore>(TOKENS.EventStore).toDynamicValue((context) => {
-    const prisma = context.container.get<PrismaClient>(TOKENS.PrismaClient);
+    const prisma = context.get<PrismaClient>(TOKENS.PrismaClient);
     return new EventStore(prisma);
   }).inSingletonScope();
 
   container.bind<EventBus>(TOKENS.EventBus).toDynamicValue((context) => {
-    const prisma = context.container.get<PrismaClient>(TOKENS.PrismaClient);
+    const prisma = context.get<PrismaClient>(TOKENS.PrismaClient);
     const eventBus = new EventBus(prisma);
     // Set as singleton instance for backward compatibility
     setEventBusInstance(eventBus);
