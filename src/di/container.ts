@@ -90,7 +90,8 @@ function bindCommunicationLayer(container: Container): void {
   const layer = process.env.DEPLOYMENT_LAYER || 'monolithic';
 
   // Service Communication
-  if (mode === DeploymentMode.MONOLITHIC) {
+  // Monolithic and service layers handle requests directly (they ARE the service)
+  if (mode === DeploymentMode.MONOLITHIC || layer === 'service') {
     container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).to(DirectServiceCommunication).inSingletonScope();
   } else if (protocol === CommunicationProtocol.HTTP) {
     container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).toDynamicValue(() => {
