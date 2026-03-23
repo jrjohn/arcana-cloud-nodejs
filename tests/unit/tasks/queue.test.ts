@@ -37,9 +37,10 @@ const mockRedis = {
   quit: vi.fn()
 };
 
-vi.mock('ioredis', () => ({
-  default: vi.fn().mockImplementation(() => mockRedis)
-}));
+vi.mock('ioredis', () => {
+  const RedisMock = vi.fn().mockImplementation(() => mockRedis);
+  return { default: RedisMock, Redis: RedisMock };
+});
 
 vi.mock('../../../src/config.js', () => ({
   config: {

@@ -16,7 +16,13 @@ vi.mock('../../../src/utils/logger.js', () => ({
   }
 }));
 
-vi.mock('ioredis');
+vi.mock('ioredis', () => {
+  const RedisMock = vi.fn().mockImplementation(() => ({
+    set: vi.fn(), get: vi.fn(), del: vi.fn(), quit: vi.fn(),
+    publish: vi.fn(), subscribe: vi.fn(), on: vi.fn(), eval: vi.fn()
+  }));
+  return { default: RedisMock, Redis: RedisMock };
+});
 
 import { EventStore, getEventStore, resetEventStore } from '../../../src/events/event-store.js';
 import { DomainEvent, EventType } from '../../../src/events/domain-events.js';
