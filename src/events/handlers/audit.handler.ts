@@ -36,14 +36,14 @@ export function registerAuditHandler(): void {
       });
 
       // Log to structured logger for external systems (ELK, Datadog, etc.)
-      logger.info('Audit event', {
+      logger.info({
         eventId: event.eventId,
         eventType: event.type,
         eventVersion: event.version,
         correlationId: event.correlationId,
         causationId: event.causationId,
         occurredAt: event.occurredAt
-      });
+      }, 'Audit event');
     },
     { async: false, priority: -10 } // Low priority, run after other handlers, sync for immediate audit
   );

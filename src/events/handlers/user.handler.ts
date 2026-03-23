@@ -20,36 +20,36 @@ export function registerUserHandlers(): void {
 
   // Log all user events
   eventBus.on(EventType.USER_REGISTERED, (event: DomainEvent<UserRegisteredPayload>) => {
-    logger.info('User registered', {
+    logger.info({
       userId: event.payload.userId,
       username: event.payload.username,
       email: event.payload.email
-    });
+    }, 'User registered');
   });
 
   eventBus.on(EventType.USER_LOGGED_IN, (event: DomainEvent<UserLoggedInPayload>) => {
-    logger.info('User logged in', {
+    logger.info({
       userId: event.payload.userId,
       username: event.payload.username,
       ipAddress: event.payload.ipAddress,
       loginMethod: event.payload.loginMethod
-    });
+    }, 'User logged in');
   });
 
   eventBus.on(EventType.PASSWORD_CHANGED, (event: DomainEvent<PasswordChangedPayload>) => {
-    logger.info('Password changed', {
+    logger.info({
       userId: event.payload.userId,
       changedBy: event.payload.changedBy
-    });
+    }, 'Password changed');
   });
 
   eventBus.on(EventType.USER_STATUS_CHANGED, (event: DomainEvent<UserStatusChangedPayload>) => {
-    logger.info('User status changed', {
+    logger.info({
       userId: event.payload.userId,
       oldStatus: event.payload.oldStatus,
       newStatus: event.payload.newStatus,
       changedBy: event.payload.changedBy
-    });
+    }, 'User status changed');
   });
 
   // ==================== Async Handlers ====================

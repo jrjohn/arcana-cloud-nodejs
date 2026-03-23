@@ -106,9 +106,9 @@ export async function initializeEventSystem(
 ): Promise<void> {
   await initializeEventBus(config, prisma);
   registerAllHandlers();
-  logger.info('Event system initialized', {
+  logger.info({
     idempotency: config?.enableIdempotency ?? true,
     pubSub: config?.enablePubSub ?? true,
     auditLog: config?.enableAuditLog ?? true
-  });
+  }, 'Event system initialized');
 }

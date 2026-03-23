@@ -88,7 +88,7 @@ export class AuthServiceImpl implements IAuthService {
       throw new AuthenticationError('Account is not active');
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+    const isValid = await bcrypt.compare(password, user.passwordHash!);
     if (!isValid) { // NOSONAR typescript:S6544 - isValid is already awaited, not a Promise
       throw new AuthenticationError('Invalid credentials');
     }

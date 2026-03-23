@@ -9,13 +9,12 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  logger.error('Request error', {
-    error: err.message,
-    stack: err.stack,
+  logger.error({
+    err,
     path: req.path,
     method: req.method,
     requestId: req.requestId
-  });
+  }, 'Request error');
 
   if (err instanceof APIException) {
     res.status(err.statusCode).json(

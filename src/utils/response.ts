@@ -48,7 +48,7 @@ export function successResponse<T>(
 
 export function errorResponse(
   message: string,
-  statusCode: number = 500,
+  _statusCode: number = 500,
   code: string = 'INTERNAL_ERROR',
   details?: Record<string, unknown>,
   requestId?: string

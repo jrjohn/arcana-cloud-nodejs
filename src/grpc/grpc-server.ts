@@ -136,7 +136,7 @@ export function startRepositoryGRPCServer(port: number): grpc.Server {
     grpc.ServerCredentials.createInsecure(),
     (err, boundPort) => {
       if (err) {
-        logger.error('Repository gRPC server failed to bind', err);
+        logger.error({ err }, 'Repository gRPC server failed to bind');
         return;
       }
       logger.info(`Repository gRPC server listening on port ${boundPort}`);
@@ -426,7 +426,7 @@ export function startServiceGRPCServer(port: number): grpc.Server {
     grpc.ServerCredentials.createInsecure(),
     (err, boundPort) => {
       if (err) {
-        logger.error('Service gRPC server failed to bind', err);
+        logger.error({ err }, 'Service gRPC server failed to bind');
         return;
       }
       logger.info(`Service gRPC server listening on port ${boundPort}`);

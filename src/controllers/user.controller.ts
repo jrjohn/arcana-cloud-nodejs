@@ -40,7 +40,7 @@ router.get('/:userId',
   tokenRequired,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
 
       if (req.user!.role !== UserRole.ADMIN && req.user!.id !== userId) {
         throw new AuthorizationError('Not authorized to view this user');
@@ -73,7 +73,7 @@ router.put('/:userId',
   validateSchema(UpdateUserSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
 
       if (req.user!.role !== UserRole.ADMIN && req.user!.id !== userId) {
         throw new AuthorizationError('Not authorized to update this user');
@@ -92,7 +92,7 @@ router.delete('/:userId',
   roleRequired([UserRole.ADMIN]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
       await getService().deleteUser(userId);
       res.json(successResponse(null, 'User deleted successfully', req.requestId));
     } catch (error) {
@@ -106,7 +106,7 @@ router.put('/:userId/password',
   validateSchema(ChangePasswordSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
 
       if (req.user!.id !== userId) {
         throw new AuthorizationError('Not authorized to change this password');
@@ -125,7 +125,7 @@ router.post('/:userId/verify',
   roleRequired([UserRole.ADMIN]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
       const user = await getService().verifyUser(userId);
       res.json(successResponse(user, 'User verified successfully', req.requestId));
     } catch (error) {
@@ -140,7 +140,7 @@ router.put('/:userId/status',
   validateSchema(UpdateStatusSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number.parseInt(req.params.userId);
+      const userId = Number.parseInt(req.params.userId as string);
       const { status } = req.body;
       const user = await getService().updateUserStatus(userId, status);
       res.json(successResponse(user, 'User status updated successfully', req.requestId));

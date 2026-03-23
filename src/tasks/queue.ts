@@ -1,5 +1,5 @@
 import { Queue, Worker, Job, QueueEvents } from 'bullmq';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { logger } from '../utils/logger.js';
 import { config } from '../config.js';
 
@@ -84,11 +84,11 @@ export function createWorker<T = unknown, R = unknown>(
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Worker failed job ${job?.id} in queue ${queueName}:`, err);
+    logger.error({ err, jobId: job?.id }, `Worker failed job in queue ${queueName}`);
   });
 
   worker.on('error', (err) => {
-    logger.error(`Worker error in queue ${queueName}:`, err);
+    logger.error({ err }, `Worker error in queue ${queueName}`);
   });
 
   workers.set(queueName, worker);

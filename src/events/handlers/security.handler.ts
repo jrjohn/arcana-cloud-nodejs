@@ -25,21 +25,21 @@ export function registerSecurityHandlers(): void {
 
   // Track token revocations
   eventBus.on(EventType.TOKEN_REVOKED, (event: DomainEvent<TokenRevokedPayload>) => {
-    logger.info('Token revoked', {
+    logger.info({
       tokenId: event.payload.tokenId,
       userId: event.payload.userId,
       revokedBy: event.payload.revokedBy,
       reason: event.payload.reason
-    });
+    }, 'Token revoked');
   });
 
   // Track bulk token revocations (potential security incident)
   eventBus.on(EventType.ALL_TOKENS_REVOKED, (event: DomainEvent<AllTokensRevokedPayload>) => {
-    logger.warn('All tokens revoked for user', {
+    logger.warn({
       userId: event.payload.userId,
       revokedBy: event.payload.revokedBy,
       tokenCount: event.payload.tokenCount
-    });
+    }, 'All tokens revoked for user');
   });
 
   // Track rate limit violations using EventStore
@@ -56,24 +56,24 @@ export function registerSecurityHandlers(): void {
       totalViolations = currentCount + 1;
     }
 
-    logger.warn('Rate limit exceeded', {
+    logger.warn({
       userId: event.payload.userId,
       ipAddress: event.payload.ipAddress,
       endpoint: event.payload.endpoint,
       limit: event.payload.limit,
       totalViolations
-    });
+    }, 'Rate limit exceeded');
   });
 
   // Handle security alerts
   eventBus.on(EventType.SECURITY_ALERT, (event: DomainEvent<SecurityAlertPayload>) => {
-    logger.error('Security alert', {
+    logger.error({
       type: event.payload.type,
       severity: event.payload.severity,
       userId: event.payload.userId,
       ipAddress: event.payload.ipAddress,
       details: event.payload.details
-    });
+    }, 'Security alert');
   });
 
   // ==================== Async Handlers ====================

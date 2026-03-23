@@ -6,7 +6,7 @@ import { IAuthService } from '../services/auth.service.interface.js';
 
 export const tokenRequired = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -33,7 +33,7 @@ export const tokenRequired = async (
 };
 
 export const roleRequired = (allowedRoles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       next(new AuthenticationError('Authentication required'));
       return;
@@ -50,7 +50,7 @@ export const roleRequired = (allowedRoles: UserRole[]) => {
 
 export const optionalAuth = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {

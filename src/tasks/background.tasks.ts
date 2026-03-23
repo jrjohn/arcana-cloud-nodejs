@@ -106,11 +106,7 @@ export async function initializeBackgroundTasks(): Promise<void> {
  * Process background job based on type
  */
 async function processBackgroundJob(job: Job): Promise<unknown> {
-  logger.info(`Processing background job: ${job.name}`, {
-    jobId: job.id,
-    queue: job.queueName,
-    attempt: job.attemptsMade + 1
-  });
+  logger.info({ jobId: job.id, queue: job.queueName, attempt: job.attemptsMade + 1 }, `Processing background job: ${job.name}`);
 
   switch (job.name) {
     case BackgroundJobType.SEND_EMAIL:
@@ -135,7 +131,7 @@ async function processBackgroundJob(job: Job): Promise<unknown> {
  * Handle email sending
  */
 async function handleSendEmail(data: SendEmailJobData): Promise<{ sent: boolean }> {
-  logger.info(`Sending email to ${data.to}`, { subject: data.subject });
+  logger.info({ subject: data.subject }, `Sending email to ${data.to}`);
 
   // Email sending implementation
   // Example: await emailService.send(data);
@@ -174,7 +170,7 @@ async function handleUserRegistration(data: UserRegistrationJobData): Promise<{ 
  * Handle user data export
  */
 async function handleExportUserData(data: ExportUserDataJobData): Promise<{ fileUrl?: string }> {
-  logger.info(`Exporting data for user ${data.userId}`, { format: data.format });
+  logger.info({ format: data.format }, `Exporting data for user ${data.userId}`);
 
   // Use lock to prevent duplicate exports for same request
   const result = await withLock(

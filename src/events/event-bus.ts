@@ -134,11 +134,9 @@ export class EventBus {
           { concurrency: 5 }
         );
 
-        logger.info('Event bus initialized with async support', {
-          queue: this.config.asyncQueueName
-        });
+        logger.info({ queue: this.config.asyncQueueName }, 'Event bus initialized with async support');
       } catch (error) {
-        logger.warn('Async event processing not available (Redis required):', error);
+        logger.warn({ err: error }, 'Async event processing not available (Redis required)');
         this.config.enableAsync = false;
       }
     }
@@ -173,10 +171,7 @@ export class EventBus {
     handlers.sort((a, b) => b.priority - a.priority);
     this.handlers.set(eventType, handlers);
 
-    logger.debug(`Registered handler for event: ${eventType}`, {
-      async: registration.async,
-      priority: registration.priority
-    });
+    logger.debug({ async: registration.async, priority: registration.priority }, `Registered handler for event: ${eventType}`);
 
     return this;
   }
@@ -218,11 +213,7 @@ export class EventBus {
    * Publish an event
    */
   async publish<T>(event: DomainEvent<T>): Promise<void> {
-    logger.debug(`Publishing event: ${event.type}`, {
-      eventId: event.eventId,
-      version: event.version,
-      correlationId: event.correlationId
-    });
+    logger.debug({ eventId: event.eventId, version: event.version, correlationId: event.correlationId }, `Publishing event: ${event.type}`);
 
     // Idempotency check
     if (this.config.enableIdempotency && this.eventStore) {
@@ -272,7 +263,7 @@ export class EventBus {
       try {
         await registration.handler(event);
       } catch (error) {
-        logger.error(`Sync handler failed for event: ${event.type}`, { error });
+        logger.error({ err: error }, `Sync handler failed for event: ${event.type}`);
       }
     }
 
@@ -308,7 +299,7 @@ export class EventBus {
       }
     );
 
-    logger.debug(`Queued async event: ${event.type}`, { eventId: event.eventId });
+    logger.debug({ eventId: event.eventId }, `Queued async event: ${event.type}`);
   }
 
   /**
@@ -320,11 +311,7 @@ export class EventBus {
     // Reconstitute Date object
     (event as any).occurredAt = new Date(event.occurredAt);
 
-    logger.info(`Processing async event: ${event.type}`, {
-      jobId: job.id,
-      eventId: event.eventId,
-      attempt: job.attemptsMade + 1
-    });
+    logger.info({ jobId: job.id, eventId: event.eventId, attempt: job.attemptsMade + 1 }, `Processing async event: ${event.type}`);
 
     const typeHandlers = this.handlers.get(event.type) || [];
     const asyncHandlers = [...typeHandlers, ...this.globalHandlers].filter(h => h.async);
@@ -336,7 +323,7 @@ export class EventBus {
         await registration.handler(event);
       } catch (error) {
         errors.push(error as Error);
-        logger.error(`Async handler failed for event: ${event.type}`, { error });
+        logger.error({ err: error }, `Async handler failed for event: ${event.type}`);
       }
     }
 
@@ -363,9 +350,7 @@ export class EventBus {
       }
     );
 
-    logger.warn(`Event moved to dead letter queue: ${event.type}`, {
-      eventId: event.eventId
-    });
+    logger.warn({ eventId: event.eventId }, `Event moved to dead letter queue: ${event.type}`);
   }
 
   /**

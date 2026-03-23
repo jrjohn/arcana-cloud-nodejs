@@ -94,7 +94,7 @@ async function scheduleRecurringJobs(): Promise<void> {
  * Process scheduled job based on type
  */
 async function processScheduledJob(job: Job): Promise<unknown> {
-  logger.info(`Processing scheduled job: ${job.name}`, { jobId: job.id });
+  logger.info({ jobId: job.id }, `Processing scheduled job: ${job.name}`);
 
   switch (job.name) {
     case ScheduledJobType.CLEANUP_EXPIRED_TOKENS:
@@ -119,7 +119,7 @@ async function processScheduledJob(job: Job): Promise<unknown> {
  * Cleanup expired OAuth tokens
  */
 async function handleCleanupExpiredTokens(data: CleanupTokensJobData): Promise<{ deletedCount: number }> {
-  logger.info('Starting expired tokens cleanup', { triggeredAt: data.triggeredAt });
+  logger.info({ triggeredAt: data.triggeredAt }, 'Starting expired tokens cleanup');
 
   try {
     const tokenRepository = container.get<IOAuthTokenRepository>('oauthTokenRepository');
@@ -128,7 +128,7 @@ async function handleCleanupExpiredTokens(data: CleanupTokensJobData): Promise<{
     logger.info(`Cleaned up ${deletedCount} expired tokens`);
     return { deletedCount };
   } catch (error) {
-    logger.error('Failed to cleanup expired tokens:', error);
+    logger.error({ err: error }, 'Failed to cleanup expired tokens');
     throw error;
   }
 }
@@ -137,10 +137,7 @@ async function handleCleanupExpiredTokens(data: CleanupTokensJobData): Promise<{
  * Cleanup inactive users (soft delete or mark)
  */
 async function handleCleanupInactiveUsers(data: CleanupUsersJobData): Promise<{ processedCount: number }> {
-  logger.info('Starting inactive users cleanup', {
-    inactiveDays: data.inactiveDays,
-    triggeredAt: data.triggeredAt
-  });
+  logger.info({ inactiveDays: data.inactiveDays, triggeredAt: data.triggeredAt }, 'Starting inactive users cleanup');
 
   // Implementation would mark users as inactive
   // This is a placeholder

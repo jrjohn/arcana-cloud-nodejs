@@ -26,7 +26,7 @@ export async function initializeTasks(): Promise<boolean> {
     logger.info('Task system initialized successfully');
     return true;
   } catch (error) {
-    logger.error('Failed to initialize task system:', error);
+    logger.error({ err: error }, 'Failed to initialize task system');
     return false;
   }
 }
@@ -44,6 +44,6 @@ export async function shutdownTasks(): Promise<void> {
     await closeDistributedLock();
     logger.info('Task system shutdown complete');
   } catch (error) {
-    logger.error('Error during task system shutdown:', error);
+    logger.error({ err: error }, 'Error during task system shutdown');
   }
 }

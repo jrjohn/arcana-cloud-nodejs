@@ -95,7 +95,7 @@ export class UserServiceImpl implements IUserService {
       throw new NotFoundError('User not found');
     }
 
-    const isValid = await bcrypt.compare(oldPassword, user.passwordHash);
+    const isValid = await bcrypt.compare(oldPassword, user.passwordHash!);
     if (!isValid) { // NOSONAR typescript:S6544 - isValid is already awaited, not a Promise
       throw new AuthenticationError('Current password is incorrect');
     }

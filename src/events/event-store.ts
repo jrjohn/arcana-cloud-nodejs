@@ -9,7 +9,7 @@
  */
 
 import { injectable, inject } from 'inversify';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { PrismaClient } from '@prisma/client';
 import { DomainEvent } from './domain-events.js';
 import { logger } from '../utils/logger.js';
@@ -61,12 +61,11 @@ export class EventStore {
     try {
       this.redis = new Redis(config.redisUrl, {
         maxRetriesPerRequest: 3,
-        retryDelayOnFailover: 100,
         enableReadyCheck: true
       });
 
-      this.redis.on('error', (err) => {
-        logger.error('Event store Redis error:', err);
+      this.redis.on('error', (err: Error) => {
+        logger.error({ err }, 'Event store Redis error');
       });
 
       this.redis.on('connect', () => {
@@ -75,16 +74,15 @@ export class EventStore {
 
       // Separate connection for pub/sub (Redis requires dedicated connection)
       this.subscriber = new Redis(config.redisUrl, {
-        maxRetriesPerRequest: 3,
-        retryDelayOnFailover: 100
+        maxRetriesPerRequest: 3
       });
 
-      this.subscriber.on('error', (err) => {
-        logger.error('Event subscriber Redis error:', err);
+      this.subscriber.on('error', (err: Error) => {
+        logger.error({ err }, 'Event subscriber Redis error');
       });
 
     } catch (error) {
-      logger.error('Failed to initialize Redis for event store:', error);
+      logger.error({ err: error }, 'Failed to initialize Redis for event store');
     }
   }
 
@@ -97,7 +95,7 @@ export class EventStore {
         const exists = await this.redis.exists(`event:processed:${eventId}`);
         return exists === 1;
       } catch (error) {
-        logger.error('Redis idempotency check failed, using local:', error);
+        logger.error({ err: error }, 'Redis idempotency check failed, using local');
       }
     }
     return this.localProcessedEvents.has(eventId);
@@ -112,7 +110,7 @@ export class EventStore {
         await this.redis.setex(`event:processed:${eventId}`, IDEMPOTENCY_TTL, '1');
         return;
       } catch (error) {
-        logger.error('Redis mark processed failed, using local:', error);
+        logger.error({ err: error }, 'Redis mark processed failed, using local');
       }
     }
     this.localProcessedEvents.add(eventId);
@@ -146,7 +144,7 @@ export class EventStore {
       });
     } catch (error) {
       // Log but don't fail - audit is non-critical
-      logger.error('Failed to save audit log:', error);
+      logger.error({ err: error }, 'Failed to save audit log');
     }
   }
 
@@ -245,7 +243,7 @@ export class EventStore {
         }
         return count;
       } catch (error) {
-        logger.error('Redis rate limit increment failed:', error);
+        logger.error({ err: error }, 'Redis rate limit increment failed');
       }
     }
 
@@ -264,7 +262,7 @@ export class EventStore {
         const count = await this.redis.get(`security:ratelimit:${ipAddress}`);
         return Number.parseInt(count || '0', 10);
       } catch (error) {
-        logger.error('Redis get rate limit failed:', error);
+        logger.error({ err: error }, 'Redis get rate limit failed');
       }
     }
     return this.localSecurityMetrics.rateLimitHits.get(ipAddress) || 0;
@@ -287,7 +285,7 @@ export class EventStore {
 
         return { rateLimitHits, failedLogins: new Map() };
       } catch (error) {
-        logger.error('Redis get security metrics failed:', error);
+        logger.error({ err: error }, 'Redis get security metrics failed');
       }
     }
     return this.localSecurityMetrics;
@@ -304,7 +302,7 @@ export class EventStore {
           await this.redis.del(...keys);
         }
       } catch (error) {
-        logger.error('Redis clear security metrics failed:', error);
+        logger.error({ err: error }, 'Redis clear security metrics failed');
       }
     }
     this.localSecurityMetrics.rateLimitHits.clear();
@@ -320,7 +318,7 @@ export class EventStore {
     try {
       await this.redis.publish(EVENT_CHANNEL, JSON.stringify(event));
     } catch (error) {
-      logger.error('Failed to publish event to Redis channel:', error);
+      logger.error({ err: error }, 'Failed to publish event to Redis channel');
     }
   }
 
@@ -338,7 +336,7 @@ export class EventStore {
     try {
       await this.subscriber.subscribe(EVENT_CHANNEL);
 
-      this.subscriber.on('message', (channel, message) => {
+      this.subscriber.on('message', (channel: string, message: string) => {
         if (channel === EVENT_CHANNEL) {
           try {
             const event = JSON.parse(message) as DomainEvent;
@@ -348,14 +346,14 @@ export class EventStore {
               eventHandler(event);
             }
           } catch (error) {
-            logger.error('Failed to parse event from Redis channel:', error);
+            logger.error({ err: error }, 'Failed to parse event from Redis channel');
           }
         }
       });
 
       logger.info('Subscribed to event channel for multi-instance sync');
     } catch (error) {
-      logger.error('Failed to subscribe to Redis channel:', error);
+      logger.error({ err: error }, 'Failed to subscribe to Redis channel');
     }
   }
 
