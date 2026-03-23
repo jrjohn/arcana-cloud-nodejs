@@ -36,7 +36,7 @@ services:
     image: ${NODE_IMAGE:-localhost:5000/arcana/node-app:latest}
     container_name: arcana-ci-node-grpc-repository
     # Run Prisma migrations before starting the app
-    command: sh -c "node node_modules/prisma/build/index.js migrate deploy 2>/dev/null || node_modules/.bin/prisma migrate deploy 2>/dev/null || true; node dist/index.js"
+    command: sh -c "npx prisma db push --skip-generate --accept-data-loss 2>&1 || true; node dist/index.js"
     depends_on:
       mysql:
         condition: service_healthy
