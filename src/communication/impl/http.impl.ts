@@ -58,105 +58,105 @@ export class HTTPServiceCommunication implements ServiceCommunication {
 
   async getUsers(params: GetUsersParams): Promise<PaginatedResult<UserPublic>> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.get('/internal/users', { params });
+      const response = await client.get('/api/v1/users', { params });
       return response.data.data;
     });
   }
 
   async getUserById(userId: number): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.get(`/internal/users/${userId}`);
+      const response = await client.get(`/api/v1/users/${userId}`);
       return response.data.data;
     });
   }
 
   async createUser(data: CreateUserData): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post('/internal/users', data);
+      const response = await client.post('/api/v1/users', data);
       return response.data.data;
     });
   }
 
   async updateUser(userId: number, data: UpdateUserData): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.put(`/internal/users/${userId}`, data);
+      const response = await client.put(`/api/v1/users/${userId}`, data);
       return response.data.data;
     });
   }
 
   async deleteUser(userId: number): Promise<boolean> {
     return this.executeWithRetry(async (client) => {
-      await client.delete(`/internal/users/${userId}`);
+      await client.delete(`/api/v1/users/${userId}`);
       return true;
     });
   }
 
   async changePassword(userId: number, data: ChangePasswordData): Promise<boolean> {
     return this.executeWithRetry(async (client) => {
-      await client.put(`/internal/users/${userId}/password`, data);
+      await client.put(`/api/v1/users/${userId}/password`, data);
       return true;
     });
   }
 
   async verifyUser(userId: number): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post(`/internal/users/${userId}/verify`);
+      const response = await client.post(`/api/v1/users/${userId}/verify`);
       return response.data.data;
     });
   }
 
   async updateUserStatus(userId: number, status: UserStatus): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.put(`/internal/users/${userId}/status`, { status });
+      const response = await client.put(`/api/v1/users/${userId}/status`, { status });
       return response.data.data;
     });
   }
 
   async login(data: LoginData): Promise<AuthResult> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post('/internal/auth/login', data);
+      const response = await client.post('/api/v1/auth/login', data);
       return response.data.data;
     });
   }
 
   async logout(token: string): Promise<boolean> {
     return this.executeWithRetry(async (client) => {
-      await client.post('/internal/auth/logout', { token });
+      await client.post('/api/v1/auth/logout', { token });
       return true;
     });
   }
 
   async refreshToken(refreshToken: string): Promise<TokenPair> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post('/internal/auth/refresh', { refreshToken });
+      const response = await client.post('/api/v1/auth/refresh', { refreshToken });
       return response.data.data;
     });
   }
 
   async validateToken(token: string): Promise<UserPublic> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post('/internal/auth/validate', { token });
+      const response = await client.post('/api/v1/auth/validate', { token });
       return response.data.data;
     });
   }
 
   async register(data: CreateUserData): Promise<AuthResult> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post('/internal/auth/register', data);
+      const response = await client.post('/api/v1/auth/register', data);
       return response.data.data;
     });
   }
 
   async revokeAllTokens(userId: number): Promise<number> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.post(`/internal/auth/tokens/revoke-all`, { userId });
+      const response = await client.post(`/api/v1/auth/tokens/revoke-all`, { userId });
       return response.data.data.count;
     });
   }
 
   async getUserTokens(userId: number): Promise<OAuthToken[]> {
     return this.executeWithRetry(async (client) => {
-      const response = await client.get(`/internal/auth/tokens/${userId}`);
+      const response = await client.get(`/api/v1/auth/tokens/${userId}`);
       return response.data.data;
     });
   }
