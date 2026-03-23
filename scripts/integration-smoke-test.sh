@@ -58,13 +58,12 @@ if [ "${LOGIN_HTTP_CODE}" != "200" ]; then
 fi
 
 # Node response: {data: {user:{...}, tokens:{accessToken:"..."}}}
-TOKEN=$(python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-dd=d.get('data',{})
-tokens=dd.get('tokens',dd)
-print(tokens.get('accessToken',''))
-" < /tmp/smoke-login-${LABEL}.json 2>/dev/null || echo "")
+TOKEN=$(node -e "
+const d=JSON.parse(require('fs').readFileSync('/tmp/smoke-login-${LABEL}.json','utf8'));
+const dd=d.data||{};
+const tokens=dd.tokens||dd;
+process.stdout.write(tokens.accessToken||'');
+" 2>/dev/null || echo "")
 if [ -z "${TOKEN}" ]; then
   echo "  ✗ No accessToken in login response"
   cat /tmp/smoke-login-${LABEL}.json 2>/dev/null || true

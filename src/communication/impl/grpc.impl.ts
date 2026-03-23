@@ -162,7 +162,13 @@ export class GRPCServiceCommunication implements ServiceCommunication {
   async login(data: LoginData): Promise<AuthResult> {
     return new Promise((resolve, reject) => {
       const client = this.getNextClient() as grpc.Client & Record<string, CallableFunction>;
-      client.Login(data, (error: Error | null, response: Record<string, unknown>) => {
+      const req = {
+        username_or_email: data.usernameOrEmail,
+        password: data.password,
+        ip_address: data.ipAddress,
+        user_agent: data.userAgent
+      };
+      client.Login(req, (error: Error | null, response: Record<string, unknown>) => {
         if (error) reject(error);
         else {
           const tokens = response.tokens as Record<string, unknown>;

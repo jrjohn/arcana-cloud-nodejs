@@ -37,12 +37,12 @@ trap cleanup EXIT
 # Create kind cluster
 # ---------------------------------------------------------------------------
 echo "[kind] Creating cluster ${CLUSTER_NAME} ..."
-# Use Docker bridge gateway as API server address so kubectl works from Jenkins container
+# Bind API server to 0.0.0.0 so kubectl works from both host and Jenkins container
 cat > /tmp/kind-config-${CLUSTER_NAME}.yaml <<KINDEOF
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
-  apiServerAddress: "172.17.0.1"
+  apiServerAddress: "0.0.0.0"
 KINDEOF
 kind create cluster --name "${CLUSTER_NAME}" --config "/tmp/kind-config-${CLUSTER_NAME}.yaml" --wait 60s
 
