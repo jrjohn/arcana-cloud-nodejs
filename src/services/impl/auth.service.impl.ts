@@ -59,11 +59,11 @@ export class AuthServiceImpl implements IAuthService {
     };
 
     const accessToken = jwt.sign(accessTokenPayload, config.jwt.secret, {
-      expiresIn: config.jwt.accessExpiresIn
+      expiresIn: config.jwt.accessExpiresInSeconds
     });
 
     const refreshToken = jwt.sign(refreshTokenPayload, config.jwt.secret, {
-      expiresIn: config.jwt.refreshExpiresIn
+      expiresIn: config.jwt.refreshExpiresInSeconds
     });
 
     return {

@@ -22,7 +22,7 @@ export const requestLoggerMiddleware = (
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    logger.info('Request completed', {
+    logger.info({
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
@@ -30,7 +30,7 @@ export const requestLoggerMiddleware = (
       requestId: req.requestId,
       userAgent: req.get('User-Agent'),
       ip: req.ip
-    });
+    }, 'Request completed');
   });
 
   next();

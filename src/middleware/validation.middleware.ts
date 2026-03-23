@@ -3,7 +3,7 @@ import { AnyZodObject, ZodError } from 'zod';
 import { ValidationError } from '../utils/exceptions.js';
 
 export const validateSchema = (schema: AnyZodObject) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       await schema.parseAsync({
         body: req.body,
@@ -29,7 +29,7 @@ export const validateSchema = (schema: AnyZodObject) => {
 export const validatePagination = (options: { maxPerPage?: number } = {}) => {
   const { maxPerPage = 100 } = options;
 
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     let page = Number.parseInt(req.query.page as string) || 1;
     let perPage = Number.parseInt(req.query.perPage as string) || 20;
 
