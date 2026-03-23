@@ -161,7 +161,7 @@ run_test() {
 }
 
 HEALTH=$(curl -sf --max-time 10 "${BASE_URL}/health" || echo '{}')
-run_test "GET /health" "ok" "${HEALTH}"
+run_test "GET /health" "healthy" "${HEALTH}"
 
 TIMESTAMP=$(date +%s%3N)
 TEST_USER="kindsmoke${TIMESTAMP}"
@@ -173,9 +173,9 @@ REGISTER=$(curl -sf --max-time 15 \
   -H "Content-Type: application/json" \
   -d "{\"username\":\"${TEST_USER}\",\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASS}\"}" \
   || echo '{"error":"register_failed"}')
-run_test "POST /api/v1/auth/register" "access_token" "${REGISTER}"
+run_test "POST /api/v1/auth/register" "accessToken" "${REGISTER}"
 
-ACCESS_TOKEN=$(echo "${REGISTER}" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4 || echo "")
+ACCESS_TOKEN=$(echo "${REGISTER}" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4 || echo "")
 
 if [[ -n "${ACCESS_TOKEN}" ]]; then
   LOGIN=$(curl -sf --max-time 15 \
@@ -183,7 +183,7 @@ if [[ -n "${ACCESS_TOKEN}" ]]; then
     -H "Content-Type: application/json" \
     -d "{\"usernameOrEmail\":\"${TEST_USER}\",\"password\":\"${TEST_PASS}\"}" \
     || echo '{"error":"login_failed"}')
-  run_test "POST /api/v1/auth/login" "access_token" "${LOGIN}"
+  run_test "POST /api/v1/auth/login" "accessToken" "${LOGIN}"
 else
   echo "[SKIP] Skipping login test (no token from register)"
   FAIL=$((FAIL + 1))
