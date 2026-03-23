@@ -22,10 +22,6 @@ const mockWorker = {
   close: vi.fn()
 };
 
-const mockScheduler = {
-  close: vi.fn()
-};
-
 const mockQueueEvents = {
   on: vi.fn()
 };
@@ -33,7 +29,6 @@ const mockQueueEvents = {
 vi.mock('bullmq', () => ({
   Queue: vi.fn().mockImplementation(() => mockQueue),
   Worker: vi.fn().mockImplementation(() => mockWorker),
-  QueueScheduler: vi.fn().mockImplementation(() => mockScheduler),
   QueueEvents: vi.fn().mockImplementation(() => mockQueueEvents)
 }));
 
@@ -88,10 +83,10 @@ describe('Queue', () => {
       expect(queue1).toBe(queue2);
     });
 
-    it('should create scheduler for the queue', () => {
+    it('should not create scheduler (QueueScheduler removed in bullmq v5)', () => {
       createQueue({ name: 'test-queue' });
 
-      expect(schedulers.has('test-queue')).toBe(true);
+      expect(schedulers.has('test-queue')).toBe(false);
     });
 
     it('should apply default job options', async () => {
@@ -328,7 +323,7 @@ describe('Queue', () => {
   });
 
   describe('closeQueues', () => {
-    it('should close all workers, schedulers, and queues', async () => {
+    it('should close all workers and queues', async () => {
       createQueue({ name: 'test-queue-1' });
       createQueue({ name: 'test-queue-2' });
       createWorker('test-queue-1', vi.fn());
@@ -336,7 +331,6 @@ describe('Queue', () => {
       await closeQueues();
 
       expect(mockWorker.close).toHaveBeenCalled();
-      expect(mockScheduler.close).toHaveBeenCalled();
       expect(mockQueue.close).toHaveBeenCalled();
       expect(queues.size).toBe(0);
       expect(workers.size).toBe(0);
