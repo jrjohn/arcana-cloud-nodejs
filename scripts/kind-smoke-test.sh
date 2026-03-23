@@ -37,14 +37,15 @@ trap cleanup EXIT
 # Create kind cluster
 # ---------------------------------------------------------------------------
 echo "[kind] Creating cluster ${CLUSTER_NAME} ..."
-# Bind API server to 0.0.0.0 so kubectl works from both host and Jenkins container
-cat > /tmp/kind-config-${CLUSTER_NAME}.yaml <<KINDEOF
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-networking:
-  apiServerAddress: "0.0.0.0"
-KINDEOF
-kind create cluster --name "${CLUSTER_NAME}" --config "/tmp/kind-config-${CLUSTER_NAME}.yaml" --wait 60s
+kind create cluster --name "${CLUSTER_NAME}" --wait 60s
+
+# Rewrite kubeconfig server URL: 127.0.0.1 → kind control-plane container IP
+# (Jenkins runs inside Docker, so 127.0.0.1 in kubeconfig points to Jenkins itself, not the host)
+CP_IP=$(docker inspect "${CLUSTER_NAME}-control-plane" --format '{{.NetworkSettings.Networks.kind.IPAddress}}' 2>/dev/null)
+if [ -n "${CP_IP}" ]; then
+  echo "[kind] Rewriting kubeconfig server to ${CP_IP} ..."
+  kubectl config set-cluster "kind-${CLUSTER_NAME}" --server="https://${CP_IP}:6443" --insecure-skip-tls-verify=true
+fi
 
 # ---------------------------------------------------------------------------
 # Load image into kind

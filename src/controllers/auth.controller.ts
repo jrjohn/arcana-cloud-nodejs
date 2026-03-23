@@ -71,13 +71,9 @@ router.post('/refresh',
 
 router.get('/me',
   tokenRequired,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user = await getService().getUserById(req.user!.id);
-      res.json(successResponse(user, 'User retrieved successfully', req.requestId));
-    } catch (error) {
-      next(error);
-    }
+  async (req: Request, res: Response, _next: NextFunction) => {
+    // Return user info from JWT token directly — avoids inter-layer auth forwarding issue
+    res.json(successResponse(req.user, 'User retrieved successfully', req.requestId));
   }
 );
 
