@@ -95,7 +95,7 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         method: 'GET',
         path: '/api/test',
         statusCode: 200,
@@ -103,7 +103,7 @@ describe('Request Middleware', () => {
         userAgent: 'Test Agent',
         ip: '127.0.0.1',
         duration: expect.stringMatching(/^\d+ms$/)
-      }));
+      }), 'Request completed');
     });
 
     it('should calculate request duration', async () => {
@@ -113,13 +113,13 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         duration: expect.stringMatching(/^\d+ms$/)
-      }));
+      }), 'Request completed');
 
       // Duration should be a valid number (>= 0)
       const logCall = (logger.info as ReturnType<typeof vi.fn>).mock.calls[0];
-      const duration = parseInt(logCall[1].duration);
+      const duration = parseInt(logCall[0].duration);
       expect(duration).toBeGreaterThanOrEqual(0);
     });
 
@@ -137,9 +137,9 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         statusCode: 404
-      }));
+      }), 'Request completed');
     });
 
     it('should log different HTTP methods', () => {
@@ -150,9 +150,9 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         method: 'POST'
-      }));
+      }), 'Request completed');
     });
 
     it('should handle missing user agent', () => {
@@ -163,9 +163,9 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         userAgent: undefined
-      }));
+      }), 'Request completed');
     });
 
     it('should handle missing IP', () => {
@@ -176,9 +176,9 @@ describe('Request Middleware', () => {
       const finishHandler = onMock.mock.calls[0][1];
       finishHandler();
 
-      expect(logger.info).toHaveBeenCalledWith('Request completed', expect.objectContaining({
+      expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({
         ip: undefined
-      }));
+      }), 'Request completed');
     });
   });
 });
