@@ -28,6 +28,8 @@ echo "    Timeout:  ${TIMEOUT}s"
 # Cleanup helper
 # ---------------------------------------------------------------------------
 cleanup() {
+  echo "[cleanup] Disconnecting from kind network ..."
+  docker network disconnect kind "$(hostname)" 2>/dev/null || true
   echo "[cleanup] Deleting kind cluster ${CLUSTER_NAME} ..."
   kind delete cluster --name "${CLUSTER_NAME}" 2>/dev/null || true
 }
@@ -41,9 +43,13 @@ kind create cluster --name "${CLUSTER_NAME}" --wait 60s
 
 # Rewrite kubeconfig server URL: 127.0.0.1 → kind control-plane container IP
 # (Jenkins runs inside Docker, so 127.0.0.1 in kubeconfig points to Jenkins itself, not the host)
+# Connect Jenkins container to kind network so kubectl can reach the control plane
+JENKINS_CONTAINER=$(hostname)
+docker network connect kind "${JENKINS_CONTAINER}" 2>/dev/null || true
+
 CP_IP=$(docker inspect "${CLUSTER_NAME}-control-plane" --format '{{.NetworkSettings.Networks.kind.IPAddress}}' 2>/dev/null)
 if [ -n "${CP_IP}" ]; then
-  echo "[kind] Rewriting kubeconfig server to ${CP_IP} ..."
+  echo "[kind] Rewriting kubeconfig server to ${CP_IP} (Jenkins joined kind network) ..."
   kubectl config set-cluster "kind-${CLUSTER_NAME}" --server="https://${CP_IP}:6443" --insecure-skip-tls-verify=true
 fi
 
