@@ -68,8 +68,12 @@ describe('Events Index', () => {
       })).resolves.not.toThrow();
 
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('Event system initialized'),
-        expect.any(Object)
+        expect.objectContaining({
+          idempotency: expect.any(Boolean),
+          pubSub: expect.any(Boolean),
+          auditLog: expect.any(Boolean)
+        }),
+        'Event system initialized'
       );
     });
 
@@ -81,11 +85,11 @@ describe('Events Index', () => {
       });
 
       expect(logger.info).toHaveBeenCalledWith(
-        'Event system initialized',
         expect.objectContaining({
           idempotency: true,
           auditLog: true
-        })
+        }),
+        'Event system initialized'
       );
     });
 

@@ -135,8 +135,8 @@ describe('EventStore', () => {
 
       await expect(store.saveAuditLog(event)).resolves.not.toThrow();
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to save audit log'),
-        expect.any(Error)
+        expect.objectContaining({ err: expect.any(Error) }),
+        'Failed to save audit log'
       );
     });
 
@@ -382,8 +382,8 @@ describe('EventStore with Redis', () => {
 
     const store = new EventStore(mockPrisma as any);
     expect(logger.error).toHaveBeenCalledWith(
-      'Failed to initialize Redis for event store:',
-      expect.any(Error)
+      expect.objectContaining({ err: expect.any(Error) }),
+      'Failed to initialize Redis for event store'
     );
 
     (config as any).redisUrl = original;

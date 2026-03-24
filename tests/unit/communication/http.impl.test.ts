@@ -80,7 +80,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.getUsers({ page: 1, perPage: 10 });
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/internal/users', {
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/api/v1/users', {
         params: { page: 1, perPage: 10 }
       });
       expect(response).toEqual(result);
@@ -91,7 +91,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.getUserById(1);
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/internal/users/1');
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/api/v1/users/1');
       expect(response).toEqual(mockPublicUser);
     });
 
@@ -101,7 +101,7 @@ describe('HTTPServiceCommunication', () => {
       const createData = { username: 'new', email: 'new@example.com', password: 'Test@1234' };
       const response = await communication.createUser(createData);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/users', createData);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/users', createData);
       expect(response).toEqual(mockPublicUser);
     });
 
@@ -111,7 +111,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.updateUser(1, { firstName: 'Updated' });
 
-      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/internal/users/1', { firstName: 'Updated' });
+      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/api/v1/users/1', { firstName: 'Updated' });
       expect(response.firstName).toBe('Updated');
     });
 
@@ -120,7 +120,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.deleteUser(1);
 
-      expect(mockAxiosInstance.delete).toHaveBeenCalledWith('/internal/users/1');
+      expect(mockAxiosInstance.delete).toHaveBeenCalledWith('/api/v1/users/1');
       expect(response).toBe(true);
     });
 
@@ -132,7 +132,7 @@ describe('HTTPServiceCommunication', () => {
         newPassword: 'new'
       });
 
-      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/internal/users/1/password', {
+      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/api/v1/users/1/password', {
         oldPassword: 'old',
         newPassword: 'new'
       });
@@ -145,7 +145,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.verifyUser(1);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/users/1/verify');
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/users/1/verify');
       expect(response.isVerified).toBe(true);
     });
 
@@ -155,7 +155,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.updateUserStatus(1, UserStatus.SUSPENDED);
 
-      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/internal/users/1/status', {
+      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/api/v1/users/1/status', {
         status: UserStatus.SUSPENDED
       });
       expect(response.status).toBe(UserStatus.SUSPENDED);
@@ -170,7 +170,7 @@ describe('HTTPServiceCommunication', () => {
       const loginData = { usernameOrEmail: 'testuser', password: 'password' };
       const response = await communication.login(loginData);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/login', loginData);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/login', loginData);
       expect(response).toEqual(authResult);
     });
 
@@ -179,7 +179,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.logout('access-token');
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/logout', {
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/logout', {
         token: 'access-token'
       });
       expect(response).toBe(true);
@@ -190,7 +190,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.refreshToken('refresh-token');
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/refresh', {
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/refresh', {
         refreshToken: 'refresh-token'
       });
       expect(response).toEqual(mockTokenPair);
@@ -201,7 +201,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.validateToken('access-token');
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/validate', {
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/validate', {
         token: 'access-token'
       });
       expect(response).toEqual(mockPublicUser);
@@ -214,7 +214,7 @@ describe('HTTPServiceCommunication', () => {
       const registerData = { username: 'new', email: 'new@example.com', password: 'Test@1234' };
       const response = await communication.register(registerData);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/register', registerData);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/register', registerData);
       expect(response).toEqual(authResult);
     });
 
@@ -223,7 +223,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.revokeAllTokens(1);
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/internal/auth/tokens/revoke-all', {
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api/v1/auth/tokens/revoke-all', {
         userId: 1
       });
       expect(response).toBe(5);
@@ -235,7 +235,7 @@ describe('HTTPServiceCommunication', () => {
 
       const response = await communication.getUserTokens(1);
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/internal/auth/tokens/1');
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/api/v1/auth/tokens/1');
       expect(response).toEqual(tokens);
     });
   });
