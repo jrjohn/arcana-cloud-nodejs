@@ -36,7 +36,8 @@ export default defineConfig({
         'src/models/index.ts',
         // Entry-point / bootstrap files (require full runtime env)
         'src/index.ts',
-      ]
+      ],
+      all: true
     }
   }
 });
