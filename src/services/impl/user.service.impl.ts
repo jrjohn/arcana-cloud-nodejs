@@ -8,6 +8,8 @@ import { NotFoundError, ConflictError, AuthenticationError } from '../../utils/e
 import { TOKENS } from '../../di/tokens.js';
 import { getEventBus, Events } from '../../events/index.js';
 
+const USER_NOT_FOUND = 'User not found';
+
 @injectable()
 export class UserServiceImpl implements IUserService {
   private readonly SALT_ROUNDS = 12;
@@ -43,7 +45,7 @@ export class UserServiceImpl implements IUserService {
   async getUserById(id: number): Promise<UserPublic> {
     const user = await this.userDao.findById(id);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
     return this.excludePassword(user);
   }
@@ -51,7 +53,7 @@ export class UserServiceImpl implements IUserService {
   async getUserByUsername(username: string): Promise<UserPublic> {
     const user = await this.userDao.findByUsername(username);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
     return this.excludePassword(user);
   }
@@ -59,7 +61,7 @@ export class UserServiceImpl implements IUserService {
   async getUserByEmail(email: string): Promise<UserPublic> {
     const user = await this.userDao.findByEmail(email);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
     return this.excludePassword(user);
   }
@@ -67,7 +69,7 @@ export class UserServiceImpl implements IUserService {
   async updateUser(id: number, data: UpdateUserData): Promise<UserPublic> {
     const existingUser = await this.userDao.findById(id);
     if (!existingUser) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
 
     if (data.email && data.email !== existingUser.email) {
@@ -84,7 +86,7 @@ export class UserServiceImpl implements IUserService {
   async deleteUser(id: number): Promise<boolean> {
     const user = await this.userDao.findById(id);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
     return this.userDao.deleteById(id);
   }
@@ -92,7 +94,7 @@ export class UserServiceImpl implements IUserService {
   async changePassword(id: number, oldPassword: string, newPassword: string): Promise<boolean> {
     const user = await this.userDao.findById(id);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
 
     const isValid = await bcrypt.compare(oldPassword, user.passwordHash!);
@@ -117,7 +119,7 @@ export class UserServiceImpl implements IUserService {
   async verifyUser(id: number): Promise<UserPublic> {
     const user = await this.userDao.findById(id);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
 
     if (user.isVerified) {
@@ -140,7 +142,7 @@ export class UserServiceImpl implements IUserService {
   async updateUserStatus(id: number, status: UserStatus): Promise<UserPublic> {
     const user = await this.userDao.findById(id);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(USER_NOT_FOUND);
     }
 
     const oldStatus = user.status;
