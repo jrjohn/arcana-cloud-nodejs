@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import axios from 'axios';
-import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../../../src/communication/impl/http.impl.js';
+import { HTTPServiceCommunicationImpl, HTTPRepositoryCommunicationImpl } from '../../../src/communication/impl/http.impl.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 
 vi.mock('axios');
@@ -8,8 +8,8 @@ vi.mock('../../../src/utils/helpers.js', () => ({
   delay: vi.fn().mockResolvedValue(undefined)
 }));
 
-describe('HTTPServiceCommunication', () => {
-  let communication: HTTPServiceCommunication;
+describe('HTTPServiceCommunicationImpl', () => {
+  let communication: HTTPServiceCommunicationImpl;
   let mockAxiosInstance: {
     get: ReturnType<typeof vi.fn>;
     post: ReturnType<typeof vi.fn>;
@@ -50,12 +50,12 @@ describe('HTTPServiceCommunication', () => {
     };
 
     vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as unknown as ReturnType<typeof axios.create>);
-    communication = new HTTPServiceCommunication(['http://localhost:5001']);
+    communication = new HTTPServiceCommunicationImpl(['http://localhost:5001']);
   });
 
   describe('constructor', () => {
     it('should create axios clients for each URL', () => {
-      new HTTPServiceCommunication(['http://service1:5001', 'http://service2:5001']);
+      new HTTPServiceCommunicationImpl(['http://service1:5001', 'http://service2:5001']);
 
       expect(axios.create).toHaveBeenCalledWith({
         baseURL: 'http://service1:5001',
@@ -267,7 +267,7 @@ describe('HTTPServiceCommunication', () => {
         .mockReturnValueOnce(mockClient1 as unknown as ReturnType<typeof axios.create>)
         .mockReturnValueOnce(mockClient2 as unknown as ReturnType<typeof axios.create>);
 
-      const comm = new HTTPServiceCommunication(['http://service1:5001', 'http://service2:5001']);
+      const comm = new HTTPServiceCommunicationImpl(['http://service1:5001', 'http://service2:5001']);
 
       await comm.getUserById(1);
       await comm.getUserById(2);
@@ -278,8 +278,8 @@ describe('HTTPServiceCommunication', () => {
   });
 });
 
-describe('HTTPRepositoryCommunication', () => {
-  let communication: HTTPRepositoryCommunication;
+describe('HTTPRepositoryCommunicationImpl', () => {
+  let communication: HTTPRepositoryCommunicationImpl;
   let mockAxiosInstance: {
     get: ReturnType<typeof vi.fn>;
     post: ReturnType<typeof vi.fn>;
@@ -296,7 +296,7 @@ describe('HTTPRepositoryCommunication', () => {
     };
 
     vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as unknown as ReturnType<typeof axios.create>);
-    communication = new HTTPRepositoryCommunication(['http://localhost:5002']);
+    communication = new HTTPRepositoryCommunicationImpl(['http://localhost:5002']);
   });
 
   it('should query entities', async () => {

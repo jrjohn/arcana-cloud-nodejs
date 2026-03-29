@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
-import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../../../src/communication/impl/grpc.impl.js';
+import { GRPCServiceCommunicationImpl, GRPCRepositoryCommunicationImpl } from '../../../src/communication/impl/grpc.impl.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 
 vi.mock('@grpc/grpc-js');
 vi.mock('@grpc/proto-loader');
 
-describe('GRPCServiceCommunication', () => {
-  let communication: GRPCServiceCommunication;
+describe('GRPCServiceCommunicationImpl', () => {
+  let communication: GRPCServiceCommunicationImpl;
   let mockClient: Record<string, ReturnType<typeof vi.fn>>;
   let MockServiceClient: ReturnType<typeof vi.fn>;
 
@@ -63,7 +63,7 @@ describe('GRPCServiceCommunication', () => {
     } as unknown as grpc.GrpcObject);
     vi.mocked(grpc.credentials.createInsecure).mockReturnValue({} as grpc.ChannelCredentials);
 
-    communication = new GRPCServiceCommunication(['localhost:50051']);
+    communication = new GRPCServiceCommunicationImpl(['localhost:50051']);
   });
 
   describe('constructor', () => {
@@ -82,7 +82,7 @@ describe('GRPCServiceCommunication', () => {
     });
 
     it('should create multiple clients for multiple URLs', () => {
-      new GRPCServiceCommunication(['localhost:50051', 'localhost:50052']);
+      new GRPCServiceCommunicationImpl(['localhost:50051', 'localhost:50052']);
 
       expect(MockServiceClient).toHaveBeenCalledTimes(3); // Including the one from beforeEach
     });
@@ -338,8 +338,8 @@ describe('GRPCServiceCommunication', () => {
   });
 });
 
-describe('GRPCRepositoryCommunication', () => {
-  let communication: GRPCRepositoryCommunication;
+describe('GRPCRepositoryCommunicationImpl', () => {
+  let communication: GRPCRepositoryCommunicationImpl;
   let mockClient: Record<string, ReturnType<typeof vi.fn>>;
   let MockServiceClient: ReturnType<typeof vi.fn>;
 
@@ -361,7 +361,7 @@ describe('GRPCRepositoryCommunication', () => {
     } as unknown as grpc.GrpcObject);
     vi.mocked(grpc.credentials.createInsecure).mockReturnValue({} as grpc.ChannelCredentials);
 
-    communication = new GRPCRepositoryCommunication(['localhost:50052']);
+    communication = new GRPCRepositoryCommunicationImpl(['localhost:50052']);
   });
 
   it('should query entities', async () => {

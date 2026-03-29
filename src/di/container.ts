@@ -34,9 +34,9 @@ import { EventStore } from '../events/event-store.js';
 
 // Communication
 import { ServiceCommunication, RepositoryCommunication, DeploymentMode, CommunicationProtocol } from '../communication/interfaces.js';
-import { DirectServiceCommunication, DirectRepositoryCommunication } from '../communication/impl/direct.impl.js';
-import { HTTPServiceCommunication, HTTPRepositoryCommunication } from '../communication/impl/http.impl.js';
-import { GRPCServiceCommunication, GRPCRepositoryCommunication } from '../communication/impl/grpc.impl.js';
+import { DirectServiceCommunicationImpl, DirectRepositoryCommunicationImpl } from '../communication/impl/direct.impl.js';
+import { HTTPServiceCommunicationImpl, HTTPRepositoryCommunicationImpl } from '../communication/impl/http.impl.js';
+import { GRPCServiceCommunicationImpl, GRPCRepositoryCommunicationImpl } from '../communication/impl/grpc.impl.js';
 
 /**
  * Create and configure the DI container
@@ -92,31 +92,31 @@ function bindCommunicationLayer(container: Container): void {
   // Service Communication
   // Monolithic and service layers handle requests directly (they ARE the service)
   if (mode === DeploymentMode.MONOLITHIC || layer === 'service') {
-    container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).to(DirectServiceCommunication).inSingletonScope();
+    container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).to(DirectServiceCommunicationImpl).inSingletonScope();
   } else if (protocol === CommunicationProtocol.HTTP) {
     container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).toDynamicValue(() => {
       const urls = process.env.SERVICE_URLS?.split(',') || ['http://localhost:5001'];
-      return new HTTPServiceCommunication(urls);
+      return new HTTPServiceCommunicationImpl(urls);
     }).inSingletonScope();
   } else {
     container.bind<ServiceCommunication>(TOKENS.ServiceCommunication).toDynamicValue(() => {
       const urls = process.env.SERVICE_URLS?.split(',') || ['localhost:50051'];
-      return new GRPCServiceCommunication(urls);
+      return new GRPCServiceCommunicationImpl(urls);
     }).inSingletonScope();
   }
 
   // Repository Communication
   if (mode === DeploymentMode.MONOLITHIC || layer === 'repository') {
-    container.bind<RepositoryCommunication>(TOKENS.RepositoryCommunication).to(DirectRepositoryCommunication).inSingletonScope();
+    container.bind<RepositoryCommunication>(TOKENS.RepositoryCommunication).to(DirectRepositoryCommunicationImpl).inSingletonScope();
   } else if (protocol === CommunicationProtocol.HTTP) {
     container.bind<RepositoryCommunication>(TOKENS.RepositoryCommunication).toDynamicValue(() => {
       const urls = process.env.REPOSITORY_URLS?.split(',') || ['http://localhost:5002'];
-      return new HTTPRepositoryCommunication(urls);
+      return new HTTPRepositoryCommunicationImpl(urls);
     }).inSingletonScope();
   } else {
     container.bind<RepositoryCommunication>(TOKENS.RepositoryCommunication).toDynamicValue(() => {
       const urls = process.env.REPOSITORY_URLS?.split(',') || ['localhost:50052'];
-      return new GRPCRepositoryCommunication(urls);
+      return new GRPCRepositoryCommunicationImpl(urls);
     }).inSingletonScope();
   }
 }

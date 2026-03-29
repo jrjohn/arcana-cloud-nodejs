@@ -14,7 +14,7 @@ import { PaginatedResult } from '../../repositories/user.repository.interface.js
 import { delay } from '../../utils/helpers.js';
 
 @injectable()
-export class HTTPServiceCommunication implements ServiceCommunication {
+export class HTTPServiceCommunicationImpl implements ServiceCommunication {
   private readonly clients: AxiosInstance[];
   private currentIndex = 0;
   private readonly maxRetries = 3;
@@ -163,7 +163,7 @@ export class HTTPServiceCommunication implements ServiceCommunication {
 }
 
 @injectable()
-export class HTTPRepositoryCommunication implements RepositoryCommunication {
+export class HTTPRepositoryCommunicationImpl implements RepositoryCommunication {
   private readonly clients: AxiosInstance[];
   private currentIndex = 0;
   private readonly maxRetries = 3;

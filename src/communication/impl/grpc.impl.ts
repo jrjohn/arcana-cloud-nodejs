@@ -14,7 +14,7 @@ import { TokenPair, OAuthToken } from '../../models/oauth-token.model.js';
 import { PaginatedResult } from '../../repositories/user.repository.interface.js';
 
 @injectable()
-export class GRPCServiceCommunication implements ServiceCommunication {
+export class GRPCServiceCommunicationImpl implements ServiceCommunication {
   private readonly clients: grpc.Client[];
   private currentIndex = 0;
 
@@ -266,7 +266,7 @@ export class GRPCServiceCommunication implements ServiceCommunication {
 }
 
 @injectable()
-export class GRPCRepositoryCommunication implements RepositoryCommunication {
+export class GRPCRepositoryCommunicationImpl implements RepositoryCommunication {
   private readonly clients: grpc.Client[];
   private currentIndex = 0;
 

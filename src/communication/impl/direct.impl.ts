@@ -15,7 +15,7 @@ import { IAuthService } from '../../services/auth.service.interface.js';
 import { TOKENS } from '../../di/tokens.js';
 
 @injectable()
-export class DirectServiceCommunication implements ServiceCommunication {
+export class DirectServiceCommunicationImpl implements ServiceCommunication {
   constructor(
     @inject(TOKENS.UserService) private readonly userService: IUserService,
     @inject(TOKENS.AuthService) private readonly authService: IAuthService
@@ -83,7 +83,7 @@ export class DirectServiceCommunication implements ServiceCommunication {
 }
 
 @injectable()
-export class DirectRepositoryCommunication implements RepositoryCommunication {
+export class DirectRepositoryCommunicationImpl implements RepositoryCommunication {
   async query<T>(_entity: string, _params: Record<string, unknown>): Promise<T[]> {
     throw new Error('Direct repository communication not fully implemented');
   }

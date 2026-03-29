@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { Container } from 'inversify';
-import { DirectServiceCommunication, DirectRepositoryCommunication } from '../../../src/communication/impl/direct.impl.js';
+import { DirectServiceCommunicationImpl, DirectRepositoryCommunicationImpl } from '../../../src/communication/impl/direct.impl.js';
 import { TOKENS } from '../../../src/di/tokens.js';
 import { UserRole, UserStatus } from '../../../src/models/user.model.js';
 import { mockOAuthToken, mockCreateUserData } from '../../fixtures.js';
 import { IUserService } from '../../../src/services/user.service.interface.js';
 import { IAuthService } from '../../../src/services/auth.service.interface.js';
 
-describe('DirectServiceCommunication', () => {
+describe('DirectServiceCommunicationImpl', () => {
   let container: Container;
-  let communication: DirectServiceCommunication;
+  let communication: DirectServiceCommunicationImpl;
   let mockUserService: Record<string, ReturnType<typeof vi.fn>>;
   let mockAuthService: Record<string, ReturnType<typeof vi.fn>>;
 
@@ -75,8 +75,8 @@ describe('DirectServiceCommunication', () => {
     container.bind<IAuthService>(TOKENS.AuthService).toConstantValue(mockAuthService as unknown as IAuthService);
 
     // Get the communication instance from container
-    container.bind<DirectServiceCommunication>(DirectServiceCommunication).toSelf();
-    communication = container.get(DirectServiceCommunication);
+    container.bind<DirectServiceCommunicationImpl>(DirectServiceCommunicationImpl).toSelf();
+    communication = container.get(DirectServiceCommunicationImpl);
   });
 
   afterEach(() => {
@@ -233,11 +233,11 @@ describe('DirectServiceCommunication', () => {
   });
 });
 
-describe('DirectRepositoryCommunication', () => {
-  let communication: DirectRepositoryCommunication;
+describe('DirectRepositoryCommunicationImpl', () => {
+  let communication: DirectRepositoryCommunicationImpl;
 
   beforeEach(() => {
-    communication = new DirectRepositoryCommunication();
+    communication = new DirectRepositoryCommunicationImpl();
   });
 
   it('should throw error for query', async () => {
