@@ -175,7 +175,23 @@ spec:
         - name: db-migrate
           image: arcana-cloud-node:ci
           imagePullPolicy: Never
-          command: ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss"]
+          # k8s has no declarative depends_on; retry prisma in a single init pass
+          # until mysql accepts connections (mirrors compose's mysql service_healthy
+          # gate). Doing it in one invocation avoids pod-level CrashLoopBackOff, whose
+          # exponential delay otherwise pushes pod-Ready past the smoke-test timeout.
+          command:
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 60); do
+                if npx prisma db push --skip-generate --accept-data-loss; then
+                  exit 0
+                fi
+                echo "[db-migrate] mysql not ready (attempt $i/60), retrying in 5s..."
+                sleep 5
+              done
+              echo "[db-migrate] prisma db push failed after 60 attempts"
+              exit 1
           env:
             - name: DB_PASSWORD
               valueFrom:
