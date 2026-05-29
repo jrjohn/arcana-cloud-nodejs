@@ -70,29 +70,33 @@ pipeline {
 
         stage("Unit Tests") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh "docker compose -f docker-compose.test.yml run --rm --build test"
-                }
+                sh '''
+                    docker rm -f node-app-test 2>/dev/null || true
+                    docker compose -f docker-compose.test.yml run --build --name node-app-test test
+                    RC=$?
+                    mkdir -p coverage
+                    docker cp node-app-test:/app/coverage/. coverage/ 2>/dev/null || true
+                    docker rm -f node-app-test 2>/dev/null || true
+                    exit $RC
+                '''
             }
         }
 
         stage("Integration: Layered HTTP") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh '''
-                        JENKINS_ID=$(hostname)
-                        NODE_IMAGE=placeholder docker compose -p arcana-ci-node-http \
-                            -f deployment/layered/docker-compose-ci-http.yml \
-                            down -v --remove-orphans 2>/dev/null || true
-                        NODE_IMAGE=${IMAGE_TAG}:build-${BUILD_NUMBER} \
-                        docker compose -p arcana-ci-node-http \
-                            -f deployment/layered/docker-compose-ci-http.yml up -d
-                        docker network connect arcana-ci-node-net $JENKINS_ID 2>/dev/null || true
-                        bash scripts/integration-smoke-test.sh \
-                            http://arcana-ci-node-controller:3000 http-layered 300
-                        docker network disconnect arcana-ci-node-net $JENKINS_ID 2>/dev/null || true
-                    '''
-                }
+                sh '''
+                    JENKINS_ID=$(hostname)
+                    NODE_IMAGE=placeholder docker compose -p arcana-ci-node-http \
+                        -f deployment/layered/docker-compose-ci-http.yml \
+                        down -v --remove-orphans 2>/dev/null || true
+                    NODE_IMAGE=${IMAGE_TAG}:build-${BUILD_NUMBER} \
+                    docker compose -p arcana-ci-node-http \
+                        -f deployment/layered/docker-compose-ci-http.yml up -d
+                    docker network connect arcana-ci-node-net $JENKINS_ID 2>/dev/null || true
+                    bash scripts/integration-smoke-test.sh \
+                        http://arcana-ci-node-controller:3000 http-layered 300
+                    docker network disconnect arcana-ci-node-net $JENKINS_ID 2>/dev/null || true
+                '''
             }
             post {
                 always {
@@ -108,21 +112,19 @@ pipeline {
 
         stage("Integration: Layered gRPC") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh '''
-                        JENKINS_ID=$(hostname)
-                        NODE_IMAGE=placeholder docker compose -p arcana-ci-node-grpc \
-                            -f deployment/layered/docker-compose-ci-grpc.yml \
-                            down -v --remove-orphans 2>/dev/null || true
-                        NODE_IMAGE=${IMAGE_TAG}:build-${BUILD_NUMBER} \
-                        docker compose -p arcana-ci-node-grpc \
-                            -f deployment/layered/docker-compose-ci-grpc.yml up -d
-                        docker network connect arcana-ci-node-grpc-net $JENKINS_ID 2>/dev/null || true
-                        bash scripts/integration-smoke-test.sh \
-                            http://arcana-ci-node-grpc-controller:3000 grpc-layered 300
-                        docker network disconnect arcana-ci-node-grpc-net $JENKINS_ID 2>/dev/null || true
-                    '''
-                }
+                sh '''
+                    JENKINS_ID=$(hostname)
+                    NODE_IMAGE=placeholder docker compose -p arcana-ci-node-grpc \
+                        -f deployment/layered/docker-compose-ci-grpc.yml \
+                        down -v --remove-orphans 2>/dev/null || true
+                    NODE_IMAGE=${IMAGE_TAG}:build-${BUILD_NUMBER} \
+                    docker compose -p arcana-ci-node-grpc \
+                        -f deployment/layered/docker-compose-ci-grpc.yml up -d
+                    docker network connect arcana-ci-node-grpc-net $JENKINS_ID 2>/dev/null || true
+                    bash scripts/integration-smoke-test.sh \
+                        http://arcana-ci-node-grpc-controller:3000 grpc-layered 300
+                    docker network disconnect arcana-ci-node-grpc-net $JENKINS_ID 2>/dev/null || true
+                '''
             }
             post {
                 always {
@@ -144,13 +146,11 @@ pipeline {
 
         stage("Integration: K8s gRPC") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh '''#!/bin/bash
-                        export PATH="/var/jenkins_home/bin:${PATH}"
-                        kind version || { echo "kind not found"; exit 1; }
-                        bash scripts/kind-smoke-test.sh "${IMAGE_TAG}:build-${BUILD_NUMBER}" grpc 480
-                    '''
-                }
+                sh '''#!/bin/bash
+                    export PATH="/var/jenkins_home/bin:${PATH}"
+                    kind version || { echo "kind not found"; exit 1; }
+                    bash scripts/kind-smoke-test.sh "${IMAGE_TAG}:build-${BUILD_NUMBER}" grpc 480
+                '''
             }
             post {
                 always {
@@ -166,42 +166,58 @@ pipeline {
 
         stage("SonarQube Analysis") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'npm ci --ignore-scripts --no-audit --no-fund 2>/dev/null || npm install --ignore-scripts --no-audit --no-fund 2>/dev/null || true'
-                    withSonarQubeEnv('SonarQube') {
-                        script {
-                            def prArgs = env.CHANGE_ID ? """ \
-                                -Dsonar.pullrequest.key=${env.CHANGE_ID} \
-                                -Dsonar.pullrequest.branch=${env.BRANCH_NAME} \
-                                -Dsonar.pullrequest.base=${env.CHANGE_TARGET}""" : ''
-                            sh """sonar-scanner \
-                              -Dsonar.projectKey=node-app \
-                              -Dsonar.projectName="Node App" \
-                              -Dsonar.sources=src \
-                              -Dsonar.exclusions=coverage/**,**/lcov-report/**,**/*.html,node_modules/**,dist/**,src/grpc/generated/** \
-                              -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                              -Dsonar.scm.disabled=true${prArgs}"""
-                        }
-                    }
+                sh 'npm ci --ignore-scripts --no-audit --no-fund 2>/dev/null || npm install --ignore-scripts --no-audit --no-fund 2>/dev/null || true'
+                withSonarQubeEnv('SonarQube') {
+                    sh """sonar-scanner \
+                      -Dsonar.projectKey=node-app \
+                      -Dsonar.projectName="Node App" \
+                      -Dsonar.sources=src \
+                      -Dsonar.exclusions=coverage/**,**/lcov-report/**,**/*.html,node_modules/**,dist/**,src/grpc/generated/** \
+                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                      -Dsonar.scm.disabled=true"""
+                    sh '''
+                        set -e
+                        TOKEN="${SONAR_AUTH_TOKEN:-$SONAR_TOKEN}"
+                        RT=.scannerwork/report-task.txt
+                        [ -f "$RT" ] || { echo "report-task.txt missing"; exit 1; }
+                        CE_TASK_ID=$(grep '^ceTaskId=' "$RT" | cut -d= -f2-)
+                        ANALYSIS_ID=""
+                        for i in $(seq 1 60); do
+                            RESP=$(curl -s -u "$TOKEN:" "$SONAR_HOST_URL/api/ce/task?id=$CE_TASK_ID")
+                            ST=$(echo "$RESP" | grep -o '"status":"[A-Z_]*"' | head -1 | cut -d'"' -f4)
+                            echo "  CE status: ${ST:-?} (try $i)"
+                            if [ "$ST" = "SUCCESS" ]; then ANALYSIS_ID=$(echo "$RESP" | grep -o '"analysisId":"[^"]*"' | head -1 | cut -d'"' -f4); break;
+                            elif [ "$ST" = "FAILED" ] || [ "$ST" = "CANCELED" ]; then echo "CE $ST"; exit 1; fi
+                            sleep 5
+                        done
+                        [ -n "$ANALYSIS_ID" ] || { echo "CE timeout"; exit 1; }
+                        GATE=$(curl -s -u "$TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?analysisId=$ANALYSIS_ID")
+                        GST=$(echo "$GATE" | grep -o '"status":"[A-Z]*"' | head -1 | cut -d'"' -f4)
+                        echo "Quality gate: ${GST:-UNKNOWN}"
+                        if [ "$GST" != "OK" ]; then echo "$GATE"; exit 1; fi
+                    '''
                 }
             }
         }
 
         stage("Architecture Qube") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh '''
-                        mkdir -p arch-qube-reports
-                        docker run --rm \
-                            --network devops_default \
-                            -v $(pwd):/project \
-                            -v $(pwd)/arch-qube-reports:/output \
-                            arcana.boo/arcana/arch-qube:latest scan /project \
-                            --framework nodejs --no-ai \
-                            --ci --format json,markdown \
-                            -o /output --threshold 90 || true
-                    '''
-                }
+                sh '''
+                    docker rm -f arcana-arch-qube-node 2>/dev/null || true
+                    docker create --name arcana-arch-qube-node --network devops_default \
+                        -v /src -v /output \
+                        arcana.boo/arcana/arch-qube:latest \
+                        scan /src --framework nodejs --no-ai --ci \
+                        --format json,markdown -o /output --threshold 90 || exit 1
+                    tar --exclude=./.git --exclude=./node_modules --exclude=./arch-qube-reports -C . -cf - . \
+                        | docker cp - arcana-arch-qube-node:/src || exit 1
+                    docker start -a arcana-arch-qube-node
+                    AQ_RC=$?
+                    mkdir -p arch-qube-reports
+                    docker cp arcana-arch-qube-node:/output/. arch-qube-reports/ 2>/dev/null || true
+                    docker rm -f arcana-arch-qube-node 2>/dev/null || true
+                    exit $AQ_RC
+                '''
             }
         }
 

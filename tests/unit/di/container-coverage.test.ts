@@ -93,13 +93,13 @@ describe('DI Container - createContainer and bindings (monolithic default)', () 
   it('should resolve ServiceCommunication as DirectServiceCommunication in monolithic', () => {
     const svc = container.get(TOKENS.ServiceCommunication);
     expect(svc).toBeDefined();
-    expect(svc.constructor.name).toBe('DirectServiceCommunication');
+    expect(svc.constructor.name).toBe('DirectServiceCommunicationImpl');
   });
 
   it('should resolve RepositoryCommunication as DirectRepositoryCommunication in monolithic', () => {
     const repo = container.get(TOKENS.RepositoryCommunication);
     expect(repo).toBeDefined();
-    expect(repo.constructor.name).toBe('DirectRepositoryCommunication');
+    expect(repo.constructor.name).toBe('DirectRepositoryCommunicationImpl');
   });
 });
 
