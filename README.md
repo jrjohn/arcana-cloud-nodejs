@@ -3,6 +3,9 @@
 [![Build](https://arcana.boo/jenkins/buildStatus/icon?job=node-app-pipeline)](https://arcana.boo/jenkins/job/node-app-pipeline/)
 **Rank**: Quality Gate `OK` · Build `blue` · Sonar coverage `83.5%`
 <!-- agent-managed badges END -->
+<!-- arch-rank START -->
+**Architecture**: arch-qube `100/100` · grade `A+` · `PASS`
+<!-- arch-rank END -->
 
 # Arcana Cloud Node.js: Enterprise TypeScript Microservices Platform
 
