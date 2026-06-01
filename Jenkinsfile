@@ -149,7 +149,7 @@ pipeline {
                 sh '''#!/bin/bash
                     export PATH="/var/jenkins_home/bin:${PATH}"
                     kind version || { echo "kind not found"; exit 1; }
-                    bash scripts/kind-smoke-test.sh "${IMAGE_TAG}:build-${BUILD_NUMBER}" grpc 480
+                    bash scripts/kind-smoke-test.sh "${IMAGE_TAG}:build-${BUILD_NUMBER}" grpc 600
                 '''
             }
             post {

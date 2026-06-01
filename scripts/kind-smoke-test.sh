@@ -28,10 +28,12 @@ echo "    Timeout:  ${TIMEOUT}s"
 # Cleanup helper
 # ---------------------------------------------------------------------------
 cleanup() {
+  local rc=$?
   echo "[cleanup] Disconnecting from kind network ..."
   docker network disconnect kind "$(hostname)" 2>/dev/null || true
   echo "[cleanup] Deleting kind cluster ${CLUSTER_NAME} ..."
   kind delete cluster --name "${CLUSTER_NAME}" 2>/dev/null || true
+  exit $rc
 }
 trap cleanup EXIT
 
