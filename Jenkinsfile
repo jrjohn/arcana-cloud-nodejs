@@ -82,6 +82,9 @@ pipeline {
         }
 
         stage("Integration: Layered HTTP") {
+            // Serialize this repo's layered-compose stage: main + PR builds share
+            // static compose project/network/container names and collide when concurrent.
+            options { lock('ci-nodejs-layered') }
             steps {
                 sh '''
                     JENKINS_ID=$(hostname)
@@ -110,6 +113,9 @@ pipeline {
         }
 
         stage("Integration: Layered gRPC") {
+            // Serialize this repo's layered-compose stage: main + PR builds share
+            // static compose project/network/container names and collide when concurrent.
+            options { lock('ci-nodejs-layered') }
             steps {
                 sh '''
                     JENKINS_ID=$(hostname)
@@ -144,6 +150,9 @@ pipeline {
         }
 
         stage("Integration: K8s gRPC") {
+            // Serialize ALL kind/k8s stages host-wide: concurrent kind clusters
+            // OOM-killed image imports on the 24G shared host (exit 137).
+            options { lock('ci-kind-global') }
             steps {
                 sh '''#!/bin/bash
                     export PATH="/var/jenkins_home/bin:${PATH}"
