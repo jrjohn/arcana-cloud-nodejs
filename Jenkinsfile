@@ -70,12 +70,12 @@ pipeline {
         stage("Unit Tests") {
             steps {
                 sh '''
-                    docker rm -f node-app-test 2>/dev/null || true
-                    docker compose -f docker-compose.test.yml run --build --name node-app-test test
+                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
+                    docker compose -f docker-compose.test.yml run --build --name node-app-test-${BUILD_NUMBER} test
                     RC=$?
                     mkdir -p coverage
-                    docker cp node-app-test:/app/coverage/. coverage/ 2>/dev/null || true
-                    docker rm -f node-app-test 2>/dev/null || true
+                    docker cp node-app-test-${BUILD_NUMBER}:/app/coverage/. coverage/ 2>/dev/null || true
+                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
                     exit $RC
                 '''
             }
