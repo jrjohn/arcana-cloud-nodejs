@@ -41,7 +41,6 @@ pipeline {
         stage("Cleanup Old Images") {
             steps {
                 sh '''
-                    docker image prune -f || true
                     docker images --format '{{.Repository}}:{{.Tag}}' \
                         | grep "${APP_NAME}.*build-" \
                         | sort -t- -k2 -rn \
@@ -71,18 +70,21 @@ pipeline {
         stage("Unit Tests") {
             steps {
                 sh '''
-                    docker rm -f node-app-test 2>/dev/null || true
-                    docker compose -f docker-compose.test.yml run --build --name node-app-test test
+                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
+                    docker compose -f docker-compose.test.yml run --build --name node-app-test-${BUILD_NUMBER} test
                     RC=$?
                     mkdir -p coverage
-                    docker cp node-app-test:/app/coverage/. coverage/ 2>/dev/null || true
-                    docker rm -f node-app-test 2>/dev/null || true
+                    docker cp node-app-test-${BUILD_NUMBER}:/app/coverage/. coverage/ 2>/dev/null || true
+                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
                     exit $RC
                 '''
             }
         }
 
         stage("Integration: Layered HTTP") {
+            // Serialize this repo's layered-compose stage: main + PR builds share
+            // static compose project/network/container names and collide when concurrent.
+            options { lock('ci-nodejs-layered') }
             steps {
                 sh '''
                     JENKINS_ID=$(hostname)
@@ -111,6 +113,9 @@ pipeline {
         }
 
         stage("Integration: Layered gRPC") {
+            // Serialize this repo's layered-compose stage: main + PR builds share
+            // static compose project/network/container names and collide when concurrent.
+            options { lock('ci-nodejs-layered') }
             steps {
                 sh '''
                     JENKINS_ID=$(hostname)
@@ -145,6 +150,9 @@ pipeline {
         }
 
         stage("Integration: K8s gRPC") {
+            // Serialize ALL kind/k8s stages host-wide: concurrent kind clusters
+            // OOM-killed image imports on the 24G shared host (exit 137).
+            options { lock('ci-kind-global') }
             steps {
                 sh '''#!/bin/bash
                     export PATH="/var/jenkins_home/bin:${PATH}"
@@ -203,19 +211,19 @@ pipeline {
         stage("Architecture Qube") {
             steps {
                 sh '''
-                    docker rm -f arcana-arch-qube-node 2>/dev/null || true
-                    docker create --name arcana-arch-qube-node --network devops_default \
+                    docker rm -f arcana-arch-qube-node-${BUILD_NUMBER} 2>/dev/null || true
+                    docker create --name arcana-arch-qube-node-${BUILD_NUMBER} --network devops_default \
                         -v /src -v /output \
                         arcana.boo/arcana/arch-qube:latest \
                         scan /src --framework nodejs --no-ai --ci \
                         --format json,markdown -o /output --threshold 90 || exit 1
                     tar --exclude=./.git --exclude=./node_modules --exclude=./arch-qube-reports -C . -cf - . \
-                        | docker cp - arcana-arch-qube-node:/src || exit 1
-                    docker start -a arcana-arch-qube-node
+                        | docker cp - arcana-arch-qube-node-${BUILD_NUMBER}:/src || exit 1
+                    docker start -a arcana-arch-qube-node-${BUILD_NUMBER}
                     AQ_RC=$?
                     mkdir -p arch-qube-reports
-                    docker cp arcana-arch-qube-node:/output/. arch-qube-reports/ 2>/dev/null || true
-                    docker rm -f arcana-arch-qube-node 2>/dev/null || true
+                    docker cp arcana-arch-qube-node-${BUILD_NUMBER}:/output/. arch-qube-reports/ 2>/dev/null || true
+                    docker rm -f arcana-arch-qube-node-${BUILD_NUMBER} 2>/dev/null || true
                     exit $AQ_RC
                 '''
             }
