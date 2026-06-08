@@ -50,7 +50,7 @@
     "express-rate-limit": "^7.4.0",
     "helmet": "^8.2.0",
     "inversify": "^7.10.6",
-    "ioredis": "^5.4.0",
+    "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.5.0",
     "reflect-metadata": "^0.2.2",
@@ -79,5 +79,8 @@
   },
   "engines": {
     "node": ">=22.6.0"
+  },
+  "overrides": {
+    "ioredis": "$ioredis"
   }
 }
