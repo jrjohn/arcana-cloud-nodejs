@@ -1,4 +1,4 @@
-import { Queue, Worker, Job, QueueEvents } from 'bullmq';
+import { Queue, Worker, Job, QueueEvents, type ConnectionOptions } from 'bullmq';
 import { Redis } from 'ioredis';
 import { logger } from '../utils/logger.js';
 import { config } from '../config.js';
@@ -40,7 +40,11 @@ export const workers: Map<string, Worker> = new Map();
 export const schedulers: Map<string, Queue> = new Map(); // QueueScheduler removed in bullmq v5
 
 export function createQueue(queueConfig: QueueConfig): Queue {
-  const conn = getRedisConnection();
+  // bullmq bundles its own exact-pinned ioredis copy, so an app-side `Redis`
+  // (top-level ioredis) is a nominally-distinct type from bullmq's nested one.
+  // Assert to bullmq's accepted ConnectionOptions: the instances are
+  // structurally identical (verified — bullmq boots fine handed this instance).
+  const conn = getRedisConnection() as unknown as ConnectionOptions;
 
   if (queues.has(queueConfig.name)) {
     return queues.get(queueConfig.name)!;
@@ -71,7 +75,11 @@ export function createWorker<T = unknown, R = unknown>(
   processor: (job: Job<T>) => Promise<R>,
   options?: { concurrency?: number; limiter?: { max: number; duration: number } }
 ): Worker<T, R> {
-  const conn = getRedisConnection();
+  // bullmq bundles its own exact-pinned ioredis copy, so an app-side `Redis`
+  // (top-level ioredis) is a nominally-distinct type from bullmq's nested one.
+  // Assert to bullmq's accepted ConnectionOptions: the instances are
+  // structurally identical (verified — bullmq boots fine handed this instance).
+  const conn = getRedisConnection() as unknown as ConnectionOptions;
 
   const worker = new Worker<T, R>(queueName, processor, {
     connection: conn,
