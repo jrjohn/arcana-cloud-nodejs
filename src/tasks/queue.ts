@@ -1,4 +1,4 @@
-import { Queue, Worker, Job, QueueEvents } from 'bullmq';
+import { Queue, Worker, Job, QueueEvents, ConnectionOptions } from 'bullmq';
 import { Redis } from 'ioredis';
 import { logger } from '../utils/logger.js';
 import { config } from '../config.js';
@@ -47,13 +47,16 @@ export function createQueue(queueConfig: QueueConfig): Queue {
   }
 
   const queue = new Queue(queueConfig.name, {
-    connection: conn,
+    // bullmq exact-pins its own nested ioredis (5.10.1); the top-level ioredis is
+    // 5.11.1, so the Redis instance is a structurally distinct type. Cast to bullmq's
+    // ConnectionOptions (the runtime accepts an ioredis instance). See queue.ts cast.
+    connection: conn as unknown as ConnectionOptions,
     defaultJobOptions: { ...defaultJobOptions, ...queueConfig.defaultJobOptions }
   });
 
   queues.set(queueConfig.name, queue);
 
-  const queueEvents = new QueueEvents(queueConfig.name, { connection: conn });
+  const queueEvents = new QueueEvents(queueConfig.name, { connection: conn as unknown as ConnectionOptions });
 
   queueEvents.on('completed', ({ jobId }) => {
     logger.info(`Job ${jobId} completed in queue ${queueConfig.name}`);
@@ -74,7 +77,7 @@ export function createWorker<T = unknown, R = unknown>(
   const conn = getRedisConnection();
 
   const worker = new Worker<T, R>(queueName, processor, {
-    connection: conn,
+    connection: conn as unknown as ConnectionOptions, // see getOrCreateQueue note
     concurrency: options?.concurrency || 1,
     limiter: options?.limiter
   });
