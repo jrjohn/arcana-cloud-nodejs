@@ -121,7 +121,7 @@ services:
 
   # Redis for distributed systems
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     ports:
       - "6381:6379"
     healthcheck:
