@@ -8,9 +8,9 @@
 ![gRPC](https://img.shields.io/badge/gRPC-1.12-4285F4?logo=google&logoColor=white)
 ![InversifyJS](https://img.shields.io/badge/InversifyJS-7.x-FF6B6B?logo=inversify&logoColor=white)
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
-![tests](https://img.shields.io/badge/tests-538%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-694%20passing-brightgreen)
 ![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
-![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-83.5%25-brightgreen)
 ![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
