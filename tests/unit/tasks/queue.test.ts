@@ -27,9 +27,9 @@ const mockQueueEvents = {
 };
 
 vi.mock('bullmq', () => ({
-  Queue: vi.fn().mockImplementation(() => mockQueue),
-  Worker: vi.fn().mockImplementation(() => mockWorker),
-  QueueEvents: vi.fn().mockImplementation(() => mockQueueEvents)
+  Queue: vi.fn().mockImplementation(function () { return mockQueue; }),
+  Worker: vi.fn().mockImplementation(function () { return mockWorker; }),
+  QueueEvents: vi.fn().mockImplementation(function () { return mockQueueEvents; })
 }));
 
 // Mock Redis
@@ -38,7 +38,7 @@ const mockRedis = {
 };
 
 vi.mock('ioredis', () => {
-  const RedisMock = vi.fn().mockImplementation(() => mockRedis);
+  const RedisMock = vi.fn().mockImplementation(function () { return mockRedis; });
   return { default: RedisMock, Redis: RedisMock };
 });
 

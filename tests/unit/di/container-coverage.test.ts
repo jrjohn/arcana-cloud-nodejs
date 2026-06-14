@@ -14,10 +14,12 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 const mockDisconnect = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn().mockImplementation(() => ({
-    $disconnect: mockDisconnect,
-    auditLog: { create: vi.fn(), findMany: vi.fn(), count: vi.fn(), groupBy: vi.fn() }
-  }))
+  PrismaClient: vi.fn().mockImplementation(function () {
+    return {
+      $disconnect: mockDisconnect,
+      auditLog: { create: vi.fn(), findMany: vi.fn(), count: vi.fn(), groupBy: vi.fn() }
+    };
+  })
 }));
 
 vi.mock('../../../src/config.js', () => ({

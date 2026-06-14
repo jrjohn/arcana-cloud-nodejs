@@ -55,7 +55,7 @@ describe('GRPCServiceCommunicationImpl', () => {
       GetUserTokens: vi.fn()
     };
 
-    MockServiceClient = vi.fn().mockImplementation(() => mockClient);
+    MockServiceClient = vi.fn().mockImplementation(function () { return mockClient; });
 
     vi.mocked(protoLoader.loadSync).mockReturnValue({} as protoLoader.PackageDefinition);
     vi.mocked(grpc.loadPackageDefinition).mockReturnValue({
@@ -353,7 +353,7 @@ describe('GRPCRepositoryCommunicationImpl', () => {
       Count: vi.fn()
     };
 
-    MockServiceClient = vi.fn().mockImplementation(() => mockClient);
+    MockServiceClient = vi.fn().mockImplementation(function () { return mockClient; });
 
     vi.mocked(protoLoader.loadSync).mockReturnValue({} as protoLoader.PackageDefinition);
     vi.mocked(grpc.loadPackageDefinition).mockReturnValue({
