@@ -2,7 +2,7 @@ FROM node:24-alpine
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
-RUN npm install @vitest/coverage-v8@^2.1.0
+RUN npm install @vitest/coverage-v8@^4.0.0
 COPY prisma ./prisma/
 RUN npx prisma generate
 COPY tsconfig.json vitest.config.ts ./

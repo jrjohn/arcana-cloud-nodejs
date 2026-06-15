@@ -192,6 +192,7 @@ pipeline {
                       -Dsonar.projectName="Node App" \
                       -Dsonar.sources=src \
                       -Dsonar.exclusions=coverage/**,**/lcov-report/**,**/*.html,node_modules/**,dist/**,src/grpc/generated/** \
+                      -Dsonar.coverage.exclusions=src/index.ts,src/app.ts,src/grpc/grpc-server.ts,src/grpc/generated/**,src/grpc/protos/**,src/dao/**,src/types/**,src/**/*.interface.ts,src/**/index.ts,src/models/oauth-token.model.ts \
                       -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
                       -Dsonar.scm.disabled=true"""
                     sh '''

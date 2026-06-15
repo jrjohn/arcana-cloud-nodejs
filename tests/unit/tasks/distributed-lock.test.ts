@@ -9,7 +9,7 @@ const mockRedis = {
 };
 
 vi.mock('ioredis', () => {
-  const RedisMock = vi.fn().mockImplementation(() => mockRedis);
+  const RedisMock = vi.fn().mockImplementation(function () { return mockRedis; });
   return { default: RedisMock, Redis: RedisMock };
 });
 

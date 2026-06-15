@@ -16,11 +16,13 @@ vi.mock('../../../src/tasks/queue.js', () => ({
 
 // Mock distributed lock
 vi.mock('../../../src/tasks/distributed-lock.js', () => ({
-  LeaderElection: vi.fn().mockImplementation(() => ({
-    start: vi.fn().mockResolvedValue(undefined),
-    stop: vi.fn().mockResolvedValue(undefined),
-    getIsLeader: vi.fn().mockReturnValue(true)
-  }))
+  LeaderElection: vi.fn().mockImplementation(function () {
+    return {
+      start: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn().mockResolvedValue(undefined),
+      getIsLeader: vi.fn().mockReturnValue(true)
+    };
+  })
 }));
 
 vi.mock('../../../src/container.js', () => ({
@@ -83,7 +85,7 @@ describe('Scheduled Tasks', () => {
     it('should schedule recurring jobs when becoming leader', async () => {
       let onBecomeLeaderCallback: (() => void) | undefined;
 
-      vi.mocked(LeaderElection).mockImplementation((name, options) => {
+      vi.mocked(LeaderElection).mockImplementation(function (name, options) {
         onBecomeLeaderCallback = options?.onBecomeLeader;
         return {
           start: vi.fn().mockResolvedValue(undefined),

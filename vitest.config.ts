@@ -7,6 +7,9 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     // Exclude database tests - they need to run sequentially with their own config
     exclude: [
+        // vitest v4: coverage-v8 tries to parse .proto/generated → PARSE_ERROR, pollutes %
+        'src/grpc/protos/**',
+        '**/*.proto',
       '**/node_modules/**',
       '**/dist/**',
       'tests/database/**'
@@ -34,8 +37,19 @@ export default defineConfig({
         'src/services/auth.service.interface.ts',
         'src/types/**',
         'src/models/index.ts',
+        // Type-only re-exports / interfaces (no runtime code) — vitest v4 surfaces
+        // these as 0%, dragging coverage; mirrored in sonar.coverage.exclusions:
+        'src/dao/**',
+        'src/models/oauth-token.model.ts',
+        'src/di/index.ts',
+        'src/controllers/index.ts',
         // Entry-point / bootstrap files (require full runtime env)
         'src/index.ts',
+        // bootstrap / runtime-only (same category as index.ts; vitest v4 newly
+        // includes these — they're exercised by integration tests, not unit):
+        'src/app.ts',
+        'src/container.ts',
+        'src/grpc/grpc-server.ts',
       ],
       all: true
     }

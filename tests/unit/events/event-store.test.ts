@@ -17,10 +17,12 @@ vi.mock('../../../src/utils/logger.js', () => ({
 }));
 
 vi.mock('ioredis', () => {
-  const RedisMock = vi.fn().mockImplementation(() => ({
-    set: vi.fn(), get: vi.fn(), del: vi.fn(), quit: vi.fn(),
-    publish: vi.fn(), subscribe: vi.fn(), on: vi.fn(), eval: vi.fn()
-  }));
+  const RedisMock = vi.fn().mockImplementation(function () {
+    return {
+      set: vi.fn(), get: vi.fn(), del: vi.fn(), quit: vi.fn(),
+      publish: vi.fn(), subscribe: vi.fn(), on: vi.fn(), eval: vi.fn()
+    };
+  });
   return { default: RedisMock, Redis: RedisMock };
 });
 
@@ -409,7 +411,7 @@ describe('EventStore with Redis', () => {
     };
 
     const Redis = (await import('ioredis')).default;
-    vi.mocked(Redis).mockImplementation(() => mockRedisInstance as any);
+    vi.mocked(Redis).mockImplementation(function () { return mockRedisInstance as any; });
 
     const store = new EventStore(mockPrisma as any);
 
@@ -441,7 +443,7 @@ describe('EventStore with Redis', () => {
     };
 
     const Redis = (await import('ioredis')).default;
-    vi.mocked(Redis).mockImplementation(() => mockRedisInstance as any);
+    vi.mocked(Redis).mockImplementation(function () { return mockRedisInstance as any; });
 
     const store = new EventStore(mockPrisma as any);
 
