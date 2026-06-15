@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)
 ![gRPC](https://img.shields.io/badge/gRPC-1.12-4285F4?logo=google&logoColor=white)
-![InversifyJS](https://img.shields.io/badge/InversifyJS-7.x-FF6B6B?logo=inversify&logoColor=white)
+![InversifyJS](https://img.shields.io/badge/InversifyJS-8.x-FF6B6B?logo=inversify&logoColor=white)
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
 ![tests](https://img.shields.io/badge/tests-694%20passing-brightgreen)
 ![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
@@ -579,7 +579,7 @@ graph LR
     end
 
     subgraph DI
-        INVERSIFY["InversifyJS 7.x"]
+        INVERSIFY["InversifyJS 8.x"]
         REFLECT["reflect-metadata"]
     end
 
@@ -634,7 +634,7 @@ graph LR
 |-------|-----------|---------|---------|
 | **Runtime** | Node.js | 22+ | Native TypeScript execution |
 | **Language** | TypeScript | 6.0+ | Type-safe development |
-| **DI** | InversifyJS | 7.x | Dependency injection |
+| **DI** | InversifyJS | 8.x | Dependency injection |
 | **Web** | Express.js | 5.x | HTTP REST framework |
 | **RPC** | @grpc/grpc-js | 1.12+ | gRPC communication |
 | **ORM** | Prisma | 6.x | Type-safe database access |
@@ -942,7 +942,7 @@ graph LR
 |---------|---------|--------|
 | **Runtime** | Node.js 22+ | Python 3.14 |
 | **Framework** | Express.js 5.x | Flask 3.1.2 |
-| **DI** | InversifyJS 7.x | dependency-injector |
+| **DI** | InversifyJS 8.x | dependency-injector |
 | **ORM** | Prisma 6.x | SQLAlchemy 2.0 |
 | **Validation** | Zod | Marshmallow |
 | **gRPC Library** | @grpc/grpc-js | grpcio |
