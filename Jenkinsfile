@@ -5,7 +5,8 @@
 //   * `checkout scm` (no hardcoded branch=main)        — supports every branch + every PR
 //   * `pollSCM` trigger removed                        — Jenkins multibranch + GitHub webhook drive triggers
 //   * "Push to Registry" gated with `when { branch 'main' }`  — PR builds keep image local
-//   * Build-tagged image push also gated on main       — avoid polluting registry with PR tags
+//   * Build-tagged image (build-N) pushed on EVERY branch — kind integration stage
+//     needs a registry-durable copy that survives concurrent-build local cleanup
 //   * SonarQube gets pullrequest.* params on PRs       — PR-decoration in Sonar UI
 //   * `dir("${env.PROJECTS_DIR}/...")` blocks removed  — multibranch uses workspace root
 
@@ -62,8 +63,16 @@ pipeline {
         }
 
         stage("Push Build Tag") {
-            // Push the per-build tag only from main; PR builds keep it local for integration tests.
-            when { branch 'main' }
+            // Push the per-build tag on EVERY branch (incl. PRs). The integration
+            // stages (esp. "Integration: K8s gRPC" via kind) consume build-N late
+            // in the run; on the shared host a concurrent higher-numbered build's
+            // cleanup (`docker rmi` all-but-current, flat build-N namespace) can
+            // reap this build's LOCAL image before kind loads it. The kind helper
+            // then falls back to a registry pull — which only works if build-N was
+            // pushed. Pushing here makes "the registry holds every build-N tag
+            // durably" (relied on by Cleanup Old Images / post self-clean) true for
+            // PRs too, instead of only main. Registry growth is bounded by the
+            // existing external registry GC; nothing in this pipeline keeps tags.
             steps {
                 sh "docker push ${IMAGE_TAG}:build-${BUILD_NUMBER}"
             }
