@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.1...v1.2.2) (2026-06-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency express-rate-limit to v8 ([#38](https://github.com/jrjohn/arcana-cloud-nodejs/issues/38)) ([9b73631](https://github.com/jrjohn/arcana-cloud-nodejs/commit/9b73631018d0024c888bf20f3c0e465292660e27))
+
 ## [1.2.1](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.0...v1.2.1) (2026-06-14)
 
 
