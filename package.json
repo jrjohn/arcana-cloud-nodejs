@@ -49,7 +49,7 @@
     "express": "^5.0.1",
     "express-rate-limit": "^8.0.0",
     "helmet": "^8.2.0",
-    "inversify": "^7.10.6",
+    "inversify": "^8.0.0",
     "ioredis": "^5.4.0",
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.5.0",
