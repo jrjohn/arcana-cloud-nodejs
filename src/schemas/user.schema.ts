@@ -51,8 +51,8 @@ export const UpdateStatusSchema = z.object({
 
 export const PaginationSchema = z.object({
   query: z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).default('1'),
-    perPage: z.string().regex(/^\d+$/).transform(Number).default('20'),
+    page: z.string().regex(/^\d+$/).transform(Number).default(1),
+    perPage: z.string().regex(/^\d+$/).transform(Number).default(20),
     role: z.nativeEnum(UserRole).optional(),
     status: z.nativeEnum(UserStatus).optional()
   })
