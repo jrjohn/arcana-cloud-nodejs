@@ -640,7 +640,7 @@ graph LR
 | **ORM** | Prisma | 6.x | Type-safe database access |
 | **Database** | MySQL | 8.0 | Primary data store |
 | **Cache** | Redis | 7.x | Sessions, queues, locks |
-| **Validation** | Zod | 3.x | Runtime type validation |
+| **Validation** | Zod | 4.x | Runtime type validation |
 | **Auth** | jsonwebtoken | 9.x | JWT authentication |
 | **Jobs** | BullMQ | 5.x | Distributed job queues |
 | **Testing** | Vitest | 4.x | Unit & integration testing |
