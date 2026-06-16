@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.6](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.5...v1.2.6) (2026-06-16)
+
+
+### Bug Fixes
+
+* **deps:** update prisma monorepo to v7 ([#47](https://github.com/jrjohn/arcana-cloud-nodejs/issues/47)) ([8b86b4e](https://github.com/jrjohn/arcana-cloud-nodejs/commit/8b86b4eace1ec103224373e9066d884df6ebf95f))
+
 ## [1.2.5](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.4...v1.2.5) (2026-06-16)
 
 
