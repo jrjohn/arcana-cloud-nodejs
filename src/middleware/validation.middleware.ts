@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { ZodObject, ZodError } from 'zod';
 import { ValidationError } from '../utils/exceptions.js';
 
-export const validateSchema = (schema: AnyZodObject) => {
+export const validateSchema = (schema: ZodObject) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       await schema.parseAsync({
@@ -14,7 +14,7 @@ export const validateSchema = (schema: AnyZodObject) => {
     } catch (error) {
       if (error instanceof ZodError) {
         const details: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach(err => {
           const path = err.path.slice(1).join('.');
           details[path] = err.message;
         });

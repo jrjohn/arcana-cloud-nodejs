@@ -8,8 +8,8 @@ export const IdParamSchema = z.object({
 
 export const PaginationQuerySchema = z.object({
   query: z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
-    perPage: z.string().regex(/^\d+$/).transform(Number).optional().default('20')
+    page: z.string().regex(/^\d+$/).transform(Number).optional().default(1),
+    perPage: z.string().regex(/^\d+$/).transform(Number).optional().default(20)
   })
 });
 

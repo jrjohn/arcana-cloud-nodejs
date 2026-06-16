@@ -243,7 +243,7 @@ export const AllTokensRevokedSchema = z.object({
 
 export const RateLimitExceededSchema = z.object({
   userId: z.number().int().positive().optional(),
-  ipAddress: z.string().ip(),
+  ipAddress: z.union([z.string().ipv4(), z.string().ipv6()]),
   endpoint: z.string(),
   limit: z.number().int().positive(),
   resetAt: z.date()
