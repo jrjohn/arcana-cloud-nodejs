@@ -590,7 +590,7 @@ graph LR
     end
 
     subgraph DataLayer
-        PRISMA["Prisma 6.x"]
+        PRISMA["Prisma 7.x"]
         MYSQL[("MySQL 8.0")]
         REDIS[("Redis 7.x")]
     end
@@ -637,7 +637,7 @@ graph LR
 | **DI** | InversifyJS | 8.x | Dependency injection |
 | **Web** | Express.js | 5.x | HTTP REST framework |
 | **RPC** | @grpc/grpc-js | 1.12+ | gRPC communication |
-| **ORM** | Prisma | 6.x | Type-safe database access |
+| **ORM** | Prisma | 7.x | Type-safe database access |
 | **Database** | MySQL | 8.0 | Primary data store |
 | **Cache** | Redis | 7.x | Sessions, queues, locks |
 | **Validation** | Zod | 4.x | Runtime type validation |
@@ -914,7 +914,7 @@ graph LR
         N_RT["Node.js 22+"]
         N_FW["Express.js 5.x"]
         N_DI["InversifyJS"]
-        N_ORM["Prisma 6.x"]
+        N_ORM["Prisma 7.x"]
         N_VAL["Zod"]
         N_GRPC["grpc-js"]
     end
@@ -943,7 +943,7 @@ graph LR
 | **Runtime** | Node.js 22+ | Python 3.14 |
 | **Framework** | Express.js 5.x | Flask 3.1.2 |
 | **DI** | InversifyJS 8.x | dependency-injector |
-| **ORM** | Prisma 6.x | SQLAlchemy 2.0 |
+| **ORM** | Prisma 7.x | SQLAlchemy 2.0 |
 | **Validation** | Zod | Marshmallow |
 | **gRPC Library** | @grpc/grpc-js | grpcio |
 | **Job Queue** | BullMQ | Celery/RQ |
