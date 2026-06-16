@@ -10,7 +10,7 @@
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
 ![tests](https://img.shields.io/badge/tests-694%20passing-brightgreen)
 ![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
-![coverage](https://img.shields.io/badge/coverage-87.1%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-87.0%25-brightgreen)
 ![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
