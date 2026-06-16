@@ -184,7 +184,7 @@ spec:
             - -c
             - |
               for i in $(seq 1 60); do
-                if npx prisma db push --skip-generate --accept-data-loss; then
+                if npx prisma db push --accept-data-loss; then
                   exit 0
                 fi
                 echo "[db-migrate] mysql not ready (attempt $i/60), retrying in 5s..."

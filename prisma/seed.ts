@@ -4,9 +4,15 @@
  */
 
 import { PrismaClient, UserRole, UserStatus } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+// Prisma 7: connect via the MariaDB driver adapter. The `mariadb` driver only
+// accepts the `mariadb://` scheme, while DATABASE_URL is exported as `mysql://`.
+const adapter = new PrismaMariaDb(
+  (process.env.DATABASE_URL ?? '').replace(/^mysql:\/\//, 'mariadb://'),
+);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🌱 Starting database seed...');

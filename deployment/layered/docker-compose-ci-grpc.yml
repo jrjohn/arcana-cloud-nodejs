@@ -39,7 +39,7 @@ services:
     # Retry until MySQL accepts the connection (mysqladmin ping reports healthy
     # before the server is ready for an authed network connection), then fail
     # hard if the schema can never be pushed — never boot the app schema-less.
-    command: sh -c "n=0; until npx prisma db push --skip-generate --accept-data-loss; do n=$$((n+1)); [ $$n -ge 30 ] && echo 'FATAL - prisma db push failed after 30 attempts' && exit 1; echo \"DB not ready, retry $$n/30\"; sleep 2; done; node dist/index.js"
+    command: sh -c "n=0; until npx prisma db push --accept-data-loss; do n=$$((n+1)); [ $$n -ge 30 ] && echo 'FATAL - prisma db push failed after 30 attempts' && exit 1; echo \"DB not ready, retry $$n/30\"; sleep 2; done; node dist/index.js"
     depends_on:
       mysql:
         condition: service_healthy

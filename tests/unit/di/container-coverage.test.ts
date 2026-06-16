@@ -11,6 +11,11 @@
 import 'reflect-metadata';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
+// The container's PrismaClient factory (createPrismaClient) reads DATABASE_URL
+// and builds a MariaDB driver adapter (Prisma 7). Provide a URL so the factory
+// runs, and mock the adapter alongside the mocked client below.
+process.env.DATABASE_URL ??= 'mysql://test:test@localhost:3306/arcana_cloud_test';
+
 const mockDisconnect = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@prisma/client', () => ({
@@ -20,6 +25,10 @@ vi.mock('@prisma/client', () => ({
       auditLog: { create: vi.fn(), findMany: vi.fn(), count: vi.fn(), groupBy: vi.fn() }
     };
   })
+}));
+
+vi.mock('@prisma/adapter-mariadb', () => ({
+  PrismaMariaDb: vi.fn()
 }));
 
 vi.mock('../../../src/config.js', () => ({
