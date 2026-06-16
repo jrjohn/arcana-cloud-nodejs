@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 RUN npx prisma generate
 COPY tsconfig.json ./
 COPY src ./src/
@@ -21,6 +22,9 @@ COPY package.json package-lock.json ./
 # deploy/docker/Dockerfile.{repository,service,monolithic} runtime stages.
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
+# prisma.config.ts holds the Migrate datasource URL (Prisma 7 removed it from
+# schema.prisma); the runtime container runs `prisma db push` at startup.
+COPY --from=builder /app/prisma.config.ts ./
 COPY --from=builder /app/dist ./dist
 # Proto files are needed at runtime for gRPC server/client
 COPY src/grpc/protos ./src/grpc/protos

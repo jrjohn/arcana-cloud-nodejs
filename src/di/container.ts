@@ -8,6 +8,7 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { TOKENS } from './tokens.js';
 
 // Repositories
@@ -39,6 +40,24 @@ import { HTTPServiceCommunicationImpl, HTTPRepositoryCommunicationImpl } from '.
 import { GRPCServiceCommunicationImpl, GRPCRepositoryCommunicationImpl } from '../communication/impl/grpc.impl.js';
 
 /**
+ * Build a PrismaClient backed by the MariaDB driver adapter.
+ *
+ * Prisma 7 dropped the built-in query engine: a driver adapter is mandatory and
+ * the connection URL no longer lives in schema.prisma (it moved to
+ * prisma.config.ts for Migrate). The `mariadb` driver only accepts the
+ * `mariadb://` URL scheme, while our deploy/test envs export `mysql://`, so the
+ * scheme is rewritten before handing the URL to the adapter.
+ */
+function createPrismaClient(): PrismaClient {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL is not set');
+  }
+  const adapter = new PrismaMariaDb(url.replace(/^mysql:\/\//, 'mariadb://'));
+  return new PrismaClient({ adapter });
+}
+
+/**
  * Create and configure the DI container
  */
 function createContainer(): Container {
@@ -46,7 +65,7 @@ function createContainer(): Container {
 
   // Database - PrismaClient
   container.bind<PrismaClient>(TOKENS.PrismaClient).toDynamicValue(() => {
-    return new PrismaClient();
+    return createPrismaClient();
   }).inSingletonScope();
 
   // DAOs — Prisma/ORM technical implementations
@@ -150,7 +169,7 @@ export function resetContainer(): Container {
 
   // Re-bind core dependencies
   container.bind<PrismaClient>(TOKENS.PrismaClient).toDynamicValue(() => {
-    return new PrismaClient();
+    return createPrismaClient();
   }).inSingletonScope();
 
   container.bind<IUserRepository>(TOKENS.UserDao).to(UserRepositoryImpl).inSingletonScope();
