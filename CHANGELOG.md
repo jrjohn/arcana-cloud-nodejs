@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.7](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.6...v1.2.7) (2026-06-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @grpc/proto-loader to ^0.8.0 ([#55](https://github.com/jrjohn/arcana-cloud-nodejs/issues/55)) ([88c65db](https://github.com/jrjohn/arcana-cloud-nodejs/commit/88c65db84e8093ba3ed63e17f0917464637eca66))
+
 ## [1.2.6](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.5...v1.2.6) (2026-06-16)
 
 
