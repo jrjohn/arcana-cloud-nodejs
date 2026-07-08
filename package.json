@@ -75,7 +75,7 @@
     "prettier": "^3.4.0",
     "prisma": "^7.0.0",
     "supertest": "^7.0.0",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "vitest": "^4.0.0"
   },
   "engines": {
