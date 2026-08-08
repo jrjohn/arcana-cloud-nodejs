@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.8](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.7...v1.2.8) (2026-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency ioredis to v6 ([#101](https://github.com/jrjohn/arcana-cloud-nodejs/issues/101)) ([0ccbf1f](https://github.com/jrjohn/arcana-cloud-nodejs/commit/0ccbf1fbd8d4db72b165bae1a476f3d7f6bfccf2))
+
 ## [1.2.7](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.6...v1.2.7) (2026-06-17)
 
 
