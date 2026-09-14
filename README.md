@@ -643,7 +643,7 @@ graph LR
 | **Validation** | Zod | 4.x | Runtime type validation |
 | **Auth** | jsonwebtoken | 9.x | JWT authentication |
 | **Jobs** | BullMQ | 5.x | Distributed job queues |
-| **Testing** | Vitest | 4.x | Unit & integration testing |
+| **Testing** | Vitest | 5.x | Unit & integration testing |
 
 ---
 
