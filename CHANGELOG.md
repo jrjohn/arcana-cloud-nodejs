@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.12](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.11...v1.2.12) (2026-09-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency bullmq to v5.81.5 ([#118](https://github.com/jrjohn/arcana-cloud-nodejs/issues/118)) ([49c0313](https://github.com/jrjohn/arcana-cloud-nodejs/commit/49c0313995dc6652bc9ef67dd9334f9cc2baa02f))
+
 ## [1.2.11](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.10...v1.2.11) (2026-09-15)
 
 
