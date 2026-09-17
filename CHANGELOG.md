@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.14](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.13...v1.2.14) (2026-09-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency prettier to v3.9.7 ([#123](https://github.com/jrjohn/arcana-cloud-nodejs/issues/123)) ([fd4e67c](https://github.com/jrjohn/arcana-cloud-nodejs/commit/fd4e67cd947ea70a3f375adc7b7ad40dc6755a43))
+* **deps:** update vitest monorepo to v5.0.1 ([#124](https://github.com/jrjohn/arcana-cloud-nodejs/issues/124)) ([b175cd2](https://github.com/jrjohn/arcana-cloud-nodejs/commit/b175cd2fb041228f4a421b22afa9cc9967017225))
+
 ## [1.2.13](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.12...v1.2.13) (2026-09-16)
 
 
