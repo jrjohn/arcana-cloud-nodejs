@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.15](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.14...v1.2.15) (2026-09-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @grpc/grpc-js to v1.14.5 ([#127](https://github.com/jrjohn/arcana-cloud-nodejs/issues/127)) ([3ff5750](https://github.com/jrjohn/arcana-cloud-nodejs/commit/3ff5750f7efec0e17641e2bdf63ee9f7412ffb45))
+* **deps:** update dependency prettier to v3.9.8 ([#129](https://github.com/jrjohn/arcana-cloud-nodejs/issues/129)) ([140569e](https://github.com/jrjohn/arcana-cloud-nodejs/commit/140569e9925955e2b5b895cd4958052d544e61d6))
+
 ## [1.2.14](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.13...v1.2.14) (2026-09-17)
 
 
