@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.19](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.18...v1.2.19) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18.0.2 ([#137](https://github.com/jrjohn/arcana-cloud-nodejs/issues/137)) ([a32ecf7](https://github.com/jrjohn/arcana-cloud-nodejs/commit/a32ecf7820a53ced80331116484feb1f53ce38ec))
+* **deps:** update dependency prisma to v7.10.0 ([#138](https://github.com/jrjohn/arcana-cloud-nodejs/issues/138)) ([fea0477](https://github.com/jrjohn/arcana-cloud-nodejs/commit/fea0477ce199b0dac78419ce20b13d0788202d0d))
+
 ## [1.2.18](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.17...v1.2.18) (2026-09-21)
 
 
