@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.18](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.17...v1.2.18) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18 ([#126](https://github.com/jrjohn/arcana-cloud-nodejs/issues/126)) ([d5cfadf](https://github.com/jrjohn/arcana-cloud-nodejs/commit/d5cfadfa8c3114ff5207c4f77513790d1421ea46))
+* **deps:** update dependency express-rate-limit to v8.7.0 ([#135](https://github.com/jrjohn/arcana-cloud-nodejs/issues/135)) ([003f0fd](https://github.com/jrjohn/arcana-cloud-nodejs/commit/003f0fd3007ea7a211ada2a3bbd7879a6e32a3cf))
+
 ## [1.2.17](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.16...v1.2.17) (2026-09-21)
 
 
