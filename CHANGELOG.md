@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.21](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.20...v1.2.21) (2026-09-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18.0.3 ([#143](https://github.com/jrjohn/arcana-cloud-nodejs/issues/143)) ([b6e3d1a](https://github.com/jrjohn/arcana-cloud-nodejs/commit/b6e3d1a317b35ed20435ed504a73a3e46f89b6de))
+* **deps:** update dependency supertest to v7.3.0 ([#144](https://github.com/jrjohn/arcana-cloud-nodejs/issues/144)) ([942d8ca](https://github.com/jrjohn/arcana-cloud-nodejs/commit/942d8ca0467b0ca1abecd33938ef4637d50c2ba2))
+
 ## [1.2.20](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.19...v1.2.20) (2026-09-22)
 
 
