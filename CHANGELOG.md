@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.20](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.19...v1.2.20) (2026-09-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vite to v8.3.0 ([#140](https://github.com/jrjohn/arcana-cloud-nodejs/issues/140)) ([861c63a](https://github.com/jrjohn/arcana-cloud-nodejs/commit/861c63a48f4bb2553d78696f055322066599f79e))
+* **deps:** update dependency zod to v4.6.5 ([#141](https://github.com/jrjohn/arcana-cloud-nodejs/issues/141)) ([54437f2](https://github.com/jrjohn/arcana-cloud-nodejs/commit/54437f27e76f5636a9054f1d6e373b1b2bd5ff5c))
+
 ## [1.2.19](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.18...v1.2.19) (2026-09-21)
 
 
