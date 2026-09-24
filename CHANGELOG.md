@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.22](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.21...v1.2.22) (2026-09-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency prettier to v3.9.9 ([#148](https://github.com/jrjohn/arcana-cloud-nodejs/issues/148)) ([daa8f53](https://github.com/jrjohn/arcana-cloud-nodejs/commit/daa8f534bff904243e6c2e07b9810e5fa759d67c))
+* **deps:** update prisma monorepo to v7.10.0 ([#149](https://github.com/jrjohn/arcana-cloud-nodejs/issues/149)) ([bd7454a](https://github.com/jrjohn/arcana-cloud-nodejs/commit/bd7454a6422314a39c99c413c41d473940808e65))
+
 ## [1.2.21](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.20...v1.2.21) (2026-09-22)
 
 
