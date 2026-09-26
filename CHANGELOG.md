@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.26](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.25...v1.2.26) (2026-09-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18.0.4 ([#157](https://github.com/jrjohn/arcana-cloud-nodejs/issues/157)) ([9a9f90b](https://github.com/jrjohn/arcana-cloud-nodejs/commit/9a9f90b639ca724bcf17b7d12336e134119881b6))
+
 ## [1.2.25](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.24...v1.2.25) (2026-09-25)
 
 
