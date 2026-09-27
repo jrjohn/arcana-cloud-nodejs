@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.28](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.27...v1.2.28) (2026-09-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint-plugin-security to v4.1.0 ([#161](https://github.com/jrjohn/arcana-cloud-nodejs/issues/161)) ([61dc269](https://github.com/jrjohn/arcana-cloud-nodejs/commit/61dc269e31e6026aa79bf85891d1158643d1e20f))
+
 ## [1.2.27](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.26...v1.2.27) (2026-09-26)
 
 
