@@ -81,12 +81,15 @@ pipeline {
         stage("Unit Tests") {
             steps {
                 sh '''
-                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
-                    docker compose -f docker-compose.test.yml run --build --name node-app-test-${BUILD_NUMBER} test
+                    # Branch in the name: BUILD_NUMBER restarts at 1 on every branch, so concurrent builds of
+                    # two branches shared this name and one's `docker rm -f` removed the other's container.
+                    TEST_CTR="node-app-test-$(printf '%s' "${BRANCH_NAME}-${BUILD_NUMBER}" | tr -c 'A-Za-z0-9_.-' '-')"
+                    docker rm -f "$TEST_CTR" 2>/dev/null || true
+                    docker compose -f docker-compose.test.yml run --build --name "$TEST_CTR" test
                     RC=$?
                     mkdir -p coverage
-                    docker cp node-app-test-${BUILD_NUMBER}:/app/coverage/. coverage/ 2>/dev/null || true
-                    docker rm -f node-app-test-${BUILD_NUMBER} 2>/dev/null || true
+                    docker cp "$TEST_CTR":/app/coverage/. coverage/ 2>/dev/null || true
+                    docker rm -f "$TEST_CTR" 2>/dev/null || true
                     exit $RC
                 '''
             }
@@ -223,19 +226,23 @@ pipeline {
         stage("Architecture Qube") {
             steps {
                 sh '''
-                    docker rm -f arcana-arch-qube-node-${BUILD_NUMBER} 2>/dev/null || true
-                    docker create --name arcana-arch-qube-node-${BUILD_NUMBER} --network devops_default \
+                    # Branch in the name: BUILD_NUMBER restarts at 1 on every branch, so two branches building
+                    # at once used the same name and one's `docker rm -f` deleted the other's container
+                    # (arcana-ios PR-14/PR-15, 2026-09-30: "destination ...:/src must be a directory").
+                    AQ="arcana-arch-qube-node-$(printf '%s' "${BRANCH_NAME}-${BUILD_NUMBER}" | tr -c 'A-Za-z0-9_.-' '-')"
+                    docker rm -f "$AQ" 2>/dev/null || true
+                    docker create --name "$AQ" --network devops_default \
                         -v /src -v /output \
                         arcana.boo/arcana/arch-qube:latest \
                         scan /src --framework nodejs --no-ai --ci \
                         --format json,markdown -o /output --threshold 90 || exit 1
                     tar --exclude=./.git --exclude=./node_modules --exclude=./arch-qube-reports -C . -cf - . \
-                        | docker cp - arcana-arch-qube-node-${BUILD_NUMBER}:/src || exit 1
-                    docker start -a arcana-arch-qube-node-${BUILD_NUMBER}
+                        | docker cp - "$AQ":/src || exit 1
+                    docker start -a "$AQ"
                     AQ_RC=$?
                     mkdir -p arch-qube-reports
-                    docker cp arcana-arch-qube-node-${BUILD_NUMBER}:/output/. arch-qube-reports/ 2>/dev/null || true
-                    docker rm -f arcana-arch-qube-node-${BUILD_NUMBER} 2>/dev/null || true
+                    docker cp "$AQ":/output/. arch-qube-reports/ 2>/dev/null || true
+                    docker rm -f "$AQ" 2>/dev/null || true
                     exit $AQ_RC
                 '''
             }
