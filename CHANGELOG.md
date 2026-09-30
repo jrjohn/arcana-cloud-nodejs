@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.30](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.29...v1.2.30) (2026-09-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18.0.5 ([#166](https://github.com/jrjohn/arcana-cloud-nodejs/issues/166)) ([ff9bc68](https://github.com/jrjohn/arcana-cloud-nodejs/commit/ff9bc68a3eec7bab3166ddf29a4c3e5fa1b9251c))
+* **deps:** update vitest monorepo to v5.0.3 ([#167](https://github.com/jrjohn/arcana-cloud-nodejs/issues/167)) ([3351355](https://github.com/jrjohn/arcana-cloud-nodejs/commit/3351355177ba9542654178906dcac94cb0c875e8))
+
 ## [1.2.29](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.28...v1.2.29) (2026-09-28)
 
 
