@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.31](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.30...v1.2.31) (2026-10-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint-plugin-security to v4.2.0 ([#170](https://github.com/jrjohn/arcana-cloud-nodejs/issues/170)) ([7d3a753](https://github.com/jrjohn/arcana-cloud-nodejs/commit/7d3a75323502192962e9d9b9b53e6af921a514ce))
+* **deps:** update dependency vite to v8.3.2 ([#169](https://github.com/jrjohn/arcana-cloud-nodejs/issues/169)) ([1c4ac72](https://github.com/jrjohn/arcana-cloud-nodejs/commit/1c4ac72a24f7dc7b9fcdddc2b4b7bab5a707af8b))
+
 ## [1.2.30](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.29...v1.2.30) (2026-09-30)
 
 
