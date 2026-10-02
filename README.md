@@ -584,7 +584,7 @@ graph LR
     end
 
     subgraph Communication
-        GRPC["gRPC 1.12"]
+        GRPC["gRPC 1.14"]
         PROTO["Protocol Buffers"]
         AXIOS["Axios"]
     end
@@ -636,7 +636,7 @@ graph LR
 | **Language** | TypeScript | 6.0+ | Type-safe development |
 | **DI** | InversifyJS | 8.x | Dependency injection |
 | **Web** | Express.js | 5.x | HTTP REST framework |
-| **RPC** | @grpc/grpc-js | 1.12+ | gRPC communication |
+| **RPC** | @grpc/grpc-js | 1.14+ | gRPC communication |
 | **ORM** | Prisma | 7.x | Type-safe database access |
 | **Database** | MySQL | 8.0 | Primary data store |
 | **Cache** | Redis | 7.x | Sessions, queues, locks |
