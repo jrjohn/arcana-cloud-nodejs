@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.33](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.32...v1.2.33) (2026-10-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint to v10.12.0 ([#175](https://github.com/jrjohn/arcana-cloud-nodejs/issues/175)) ([15f145d](https://github.com/jrjohn/arcana-cloud-nodejs/commit/15f145d95d5c4a504e685c539bd8cd7ce72f5db1))
+* **deps:** update dependency supertest to v7.3.1 ([#174](https://github.com/jrjohn/arcana-cloud-nodejs/issues/174)) ([894873a](https://github.com/jrjohn/arcana-cloud-nodejs/commit/894873a3cd819fb9beb98546a9fca8bdfb74f5e3))
+
 ## [1.2.32](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.31...v1.2.32) (2026-10-02)
 
 
