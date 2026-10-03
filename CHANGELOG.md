@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.34](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.33...v1.2.34) (2026-10-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency pino to v10.4.0 ([#177](https://github.com/jrjohn/arcana-cloud-nodejs/issues/177)) ([bf63980](https://github.com/jrjohn/arcana-cloud-nodejs/commit/bf63980bffcafa6dbccb60dccc6b3b707cd49e39))
+
 ## [1.2.33](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.32...v1.2.33) (2026-10-02)
 
 
