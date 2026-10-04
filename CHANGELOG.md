@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.35](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.34...v1.2.35) (2026-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency pino-pretty to v13.2.0 ([#179](https://github.com/jrjohn/arcana-cloud-nodejs/issues/179)) ([dee460e](https://github.com/jrjohn/arcana-cloud-nodejs/commit/dee460e0922210e1744b30842a6d10fc724b2c1d))
+
 ## [1.2.34](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.33...v1.2.34) (2026-10-03)
 
 
