@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.37](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.36...v1.2.37) (2026-10-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency express-rate-limit to v8.7.1 ([#183](https://github.com/jrjohn/arcana-cloud-nodejs/issues/183)) ([f7c3e19](https://github.com/jrjohn/arcana-cloud-nodejs/commit/f7c3e19a37208aae7aae380560ee018f6d5e6731))
+* **deps:** update dependency vite to v8.3.3 ([#184](https://github.com/jrjohn/arcana-cloud-nodejs/issues/184)) ([2261829](https://github.com/jrjohn/arcana-cloud-nodejs/commit/2261829171e3032bcca0b138dbf27989c4c84084))
+
 ## [1.2.36](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.35...v1.2.36) (2026-10-06)
 
 
