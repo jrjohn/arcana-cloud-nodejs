@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.36](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.35...v1.2.36) (2026-10-06)
+
+
+### Bug Fixes
+
+* **deps:** update typescript-eslint monorepo to v8.71.1 ([#181](https://github.com/jrjohn/arcana-cloud-nodejs/issues/181)) ([b98b742](https://github.com/jrjohn/arcana-cloud-nodejs/commit/b98b742878384b7991fec74ff94fa0a31f9e8283))
+
 ## [1.2.35](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.34...v1.2.35) (2026-10-04)
 
 
