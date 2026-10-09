@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.39](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.38...v1.2.39) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @grpc/grpc-js to v1.14.6 ([#188](https://github.com/jrjohn/arcana-cloud-nodejs/issues/188)) ([0e1650d](https://github.com/jrjohn/arcana-cloud-nodejs/commit/0e1650d33d13d44ff6e919e6734ee6a6f4680661))
+* **deps:** update dependency vite to v8.3.4 ([#189](https://github.com/jrjohn/arcana-cloud-nodejs/issues/189)) ([db20b6a](https://github.com/jrjohn/arcana-cloud-nodejs/commit/db20b6ab3817acdf91ad003c5da78fbdcb5ff566))
+
 ## [1.2.38](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.37...v1.2.38) (2026-10-07)
 
 
