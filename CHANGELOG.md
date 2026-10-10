@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.42](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.41...v1.2.42) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency uuid to v14.0.3 ([#195](https://github.com/jrjohn/arcana-cloud-nodejs/issues/195)) ([0d57306](https://github.com/jrjohn/arcana-cloud-nodejs/commit/0d5730662380118278960a11c3ae295a572e70b6))
+
 ## [1.2.41](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.40...v1.2.41) (2026-10-10)
 
 
