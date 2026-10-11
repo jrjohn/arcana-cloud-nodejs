@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.43](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.42...v1.2.43) (2026-10-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency express to v5.3.0 ([#198](https://github.com/jrjohn/arcana-cloud-nodejs/issues/198)) ([da06a36](https://github.com/jrjohn/arcana-cloud-nodejs/commit/da06a3695d63c5c3c94d885f60144b9d864f32e9))
+
 ## [1.2.42](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.41...v1.2.42) (2026-10-10)
 
 
