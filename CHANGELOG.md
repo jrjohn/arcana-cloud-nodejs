@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.1...v1.3.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod to v4.6.7 ([#205](https://github.com/jrjohn/arcana-cloud-nodejs/issues/205)) ([56bddc3](https://github.com/jrjohn/arcana-cloud-nodejs/commit/56bddc375b5654cf4cde76fa3a689fb058dcbcec))
+* **deps:** update typescript-eslint monorepo to v8.71.2 ([#206](https://github.com/jrjohn/arcana-cloud-nodejs/issues/206)) ([a74848c](https://github.com/jrjohn/arcana-cloud-nodejs/commit/a74848cab8b5bd8c3576af21b3fd39663a40b24f))
+
 ## [1.3.1](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.0...v1.3.1) (2026-10-12)
 
 
