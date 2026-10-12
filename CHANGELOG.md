@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.44](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.43...v1.2.44) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod to v4.6.6 ([#200](https://github.com/jrjohn/arcana-cloud-nodejs/issues/200)) ([958373b](https://github.com/jrjohn/arcana-cloud-nodejs/commit/958373b5796a1171f60ed88c22ed9f18692ce120))
+
 ## [1.2.43](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.42...v1.2.43) (2026-10-11)
 
 
