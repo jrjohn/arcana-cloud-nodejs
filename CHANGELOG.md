@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.0...v1.3.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update vitest monorepo to v5.0.4 ([#203](https://github.com/jrjohn/arcana-cloud-nodejs/issues/203)) ([87a2022](https://github.com/jrjohn/arcana-cloud-nodejs/commit/87a202269189c123ffeeb7d2a9108de84fb2af6e))
+
 ## [1.3.0](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.2.44...v1.3.0) (2026-10-12)
 
 
