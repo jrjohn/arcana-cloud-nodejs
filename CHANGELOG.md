@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.4](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.3...v1.3.4) (2026-10-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @prisma/adapter-mariadb to v7.10.1 ([#210](https://github.com/jrjohn/arcana-cloud-nodejs/issues/210)) ([3100567](https://github.com/jrjohn/arcana-cloud-nodejs/commit/3100567cb2e972ea2c661f1a925c329f5fd8f214))
+* **deps:** update dependency @prisma/client to v7.10.1 ([#211](https://github.com/jrjohn/arcana-cloud-nodejs/issues/211)) ([4d08e4e](https://github.com/jrjohn/arcana-cloud-nodejs/commit/4d08e4ec1711f52fedec2b8135c5dbaf9d1d6a6e))
+
 ## [1.3.3](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.2...v1.3.3) (2026-10-14)
 
 
