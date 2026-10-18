@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.5](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.4...v1.3.5) (2026-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency prisma to v7.10.1 ([#213](https://github.com/jrjohn/arcana-cloud-nodejs/issues/213)) ([972b2e9](https://github.com/jrjohn/arcana-cloud-nodejs/commit/972b2e9731faa0e0c60a13774cb3a8a04ee49c38))
+* **deps:** update vitest monorepo to v5.0.5 ([#214](https://github.com/jrjohn/arcana-cloud-nodejs/issues/214)) ([43ab3c6](https://github.com/jrjohn/arcana-cloud-nodejs/commit/43ab3c680d8926c4ec2f7730a10e59661dbe738a))
+
 ## [1.3.4](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.3...v1.3.4) (2026-10-17)
 
 
