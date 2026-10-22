@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.9](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.8...v1.3.9) (2026-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update mysql docker tag to v26.10 ([#222](https://github.com/jrjohn/arcana-cloud-nodejs/issues/222)) ([e12e335](https://github.com/jrjohn/arcana-cloud-nodejs/commit/e12e335e65e6af783c684dc9ab56072333cc467b))
+
 ## [1.3.8](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.7...v1.3.8) (2026-10-21)
 
 
