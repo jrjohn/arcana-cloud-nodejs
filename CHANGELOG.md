@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.12](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.11...v1.3.12) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to v1.21.0 ([#228](https://github.com/jrjohn/arcana-cloud-nodejs/issues/228)) ([baf810c](https://github.com/jrjohn/arcana-cloud-nodejs/commit/baf810c3b0dcc00b645ac10b04209f8036ace486))
+
 ## [1.3.11](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.10...v1.3.11) (2026-10-26)
 
 
