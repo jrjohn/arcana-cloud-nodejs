@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.13](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.12...v1.3.13) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update node.js to v26 ([#230](https://github.com/jrjohn/arcana-cloud-nodejs/issues/230)) ([f1fd5e0](https://github.com/jrjohn/arcana-cloud-nodejs/commit/f1fd5e042d9fc154f9e7aa28d8431c18f78ac2b3))
+
 ## [1.3.12](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.11...v1.3.12) (2026-10-27)
 
 
