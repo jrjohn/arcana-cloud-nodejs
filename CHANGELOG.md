@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.15](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.14...v1.3.15) (2026-10-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @grpc/grpc-js to v1.14.7 ([#234](https://github.com/jrjohn/arcana-cloud-nodejs/issues/234)) ([0b5d2ed](https://github.com/jrjohn/arcana-cloud-nodejs/commit/0b5d2edbc6bddfb5d1e631776f684ab15c481027))
+* **deps:** update dependency express-rate-limit to v8.7.2 ([#235](https://github.com/jrjohn/arcana-cloud-nodejs/issues/235)) ([b25098e](https://github.com/jrjohn/arcana-cloud-nodejs/commit/b25098e5e9f5dd27cb97419091d4b5bbae0c8a2e))
+
 ## [1.3.14](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.13...v1.3.14) (2026-10-29)
 
 
