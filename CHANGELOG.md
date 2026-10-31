@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.17](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.16...v1.3.17) (2026-10-31)
+
+
+### Bug Fixes
+
+* **deps:** update dependency eslint to v10.14.0 ([#239](https://github.com/jrjohn/arcana-cloud-nodejs/issues/239)) ([22569c5](https://github.com/jrjohn/arcana-cloud-nodejs/commit/22569c5f65318f62b35c6f3cf8dd2d3cc8ca30de))
+
 ## [1.3.16](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.15...v1.3.16) (2026-10-30)
 
 
