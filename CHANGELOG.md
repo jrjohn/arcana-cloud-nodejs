@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.18](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.17...v1.3.18) (2026-11-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency express-rate-limit to v8.7.3 ([#241](https://github.com/jrjohn/arcana-cloud-nodejs/issues/241)) ([dc87f73](https://github.com/jrjohn/arcana-cloud-nodejs/commit/dc87f735073b213f20cbbb9b6959176c999e6ae6))
+* **deps:** update vitest monorepo to v5.1.0 ([#242](https://github.com/jrjohn/arcana-cloud-nodejs/issues/242)) ([aef1d0b](https://github.com/jrjohn/arcana-cloud-nodejs/commit/aef1d0b920ac4d0a16e2712dec45c40bdb50fbbe))
+
 ## [1.3.17](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.16...v1.3.17) (2026-10-31)
 
 
