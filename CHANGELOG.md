@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.20](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.19...v1.3.20) (2026-11-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vite to v8.3.6 ([#246](https://github.com/jrjohn/arcana-cloud-nodejs/issues/246)) ([99938e3](https://github.com/jrjohn/arcana-cloud-nodejs/commit/99938e34c9e2366d150190251811a20dff7a171d))
+
 ## [1.3.19](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.18...v1.3.19) (2026-11-05)
 
 
