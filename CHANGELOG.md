@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.19](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.18...v1.3.19) (2026-11-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency inversify to v8.2.4 ([#244](https://github.com/jrjohn/arcana-cloud-nodejs/issues/244)) ([f0613e0](https://github.com/jrjohn/arcana-cloud-nodejs/commit/f0613e02c5f0c020e6b84fb354f99b1aa3f20659))
+
 ## [1.3.18](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.17...v1.3.18) (2026-11-02)
 
 
