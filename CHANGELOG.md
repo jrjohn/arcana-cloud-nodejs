@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.21](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.20...v1.3.21) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency supertest to v7.3.2 ([#249](https://github.com/jrjohn/arcana-cloud-nodejs/issues/249)) ([5577c51](https://github.com/jrjohn/arcana-cloud-nodejs/commit/5577c51c175475b977e8575aece7e77a78a9b20e))
+
 ## [1.3.20](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.19...v1.3.20) (2026-11-05)
 
 
