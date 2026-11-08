@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.3.0-000000?logo=express&logoColor=white)
 ![gRPC](https://img.shields.io/badge/gRPC-1.14.7-4285F4?logo=google&logoColor=white)
-![InversifyJS](https://img.shields.io/badge/InversifyJS-8.2.4-FF6B6B?logo=inversify&logoColor=white)
+![InversifyJS](https://img.shields.io/badge/InversifyJS-8.3.0-FF6B6B?logo=inversify&logoColor=white)
 ![architecture](https://img.shields.io/badge/architecture-microservices-blue)
 ![tests](https://img.shields.io/badge/tests-694%20passing-brightgreen)
 ![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
