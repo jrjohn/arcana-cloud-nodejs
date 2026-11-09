@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.24](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.23...v1.3.24) (2026-11-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to v1.21.1 ([#256](https://github.com/jrjohn/arcana-cloud-nodejs/issues/256)) ([4881777](https://github.com/jrjohn/arcana-cloud-nodejs/commit/48817774208deb91aa56405676cb7c1d69dd812e))
+* **deps:** update dependency express-rate-limit to v8.7.4 ([#257](https://github.com/jrjohn/arcana-cloud-nodejs/issues/257)) ([149c681](https://github.com/jrjohn/arcana-cloud-nodejs/commit/149c681e9298eaf1ed48e4b1e6fb1e725e21f564))
+
 ## [1.3.23](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.22...v1.3.23) (2026-11-09)
 
 
