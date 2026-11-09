@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.23](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.22...v1.3.23) (2026-11-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18.0.10 ([#253](https://github.com/jrjohn/arcana-cloud-nodejs/issues/253)) ([c049579](https://github.com/jrjohn/arcana-cloud-nodejs/commit/c049579c97d65ff28a3c52addcff41f4cb1a8286))
+* **deps:** update dependency vite to v8.3.7 ([#254](https://github.com/jrjohn/arcana-cloud-nodejs/issues/254)) ([ffee7fb](https://github.com/jrjohn/arcana-cloud-nodejs/commit/ffee7fb8a059f37ad114b056f0bc38b6986256d2))
+
 ## [1.3.22](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.21...v1.3.22) (2026-11-07)
 
 
