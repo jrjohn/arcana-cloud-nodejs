@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.25](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.24...v1.3.25) (2026-11-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vite to v8.3.7 ([#259](https://github.com/jrjohn/arcana-cloud-nodejs/issues/259)) ([6ebaacf](https://github.com/jrjohn/arcana-cloud-nodejs/commit/6ebaacf83145c302f6e7ecabb4048dc3643a3324))
+* **deps:** update typescript-eslint monorepo to v8.72.2 ([#260](https://github.com/jrjohn/arcana-cloud-nodejs/issues/260)) ([782b4e0](https://github.com/jrjohn/arcana-cloud-nodejs/commit/782b4e0ef67fc8e32d841a3a8a88e63c87e632ba))
+
 ## [1.3.24](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.23...v1.3.24) (2026-11-09)
 
 
