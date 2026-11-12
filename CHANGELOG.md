@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.27](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.26...v1.3.27) (2026-11-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency prettier to v3.10.0 ([#264](https://github.com/jrjohn/arcana-cloud-nodejs/issues/264)) ([df2a4a0](https://github.com/jrjohn/arcana-cloud-nodejs/commit/df2a4a09e8e841c6db606b33cb3018333ea4dc8a))
+
 ## [1.3.26](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.25...v1.3.26) (2026-11-11)
 
 
