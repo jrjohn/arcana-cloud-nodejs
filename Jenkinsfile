@@ -230,10 +230,12 @@ pipeline {
                     # at once used the same name and one's `docker rm -f` deleted the other's container
                     # (arcana-ios PR-14/PR-15, 2026-09-30: "destination ...:/src must be a directory").
                     AQ="arcana-arch-qube-node-$(printf '%s' "${BRANCH_NAME}-${BUILD_NUMBER}" | tr -c 'A-Za-z0-9_.-' '-')"
+                    # Version pinned in tools/arch-qube.version (shared with tools/arch-check.sh).
+                    AQV=$(tr -d "[:space:]" < tools/arch-qube.version)
                     docker rm -f "$AQ" 2>/dev/null || true
                     docker create --name "$AQ" --network devops_default \
                         -v /src -v /output \
-                        arcana.boo/arcana/arch-qube:latest \
+                        arcana.boo/arcana/arch-qube:${AQV} \
                         scan /src --framework nodejs --no-ai --ci \
                         --format json,markdown -o /output --threshold 90 || exit 1
                     tar --exclude=./.git --exclude=./node_modules --exclude=./arch-qube-reports -C . -cf - . \
