@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Fast layering check on every commit (no docker, no npm). The full scan is
+# tools/arch-check.sh and the Jenkins stage "Architecture Qube". Rules: AGENTS.md §3.
+#
+# Regex, not `case` globs: in a case pattern `*` also matches `/`, so `src/*.ts` would match
+# every correctly layered file too (this exact bug false-blocked good files in an earlier
+# version of this hook in another template).
+set -euo pipefail
+
+# Layer directories a NEW file under src/ may live in (AGENTS.md §2).
+LAYER_DIRS='controllers|services|services/impl|repository|repository/impl|repositories|repositories/impl|dao|models|schemas|middleware|di|communication|communication/impl|events|events/handlers|tasks|grpc|grpc/protos|types|utils'
+
+fail=0
+
+# R6 — no NEW file directly under src/ or in a directory that is not a layer.
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    [[ "$f" =~ ^src/ ]] || continue
+    if [[ "$f" =~ ^src/[^/]+$ ]]; then
+        echo "pre-commit: $f — new file at the src/ root. Put it in a layer directory (AGENTS.md §2) or run tools/new-feature.sh" >&2
+        fail=1
+    elif ! [[ "$f" =~ ^src/($LAYER_DIRS)/[^/]+$ ]]; then
+        echo "pre-commit: $f — not in a layer directory (allowed: src/{${LAYER_DIRS//|/,}}/). See AGENTS.md §2" >&2
+        fail=1
+    fi
+done <<< "$(git diff --cached --name-only --diff-filter=AR)"
+
+# R2 — a concrete *Impl class is named only by the DI container (src/di/container.ts), by impl
+# code itself (files under an impl/ directory, which may not import another layer's impl/), by `export … from` re-exports in index.ts, and
+# by tests. Only ADDED lines are checked, so editing a legacy file does not fail on old code.
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    [[ "$f" =~ ^src/.*\.ts$ ]] || continue
+    [[ "$f" =~ ^src/di/container\.ts$ ]] && continue
+    added="$(git diff --cached -U0 -- "$f" | grep -E '^\+[^+]' | sed 's/^+//' | grep -vE '^\s*(//|\*|/\*)' || true)"
+    if [[ "$f" =~ /impl/ ]]; then
+        # Impl code may name its own class, but must not import ANOTHER layer's impl/
+        # (e.g. a service impl importing repositories/impl/) — that bypasses the interface.
+        hits="$(printf '%s\n' "$added" | grep -E "from ['\"]\.\./[^'\"]*/impl/" || true)"
+    else
+        hits="$(printf '%s\n' "$added" | grep -E "\\b[A-Z][A-Za-z0-9]*Impl\\b|from ['\"][^'\"]*/impl/" || true)"
+    fi
+    [ -n "$hits" ] || continue
+    if [[ "$f" =~ (^|/)index\.ts$ ]]; then
+        hits="$(printf '%s\n' "$hits" | grep -vE '^\s*export .* from ' || true)"
+        [ -n "$hits" ] || continue
+    fi
+    echo "pre-commit: $f names a concrete *Impl / imports from impl/ — depend on the interface and its TOKENS symbol; only src/di/container.ts binds Impl classes (AGENTS.md R2):" >&2
+    printf '    %s\n' "$hits" >&2
+    fail=1
+done <<< "$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [ "$fail" -ne 0 ]; then
+    echo "pre-commit: blocked. Full check: tools/arch-check.sh" >&2
+    exit 1
+fi
