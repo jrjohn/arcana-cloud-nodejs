@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.4.0...v1.4.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @types/node to v26.6.7 ([#285](https://github.com/jrjohn/arcana-cloud-nodejs/issues/285)) ([e6c3301](https://github.com/jrjohn/arcana-cloud-nodejs/commit/e6c33016ddaf975bcc15f2ca97b7689cdbf02ac5))
+
 ## [1.4.0](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.35...v1.4.0) (2026-11-24)
 
 
