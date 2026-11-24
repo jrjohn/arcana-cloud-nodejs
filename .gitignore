@@ -38,3 +38,4 @@ prisma/migrations/**/migration_lock.toml
 # Generated files
 src/grpc/generated/
 arch-qube-reports/
+tsconfig.tsbuildinfo

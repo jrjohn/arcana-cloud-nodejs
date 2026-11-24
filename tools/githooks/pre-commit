@@ -26,14 +26,20 @@ while IFS= read -r f; do
 done <<< "$(git diff --cached --name-only --diff-filter=AR)"
 
 # R2 — a concrete *Impl class is named only by the DI container (src/di/container.ts), by impl
-# code itself (files under an impl/ directory), by `export … from` re-exports in index.ts, and
+# code itself (files under an impl/ directory, which may not import another layer's impl/), by `export … from` re-exports in index.ts, and
 # by tests. Only ADDED lines are checked, so editing a legacy file does not fail on old code.
 while IFS= read -r f; do
     [ -n "$f" ] || continue
     [[ "$f" =~ ^src/.*\.ts$ ]] || continue
-    if [[ "$f" =~ ^src/di/container\.ts$ ]] || [[ "$f" =~ /impl/ ]]; then continue; fi
-    hits="$(git diff --cached -U0 -- "$f" | grep -E '^\+[^+]' | sed 's/^+//' \
-        | grep -E "\\b[A-Z][A-Za-z0-9]*Impl\\b|from ['\"][^'\"]*/impl/" | grep -vE '^\s*(//|\*|/\*)' || true)"
+    [[ "$f" =~ ^src/di/container\.ts$ ]] && continue
+    added="$(git diff --cached -U0 -- "$f" | grep -E '^\+[^+]' | sed 's/^+//' | grep -vE '^\s*(//|\*|/\*)' || true)"
+    if [[ "$f" =~ /impl/ ]]; then
+        # Impl code may name its own class, but must not import ANOTHER layer's impl/
+        # (e.g. a service impl importing repositories/impl/) — that bypasses the interface.
+        hits="$(printf '%s\n' "$added" | grep -E "from ['\"]\.\./[^'\"]*/impl/" || true)"
+    else
+        hits="$(printf '%s\n' "$added" | grep -E "\\b[A-Z][A-Za-z0-9]*Impl\\b|from ['\"][^'\"]*/impl/" || true)"
+    fi
     [ -n "$hits" ] || continue
     if [[ "$f" =~ (^|/)index\.ts$ ]]; then
         hits="$(printf '%s\n' "$hits" | grep -vE '^\s*export .* from ' || true)"

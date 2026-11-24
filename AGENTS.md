@@ -90,7 +90,7 @@ Run these, in this order, and paste the last line of each into your summary:
 tools/arch-check.sh                                    # must print "arch-check: PASS"
 npx prisma generate && npx tsc --noEmit                # the typecheck the CI image build (tsc --build) runs
 npx vitest run --coverage                              # Jenkins "Unit Tests" (docker-compose.test.yml)
-npm run lint                                           # eslint; not a CI stage, keep it clean anyway
+npm run lint                                           # eslint; not a CI stage — add no new errors (the template has 3 pre-existing)
 ```
 
 Without a local Node toolchain, run the identical lanes in Docker:
