@@ -55,7 +55,7 @@ printf '%s\n' "$TEXT_FILES" | xargs perl -pi -e "
     s/arcana-cloud-node\\b/${APP}/g;
     s/\\barcana_cloud(?=\\b|_test)/${APP_US}/g;
 "
-LEFT="$(grep -rInE --exclude-dir=.git --exclude-dir=tools 'arcana-cloud-nodejs|\bnode-app\b|arcana-ci-node|arcana-arch-qube-node|arcana-node-|\barcana_cloud\b|grep arcana-ci\b' . || true)"
+LEFT="$(grep -rInE --exclude-dir=.git --exclude-dir=tools --exclude=CHANGELOG.md 'arcana-cloud-nodejs|\bnode-app\b|arcana-ci-node|arcana-arch-qube-node|arcana-node-|\barcana_cloud\b|grep arcana-ci\b' . || true)"
 if [ -n "$LEFT" ]; then
     echo "new-app: template identities still present after rename:" >&2
     printf '%s\n' "$LEFT" | head >&2
