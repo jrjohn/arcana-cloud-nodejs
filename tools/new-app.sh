@@ -42,7 +42,7 @@ cd "$DEST"
 # Not renamed on purpose: the gRPC proto package `arcana` (wire contract), arcana.boo (the
 # registry / arch-qube image host), DB users/passwords, and the shared lock ci-kind-global.
 # tools/ is excluded: these scripts describe the template and must keep working in the product.
-TEXT_FILES="$(grep -rIl -e arcana -e node-app -e ci-nodejs . --exclude-dir=.git --exclude-dir=tools --exclude=CHANGELOG.md || true)"
+TEXT_FILES="$(grep -rIl -e arcana -e node-app -e "Node App" -e ci-nodejs . --exclude-dir=.git --exclude-dir=tools --exclude=CHANGELOG.md || true)"
 printf '%s\n' "$TEXT_FILES" | xargs perl -pi -e "
     s/arcana-cloud-nodejs/${APP}/g;
     s/arcana-ci-kind-node-grpc/${APP}-ci-kind-grpc/g;
@@ -51,6 +51,7 @@ printf '%s\n' "$TEXT_FILES" | xargs perl -pi -e "
     s/arcana-arch-qube-node-/${APP}-arch-qube-/g;
     s/\\bci-nodejs-layered\\b/${APP}-ci-layered/g;
     s/\\bnode-app\\b/${APP}/g;
+    s/Node App/${APP}/g;
     s/arcana-node-(controller|service|repository)/${APP}-\$1/g;
     s/arcana-cloud-node\\b/${APP}/g;
     s/\\barcana_cloud(?=\\b|_test)/${APP_US}/g;
