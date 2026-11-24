@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.35...v1.4.0) (2026-11-24)
+
+
+### Features
+
+* make the template self-explaining to AI coding agents ([#283](https://github.com/jrjohn/arcana-cloud-nodejs/issues/283)) ([2e11f55](https://github.com/jrjohn/arcana-cloud-nodejs/commit/2e11f55e715eb3fe744aa8f9e77161504d9c46b5))
+
 ## [1.3.35](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.3.34...v1.3.35) (2026-11-24)
 
 
