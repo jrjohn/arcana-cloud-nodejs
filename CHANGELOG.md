@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.4.1...v1.5.0) (2026-11-25)
+
+
+### Features
+
+* enforce arch-check locally (Claude Code Stop hook + pre-push) ([#290](https://github.com/jrjohn/arcana-cloud-nodejs/issues/290)) ([bc96c02](https://github.com/jrjohn/arcana-cloud-nodejs/commit/bc96c02426d1cad1d167d10016c3c6e6774a7aaf))
+
 ## [1.4.1](https://github.com/jrjohn/arcana-cloud-nodejs/compare/v1.4.0...v1.4.1) (2026-11-24)
 
 
