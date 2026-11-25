@@ -67,13 +67,15 @@ does with `UserPublic`). `src/container.ts` is a deprecated re-export shim — d
 arch-qube (https://github.com/jrjohn/arcana-arch-qube) scans the source for layer-direction,
 DI and naming violations and scores it; usage guide:
 https://github.com/jrjohn/arcana-skills/tree/main/arch-qube-skill. The version is pinned in
-`tools/arch-qube.version` (0.5.7), read by both `tools/arch-check.sh` and the Jenkinsfile.
+`tools/arch-qube.version`, read by both `tools/arch-check.sh` and the Jenkinsfile.
+
+`tools/arch-qube.version` is bumped automatically by Renovate when arch-qube releases; do not edit the version anywhere else.
 
 - Run: `tools/arch-check.sh` — Docker image `ghcr.io/jrjohn/arch-qube:<version>` (public,
   multi-arch), then `arcana.boo/arcana/arch-qube:<version>`; no `:latest` fallback. Same
   `--framework nodejs`, `--threshold 90` and exclusions as Jenkins stage "Architecture Qube".
   Exit 0 = pass, 1 = fail, 2 = could not run (no Docker / image) — 2 is **not** a pass.
-- Without Docker: `pipx install "git+https://github.com/jrjohn/arcana-arch-qube@v0.5.7"`
+- Without Docker: `pipx install "git+https://github.com/jrjohn/arcana-arch-qube@v$(cat tools/arch-qube.version)"`
   then, on a tree without `node_modules/` and `dist/`,
   `arch-qube scan . --framework nodejs --no-ai --ci --format json,markdown -o arch-qube-reports --threshold 90`.
 - Report: `arch-qube-reports/arch-qube.md` (summary) and `arch-qube.json` (per rule:
