@@ -67,18 +67,21 @@ does with `UserPublic`). `src/container.ts` is a deprecated re-export shim — d
 arch-qube (https://github.com/jrjohn/arcana-arch-qube) scans the source for layer-direction,
 DI and naming violations and scores it; usage guide:
 https://github.com/jrjohn/arcana-skills/tree/main/arch-qube-skill. The version is pinned in
-`tools/arch-qube.version`, read by both `tools/arch-check.sh` and the Jenkinsfile.
+`tools/arch-qube.version` (0.5.6), read by both `tools/arch-check.sh` and the Jenkinsfile.
 
-- Run: `tools/arch-check.sh` — Docker image `arcana.boo/arcana/arch-qube:<version>`, same
+- Run: `tools/arch-check.sh` — Docker image `ghcr.io/jrjohn/arch-qube:<version>` (public,
+  multi-arch), then `arcana.boo/arcana/arch-qube:<version>`; no `:latest` fallback. Same
   `--framework nodejs`, `--threshold 90` and exclusions as Jenkins stage "Architecture Qube".
   Exit 0 = pass, 1 = fail, 2 = could not run (no Docker / image) — 2 is **not** a pass.
-- Without Docker: `pipx install "git+https://github.com/jrjohn/arcana-arch-qube@v0.5.5"`
+- Without Docker: `pipx install "git+https://github.com/jrjohn/arcana-arch-qube@v0.5.6"`
   then, on a tree without `node_modules/` and `dist/`,
   `arch-qube scan . --framework nodejs --no-ai --ci --format json,markdown -o arch-qube-reports --threshold 90`.
 - Report: `arch-qube-reports/arch-qube.md` (summary) and `arch-qube.json` (per rule:
-  `files_checked`, violations). Read it rule by rule: the score alone is not enough. A rule
-  under "Not evaluated" is not a pass for a layer you touched; a rule with `files_checked: 0`
-  checked nothing; an unlayered project scores 0 on "Layer Direction Enforcement".
+  `files_checked`, violations). PASS = score ≥ threshold **and** zero violations in every
+  CRITICAL rule — a 99 can still FAIL. Read it rule by rule: the score alone is not enough.
+  A rule under "Not evaluated" (NOT EVALUATED) is not a pass for a layer you touched; a
+  rule with `files_checked: 0` checked nothing; an unlayered project scores 0 on "Layer Direction Enforcement".
+- `--ci` prints nothing on failure. Rerun without `--ci` (or open `arch-qube.md`) to see why.
 - False positive: open an issue on arcana-arch-qube with the report attached. Never lower
   `--threshold`, add exclusions, or move code to dodge a rule.
 
