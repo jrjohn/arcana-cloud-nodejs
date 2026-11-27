@@ -1,30 +1,30 @@
 
 # Arcana Cloud Node.js: Enterprise TypeScript Microservices Platform
 
-![Architecture Rating](https://img.shields.io/badge/Architecture%20Rating-⭐⭐⭐⭐⭐%209.5%2F10-brightgreen)
-![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)
-![Express](https://img.shields.io/badge/Express-5.3.0-000000?logo=express&logoColor=white)
-![gRPC](https://img.shields.io/badge/gRPC-1.14.7-4285F4?logo=google&logoColor=white)
-![InversifyJS](https://img.shields.io/badge/InversifyJS-8.3.0-FF6B6B?logo=inversify&logoColor=white)
-![architecture](https://img.shields.io/badge/architecture-microservices-blue)
-![tests](https://img.shields.io/badge/tests-694%20passing-brightgreen)
-![Events](https://img.shields.io/badge/Events-Domain%20Events-9B59B6)
-![coverage](https://img.shields.io/badge/coverage-87.0%25-brightgreen)
-![code style](https://img.shields.io/badge/code%20style-ESLint-4B32C3)
-![license](https://img.shields.io/badge/license-MIT-green)
+![Architecture Rating](.github/badges/architecture-rating-9-5-10-brightgreen-3ab67bd0.svg)
+![Node.js](.github/badges/node-js-22-339933-8ac3a285.svg)
+![TypeScript](.github/badges/typescript-6-0-3-3178c6-cea4c816.svg)
+![Express](.github/badges/express-5-3-0-000000-f573fa63.svg)
+![gRPC](.github/badges/grpc-1-14-7-4285f4-bcfa5f88.svg)
+![InversifyJS](.github/badges/inversifyjs-8-3-0-ff6b6b-92d3ccc6.svg)
+![architecture](.github/badges/architecture-microservices-blue-bbd63a48.svg)
+![tests](.github/badges/tests-694-passing-brightgreen-a857fb6e.svg)
+![Events](.github/badges/events-domain-events-9b59b6-e4770ddd.svg)
+![coverage](.github/badges/coverage-87-0-brightgreen-d69c2eba.svg)
+![code style](.github/badges/code-style-eslint-4b32c3-b90f756b.svg)
+![license](.github/badges/license-mit-green-ea4c54b5.svg)
 
 <!-- agent-managed badges START -->
 <p align="center">
-  <a href="https://arcana.boo/sonarqube/dashboard?id=node-app"><img src="https://img.shields.io/badge/Quality_Gate-OK-brightgreen?style=for-the-badge" alt="Quality Gate"></a>
-  <a href="https://arcana.boo/jenkins/job/node-app-pipeline-mb/job/main/"><img src="https://img.shields.io/badge/Build-passing-brightgreen?style=for-the-badge" alt="Build"></a>
+  <a href="https://arcana.boo/sonarqube/dashboard?id=node-app"><img src=".github/badges/quality-gate-ok-brightgreen-7365c32e.svg" alt="Quality Gate"></a>
+  <a href="https://arcana.boo/jenkins/job/node-app-pipeline-mb/job/main/"><img src=".github/badges/build-passing-brightgreen-f2a434e1.svg" alt="Build"></a>
 </p>
 <!-- agent-managed badges END -->
 <!-- arch-rank START -->
 <p align="center">
-  <img src="https://img.shields.io/badge/arch--qube-100%2F100-blue?style=for-the-badge" alt="arch-qube">
-  <img src="https://img.shields.io/badge/Grade-A%2B-brightgreen?style=for-the-badge" alt="Grade">
-  <img src="https://img.shields.io/badge/Arch_Gate-PASS-brightgreen?style=for-the-badge" alt="Architecture Gate">
+  <img src=".github/badges/arch-qube-100-100-blue-2f391344.svg" alt="arch-qube">
+  <img src=".github/badges/grade-a-brightgreen-1f1e6c73.svg" alt="Grade">
+  <img src=".github/badges/arch-gate-pass-brightgreen-887cab17.svg" alt="Architecture Gate">
 </p>
 <!-- arch-rank END -->
 
